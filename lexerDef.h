@@ -5,3 +5,9 @@
 
 // lexerDef.h     : Contains all data definitions used in lexer.c
 #include "lexer.h"
+
+typedef struct
+{
+    int id
+    char* name,
+}tokenInfo;
