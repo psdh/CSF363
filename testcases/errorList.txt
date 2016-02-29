@@ -1,0 +1,12 @@
+ERROR_5: The token <TK_SQR> for lexeme <[>  does not match at line <7>. The expected token here is <TK_LIST>. 
+ERROR_1: Identifier at line<8> is longer than the prescribed length of 20 characters. 
+ERROR_3: Unknown pattern <5000.7> at line number <10>
+ERROR_5: The token <TK_MINUS> for lexeme <->  does not match at line <11>. The expected token here is <TK_CL>.
+ERROR_5: The token <TK_OP> for lexeme <(>  does not match at line <13>. The expected token here is of type <var>.
+ERROR_3: Unknown pattern <&&> at line number <13> 
+ERROR_5: The token <TK_END> for lexeme <end> does not match at line number <20>. The expected token here is <TK_RETURN>. 
+ERROR_5: The token <TK_ID> for lexeme <b5> does not match at line number<25>. The expected token is <TK_COLON> 
+ERROR_2: Unknown Symbol <$> at line<28>
+ERROR_3: Unknown pattern <<--> at line number <29>
+ERROR_5: The token of type <TK_NUM> for lexeme <45> does not match at line number <31>. The expected token is of type <singleOrRecId>
+ERROR_4: Input is consumed while it is expected to have token <TK_END> at line number <37>
