@@ -7,6 +7,6 @@
 
 typedef struct
 {
-    int id
-    char* name,
+    int id;
+    char* name;
 }tokenInfo;
