@@ -10,4 +10,5 @@ typedef struct
 {
     int id;
     char* name;
+    int lineNo;
 }tokenInfo;
