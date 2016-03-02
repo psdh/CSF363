@@ -20,7 +20,7 @@
  */
 FILE *getStream(FILE *fp, buffer b, buffersize k)
 {
-    if (!fp.feof())
+    if (!feof(fp))
         fread(b, 1, k, fp);
 
     return fp;
@@ -49,10 +49,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 
 	while(1){
 		if (offset == k){
-			if(fp.feof()){
+			if(feof(fp)){
 				printf("Scanning Complete!\n");
 				token.id = 55;
-				token.name = 'ENDOFFILE'
+				token.name = "ENDOFFILE";
 				token.lineNo = lineNo;
 				return token;
 			}
@@ -61,7 +61,8 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 		}
 		switch(state){
 			case 1:
-				switch(buffer[offset]){
+				switch(b[offset])
+				{
 					case '\t':
 						state=1;
 						offset++;
@@ -107,13 +108,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					case 'y':
 					case 'z':
 						state = 8;
-						lexeme[i++]=buffer[offset++];
+						lexeme[i++]=b[offset++];
 						break;
 					case 'b':
 					case 'c':
 					case 'd':
 						state = 9;
-						lexeme[i++]=buffer[offset++];
+						lexeme[i++]=b[offset++];
 						break;
 					case '0':
 					case '1':
@@ -126,15 +127,15 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					case '8':
 					case '9':
 						state = 13;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '_':
 						state = 17;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '#':
 						state = 20;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '[':
 						state = 22;
@@ -159,7 +160,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						return token;
 					case ':':
 						state = 25;
-						offset++:
+						offset++;
 						token.id = 27;
 						token.lineNo = lineNo;
 						token.name = ":";
@@ -208,49 +209,49 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						return token;
 					case '/':
 						state = 32;
-						offset++
+						offset++;
 						token.id = 41;
 						token.lineNo = lineNo;
 						token.name = "/";
 						return token;
 					case '&':
 						state = 33;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '@':
 						state = 36;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '~':
 						state = 39;
-						offset+;
+						offset++;
 						token.id = 48;
 						token.lineNo = lineNo;
 						token.name = "~";
 						return token;
 					case '=':
 						state = 40;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '>':
 						state = 42;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '!':
 						state = 44;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					default:
-						printf("Unsuported character %c at line %d",buffer[offset], lineNo);
+						printf("Unsuported character %c at line %d",b[offset], lineNo);
 						error = 1;
 						break;
 				}
 			// comments
 			case 2:
-				while(buffer[++offset]!='\n'){
-					if (offset == k || buffer[offset] == '\0'){
+				while(b[offset++]!='\n'){
+					if (offset == k || b[offset] == '\0'){
 						// comment at end of file
-						if (fp.feof()){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
@@ -264,58 +265,59 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				return token;
 			// <, <--, <=
 			case 3:
-				switch(buffer[offset]){
+				switch(b[offset]){
 					case '-':
 						//@Doubt can parts of <-- be on a new line?
-						if(offset+2!=k && buffer[offset+1] == '-' && buffer[offset+2] == '-'){
+						if(offset+2!=k && b[offset+1] == '-' && b[offset+2] == '-'){
 							offset+=3;
 							token.id = 1;
-							token.lineNo=lineNo
+							token.lineNo=lineNo;
 							token.name = "<---";
 							state = 6;
 							return token;
 						}
-						else if(offset+1!=k && buffer[offset+1] == '-'){
-							if(fp.feof()){
-								printf('Program ended with Unsuported symbol %c at line %d', buffer[offset+1], lineNo);
+						else if(offset+1!=k && b[offset+1] == '-'){
+							if(feof(fp)){
+								printf("Program ended with Unsuported symbol %c at line %d", b[offset+1], lineNo);
 								error = 1;
 								break;
 							}
 							fp = getStream(fp, b, k);
 							offset=0;
-							if(buffer[offset]=='-'){
+							if(b[offset]=='-'){
 								offset++;
 								token.id = 1;
 								token.lineNo=lineNo;
-								token.name = "<---"
+								token.name = "<---";
 								state =6;
-								return token
+								return token;
 							}
 						}
 						else if(offset==k){
-							if (fp.feof()){
-								printf('Program ended with Unsuported symbol %c at line %d', buffer[offset+1], lineNo);
+							if (feof(fp)){
+								//@gyani print offsets?
+								printf("Program ended with Unsuported symbol %c at line %d", b[offset+1], lineNo);
 								error = 1;
 								break;
 							}
 							fp = getStream(fp, b, k);
 							offset=0;
-							if(buffer[offset] == '-' && buffer[offset+1] == '-'){
+							if(b[offset] == '-' && b[offset+1] == '-'){
 								offset+=2;
 								token.id = 1;
 								token.lineNo=lineNo;
-								token.name = "<---"
+								token.name = "<---";
 								state = 6;
 								return token;
 							}
 							else{
-								printf("Unsuported character %c at line %d",buffer[offset], lineNo);
+								printf("Unsuported character %c at line %d",b[offset], lineNo);
 								error=1;
 								break;
 							}
 						}
 						else{
-							printf("Unsuported character %c at line %d",buffer[offset], lineNo);
+							printf("Unsuported character %c at line %d",b[offset], lineNo);
 							error=1;
 							break;
 						}
@@ -330,16 +332,16 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						//offset not increased in this case as the character isn't parsed and will be parsed later.
 						token.id= 49;
 						token.lineNo= lineNo;
-						token.name = '<'
+						token.name = "<";
 						state = 3;
-						return tokenInfo;
+						return token;
 				}
 
 			case 8:
-				while(97 <= buffer[offset] && buffer[offset] <= 122){
-					lexeme[i++] = buffer[offset++];
-					if (offset == k || buffer[offset] == '\0'){
-						if (fp.feof()){
+				while(97 <= b[offset] && b[offset] <= 122){
+					lexeme[i++] = b[offset++];
+					if (offset == k || b[offset] == '\0'){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
@@ -541,17 +543,17 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				}
 			case 9:
 				//a-z kuch aaya
-				if (97 <= buffer[offset] && buffer[offset]<= 122){
+				if (97 <= b[offset] && b[offset]<= 122){
 					state = 8;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					// why repeat the case 8 code, let it take care now.
 					break;
 				}
 				// some number comes up
 				// @thought file pointer ke changes kahan store ho rahe hain?, passed as pointer so probably is ok
-				else if(48 <= buffer[offset] && buffer[offset]<=57){
+				else if(48 <= b[offset] && b[offset]<=57){
 					state = 10;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					break;
 				}
 				//something random pops in, we are in a final state so thngs are good
@@ -563,18 +565,18 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					token.id = 3;
 					token.lineNo=lineNo;
 					token.name = lexeme;
-					memset(lexeme, 0, sizeof(lexeme))
+					memset(lexeme, 0, sizeof(lexeme));
 					i=0;
 					return token;
 				}
 			case 10:
 				//switch case increases lines for no reason :(
-				switch(buffer[offset]){
+				switch(b[offset]){
 					case 'b':
 					case 'c':
 					case 'd':
 						state = 11;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					case '0':
 					case '1':
@@ -586,23 +588,23 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					case '7':
 					case '8':
 						state = 12;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						break;
 					default:
 						//final state pe kuch random aaya
 						token.id = 4;
 						token.name = lexeme;
 						token.lineNo = lineNo;
-						memset(lexeme, 0, sizeof(lexeme))
+						memset(lexeme, 0, sizeof(lexeme));
 						i=0;
 						return token;
 				}
 			case 11:
 				//b or d hi aae ja raha hai
-				while(98<=buffer[offset] && buffer[offset]<=100){
-					lexeme[i++] = buffer[offset++];
-					if (offset == k || buffer[offset] == '\0'){
-						if (fp.feof()){
+				while(98<=b[offset] && b[offset]<=100){
+					lexeme[i++] = b[offset++];
+					if (offset == k || b[offset] == '\0'){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
@@ -610,9 +612,9 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					}
 				}
 				// number aaya matlab state transition
-				if (!fp.feof() && 48 <=buffer[offset] && buffer[offset]<=57){
+				if (!feof(fp) && 48 <=b[offset] && b[offset]<=57){
 					state = 12;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					break;
 				}
 				else{
@@ -628,10 +630,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 			case 12:
 				//@gyani to str copy or not
 				//@gyani length of field?
-				whie(48<= buffer[offset] &&  buffer[offset]<=57){
-					lexeme[i++] = buffer[offset++];
-					if (offset == k || buffer[offset] == '\0'){
-						if (fp.feof()){
+				while(48<= b[offset] &&  b[offset]<=57){
+					lexeme[i++] = b[offset++];
+					if (offset == k || b[offset] == '\0'){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
@@ -650,19 +652,19 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				i = 0;
 				return token;
 			case 13:
-				while(48<= buffer[offset]&& buffer[offset]<=57){
-					lexeme[i++] = buffer[offset++];
-					if (offset == k || buffer[offset] == '\0'){
-						if (fp.feof()){
+				while(48<= b[offset]&& b[offset]<=57){
+					lexeme[i++] = b[offset++];
+					if (offset == k || b[offset] == '\0'){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
 				}
-				if(!fp.feof() && buffer[offset] == '.'){
+				if(!feof(fp) && b[offset] == '.'){
 					state = 14;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					break;
 				}
 				token.id = 5;
@@ -672,10 +674,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				return token;
 			case 14:
 				if(offset+1!=k){
-					if (48 <= buffer[offset] && buffer[offset]<=57 && 48 <= buffer[offset+1] && buffer[offset+1]<=57){
+					if (48 <= b[offset] && b[offset]<=57 && 48 <= b[offset+1] && b[offset+1]<=57){
 						state = 16;
-						lexeme[i++] = buffer[offset++];
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
+						lexeme[i++] = b[offset++];
 						token.id = 6;
 						token.name= lexeme;
 						token.lineNo=lineNo++;
@@ -685,19 +687,19 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					}
 				}
 				else if(offset+1==k){
-					if(48 <= buffer[offset] && buffer[offset]<=57){
+					if(48 <= b[offset] && b[offset]<=57){
 						state = 15;
-						lexeme[i++] = buffer[offset++];
-						if (fp.feof()){
+						lexeme[i++] = b[offset++];
+						if (feof(fp)){
 							printf("Program ended while fetching real number\n");
 							error =1;
 							break;
 						}
 						fp = getStream(fp, b, k);
 						offset=0;
-						if (48 <= buffer[offset] && buffer[offset]<=57){
+						if (48 <= b[offset] && b[offset]<=57){
 							state = 16;
-							lexeme[i++] = buffer[offset++];
+							lexeme[i++] = b[offset++];
 							token.id = 6;
 							token.name = lexeme;
 							token.lineNo = lineNo;
@@ -706,33 +708,33 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 							return token;
 						}
 						else{
-							printf("Unknown character %c on line %d while parsing real number",buffer[offset], lineNo);
+							printf("Unknown character %c on line %d while parsing real number",b[offset], lineNo);
 							error=1;
 							break;
 						}
 					}
 				}
 				else{
-					printf("Unknown character %c on line %d while parsing real number",buffer[offset], lineNo);
+					printf("Unknown character %c on line %d while parsing real number",b[offset], lineNo);
 					error = 1;
 					break;
 				}
 			case 17:
-				if ((65 <=buffer[offset] && buffer[offset] < = 90) || (97 <=buffer[offset] && buffer[offset] < = 122)){
-					lexeme[i++] = buffer[offset++];
+				if ((65 <=b[offset] && b[offset] <= 90) || (97 <=b[offset] && b[offset] <= 122)){
+					lexeme[i++] = b[offset++];
 					state = 18;
 					break;
 				}
 				else{
-					printf("Unknown character %c on line %d while parsing real number",buffer[offset], lineNo);
+					printf("Unknown character %c on line %d while parsing real number",b[offset], lineNo);
 					error = 1;
 					break;
 				}
 			case 18:
-				while((65 <=buffer[offset] && buffer[offset] < = 90) || (97 <=buffer[offset] && buffer[offset] < = 122)){
-					lexeme[i++] = buffer[offset++];
+				while((65 <=b[offset] && b[offset] <= 90) || (97 <=b[offset] && b[offset] <= 122)){
+					lexeme[i++] = b[offset++];
 					if(offset==k){
-						if (fp.feof()){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
@@ -745,8 +747,8 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					error = 1;
 					break;
 				}
-				if(!fp.feof() && 48 <=buffer[offset] && buffer[offset] <= 57){
-					lexeme[i++] =buffer[offset++];
+				if(!feof(fp) && 48 <=b[offset] && b[offset] <= 57){
+					lexeme[i++] =b[offset++];
 					state = 19;
 					break;
 				}
@@ -768,10 +770,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 			case 19:
-				while(48 <=buffer[offset] && buffer[offset] < = 57){
-					lexeme[i++] = buffer[offset++];
+				while(48 <=b[offset] && b[offset] <= 57){
+					lexeme[i++] = b[offset++];
 					if(offset==k){
-						if (fp.feof()){
+						if (feof(fp)){
 							break;
 						}
 						fp = getStream(fp, b, k);
@@ -779,18 +781,18 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					}
 				}
 				token.id = 7;
-				token.lexeme = lexeme;
+				token.name = lexeme;
 				token.lineNo =lineNo;
 				i=0;
 				memset(lexeme, 0, sizeof(lexeme));
 				return token;
 			case 20:
-				if(97<=buffer[offset] && buffer[offset]<= 122){
-					lexeme[i++] = buffer[offset++];
-					while(97<=buffer[offset] && buffer[offset]<= 122){
-						lexeme[i++] = buffer[offset++];
+				if(97<=b[offset] && b[offset]<= 122){
+					lexeme[i++] = b[offset++];
+					while(97<=b[offset] && b[offset]<= 122){
+						lexeme[i++] = b[offset++];
 						if(offset == k){
-							if(fp.feof()){
+							if(feof(fp)){
 								break;
 							}
 							fp = getStream(fp, b, k);
@@ -806,25 +808,25 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else {
-					printf("Error while parsing record type indentier, unsupported character %c at line %d\n", buffer[offset], lineNo);
+					printf("Error while parsing record type indentier, unsupported character %c at line %d\n", b[offset], lineNo);
 					error = 1;
 					break;
 				}
 			case 33:
 				//@gyani offset++, array natak
-				if(offset+1==k && buffer[offset]=='&'){
-					lexeme[i++] = buffer[offset++];
+				if(offset+1==k && b[offset]=='&'){
+					lexeme[i++] = b[offset++];
 					state = 34;
-					if(fp.feof()){
+					if(feof(fp)){
 						printf("Program ended while parsing logical and\n");
 						error = 1;
 						break;
 					}
-					fp = getStream(fp b, k);
+					fp = getStream(fp, b, k);
 					offset=0;
-					if(buffer[offset] == '&'){
+					if(b[offset] == '&'){
 						state = 35;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						i = 0;
 						token.id = 46;
 						token.name = lexeme;
@@ -833,10 +835,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						return token;
 					}
 				}
-				else if(buffer[offset] == '&' && buffer[offset+1] == '&'){
+				else if(b[offset] == '&' && b[offset+1] == '&'){
 					state =35;
-					lexeme[i++] = buffer[offset++];
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
+					lexeme[i++] = b[offset++];
 					token.id = 46;
 					token.name = lexeme;
 					token.lineNo = lineNo;
@@ -844,24 +846,24 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Error parsing logical and, Unknown character %c at line %s", buffer[offset], lineNo);
+					printf("Error parsing logical and, Unknown character %c at line %d", b[offset], lineNo);
 					error = 1;
 					break;
 				}
 			case 36:
-				if(offset+1==k && buffer[offset]=='@'){
-					lexeme[i++] = buffer[offset++];
+				if(offset+1==k && b[offset]=='@'){
+					lexeme[i++] = b[offset++];
 					state = 37;
-					if(fp.feof()){
+					if(feof(fp)){
 						printf("Program ended while parsing logical or\n");
 						error = 1;
 						break;
 					}
-					fp = getStream(fp b, k);
+					fp = getStream(fp, b, k);
 					offset=0;
-					if(buffer[offset] == '@'){
+					if(b[offset] == '@'){
 						state = 38;
-						lexeme[i++] = buffer[offset++];
+						lexeme[i++] = b[offset++];
 						i = 0;
 						token.id = 47;
 						token.name = lexeme;
@@ -870,10 +872,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						return token;
 					}
 				}
-				else if(buffer[offset] == '@' && buffer[offset+1] == '@'){
+				else if(b[offset] == '@' && b[offset+1] == '@'){
 					state = 38;
-					lexeme[i++] = buffer[offset++];
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
+					lexeme[i++] = b[offset++];
 					token.id = 47;
 					token.name = lexeme;
 					token.lineNo = lineNo;
@@ -881,14 +883,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Error parsing logical or, Unknown character %c at line %s", buffer[offset], lineNo);
+					printf("Error parsing logical or, Unknown character %c at line %d", b[offset], lineNo);
 					error = 1;
 					break;
 				}
 			case 40:
-				if(buffer[offset] == '='){
+				if(b[offset] == '='){
 					state = 41;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					token.id = 51;
 					token.name = lexeme;
 					token.lineNo = lineNo;
@@ -897,14 +899,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Ran into an error while parsing relational equal to, unsupported character %c at line %d", buffer[offset],lineNo);
+					printf("Ran into an error while parsing relational equal to, unsupported character %c at line %d", b[offset],lineNo);
 					error = 1;
 					break;
 				}
 			case 42:
-				if(buffer[offset] == '='){
+				if(b[offset] == '='){
 					state = 43;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					token.id = 53;
 					token.name = lexeme;
 					token.lineNo = lineNo;
@@ -921,9 +923,9 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 			case 44:
-				if(buffer[offset] == '='){
+				if(b[offset] == '='){
 					state = 45;
-					lexeme[i++] = buffer[offset++];
+					lexeme[i++] = b[offset++];
 					token.id = 54;
 					token.name = lexeme;
 					token.lineNo = lineNo;
@@ -932,7 +934,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Ran into an error while parsing relational not equal to, unsupported character %c at line %d", buffer[offset],lineNo);
+					printf("Ran into an error while parsing relational not equal to, unsupported character %c at line %d", b[offset],lineNo);
 					error = 1;
 					break;
 				}
@@ -949,3 +951,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 	}
 	//end while
 }//end getNextToken
+
+int main(){
+	return 0;
+}

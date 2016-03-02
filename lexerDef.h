@@ -5,13 +5,22 @@
 
 // lexerDef.h     : Contains all data definitions used in lexer.c
 
+
+#ifndef LEXERDEF_H_INCLUDED
+#define LEXERDEF_H_INCLUDED
 typedef struct
 {
     int id;
-    char* name;
+    char const* name;
     int lineNo;
 }tokenInfo;
 
 int lineNo;
 int state;
 int offset;
+
+typedef int buffersize;
+typedef char* buffer;
+
+
+#endif

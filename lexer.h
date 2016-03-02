@@ -8,9 +8,11 @@
 #include <stdio.h>
 #include "lexerDef.h"
 
-typedef int buffersize;
-typedef char* buffer;
+#ifndef LEXER_H_INCLUDED
+#define LEXER_H_INCLUDED
 
 FILE *getStream(FILE *fp, buffer B, buffersize k);
 
 tokenInfo  getNextToken(FILE *fp);
+
+#endif
