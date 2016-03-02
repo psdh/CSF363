@@ -1,0 +1,55 @@
+#This file maps token id to the token. line number of token minus 1  is the token id, ex token id of assign op is 1
+Assignment operator
+Comment Beginning
+Field name
+Identifier (used as Variables)
+Integer number
+Real number
+Function identifier
+Identifier for the record type
+Keyword with
+Keyword parameters
+Keyword end
+Keyword while
+Keyword int
+Keyword real
+Keyword type
+Keyword main
+Keyword global
+Keyword parameter
+Keyword list
+Left square bracket
+Right square bracket
+Keyword input
+Keyword output
+Keyword int
+Keyword real
+Semicolon as separator
+Colon
+Used with record variable
+Keyword endwhile
+Open parenthesis
+Closed parenthesis
+Keyword if
+Keyword then
+Keyword endif
+Keyword read
+Keyword write
+Keyword return
+Addition operator
+Subtraction operator
+Multiplication operator
+Division operator
+Keyword call
+Keyword record
+Keyword endrecord
+Keyword else
+Logical and
+Logical or
+Logical not
+Relational operator less than
+Relational operator less than or equal to
+Relational operator equal to
+Relational operator greater than
+Relational operator greater than or equal to
+Relational operator not equal to
