@@ -1,51 +1,51 @@
 <program> ===> <otherFunctions> <mainFunction>
-<mainFunction>===> TK_MAIN <stmts> TK_END
-<otherFunctions>===> <function><otherFunctions> | eps
-<function>===>TK_FUNID <input_par> <output_par> TK_SEM <stmts> TK_END
-<input_par>===>TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR
-<output_par>===>TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR | eps
-<parameter_list>===><dataType> TK_ID <remaining_list>
-<dataType>===> <primitiveDatatype> |<constructedDatatype>
-<primitiveDatatype>===> TK_INT | TK_REAL
-<constructedDatatype>===>TK_RECORD TK_RECORDID
-<remaining_list>===>TK_COMMA <parameter_list> | eps
-<stmts>===><typeDefinitions> <declarations> <otherStmts><returnStmt>
-<typeDefinitions>===><typeDefinition><typeDefinitions> |eps
-<typeDefinition>===>TK_RECORD TK_RECORDID <fieldDefinitions> TK_ENDRECORD TK_SEM
-<fieldDefinitions>===> <fieldDefinition><fieldDefinition><moreFields>
-<fieldDefinition>===> TK_TYPE <primitiveDatatype> TK_COLON TK_FIELDID TK_SEM
-<moreFields>===><fieldDefinition><moreFields> | eps
-<declarations> ===> <declaration><declarations>|eps
-<declaration>===> TK_TYPE <dataType> TK_COLON TK_ID TK_COLON <global_or_not> TK_SEM
-<global_or_not>===>TK_GLOBAL| eps
-<otherStmts>===> <stmt><otherStmts> | eps
-<stmt>===> <assignmentStmt> | <iterativeStmt>|<conditionalStmt>|<ioStmt>| <funCallStmt>
-<assignmentStmt>===><SingleOrRecId> TK_ASSIGNOP <arithmeticExpression> TK_SEM
-<singleOrRecId>===>TK_ID | TK_RECORDID TK_DOT TK_FIELDID
-<funCallStmt>===><outputParameters> TK_CALL TK_FUNID TK_WITH TK_PARAMETERS <inputParameters>
+<mainFunction> ===> TK_MAIN <stmts> TK_END
+<otherFunctions> ===> <function> <otherFunctions> | eps
+<function> ===> TK_FUNID <input_par> <output_par> TK_SEM <stmts> TK_END
+<input_par> ===> TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR
+<output_par> ===> TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR | eps
+<parameter_list> ===> <dataType> TK_ID <remaining_list>
+<dataType> ===> <primitiveDatatype> | <constructedDatatype>
+<primitiveDatatype> ===> TK_INT | TK_REAL
+<constructedDatatype> ===> TK_RECORD TK_RECORDID
+<remaining_list> ===> TK_COMMA <parameter_list> | eps
+<stmts> ===> <typeDefinitions> <declarations> <otherStmts> <returnStmt>
+<typeDefinitions> ===> <typeDefinition> <typeDefinitions> | eps
+<typeDefinition> ===> TK_RECORD TK_RECORDID <fieldDefinitions> TK_ENDRECORD TK_SEM
+<fieldDefinitions> ===> <fieldDefinition> <fieldDefinition> <moreFields>
+<fieldDefinition> ===> TK_TYPE <primitiveDatatype> TK_COLON TK_FIELDID TK_SEM
+<moreFields> ===> <fieldDefinition> <moreFields> | eps
+<declarations> ===> <declaration> <declarations> | eps
+<declaration> ===> TK_TYPE <dataType> TK_COLON TK_ID TK_COLON <global_or_not> TK_SEM
+<global_or_not> ===> TK_GLOBAL| eps
+<otherStmts> ===> <stmt> <otherStmts> | eps
+<stmt> ===> <assignmentStmt> | <iterativeStmt> | <conditionalStmt> | <ioStmt> | <funCallStmt>
+<assignmentStmt> ===> <SingleOrRecId> TK_ASSIGNOP <arithmeticExpression> TK_SEM
+<singleOrRecId> ===> TK_ID | TK_RECORDID TK_DOT TK_FIELDID
+<funCallStmt> ===> <outputParameters> TK_CALL TK_FUNID TK_WITH TK_PARAMETERS <inputParameters>
 <outputParameters> ==> TK_SQL <idList> TK_SQR TK_ASSIGNOP | eps
-<inputParameters>===> TK_SQL <idList> TK_SQR
-<iterativeStmt>===> TK_WHILE TK_OP <booleanExpression> TK_CL <stmt><otherStmts> TK_ENDWHILE
-<conditionalStmt>===> TK_IF TK_OP <booleanExpression> TK_CL TK_THEN <stmt><otherStmts> <elsePart>
-<elsePart>===>TK_ELSE <stmt><otherStmts> TK_ENDIF | TK_ENDIF
-<ioStmt>===> TK_READ TK_OP <singleOrRecId> TK_CL TK_SEM | TK_WRITE TK_OP <allVar> TK_CL TK_SEM
-<allVar>===><var>| TK_RECORDID TK_DOT TK_FIELDID
+<inputParameters> ===> TK_SQL <idList> TK_SQR
+<iterativeStmt> ===> TK_WHILE TK_OP <booleanExpression> TK_CL <stmt> <otherStmts> TK_ENDWHILE
+<conditionalStmt> ===> TK_IF TK_OP <booleanExpression> TK_CL TK_THEN <stmt> <otherStmts> <elsePart>
+<elsePart> ===> TK_ELSE <stmt> <otherStmts> TK_ENDIF | TK_ENDIF
+<ioStmt> ===> TK_READ TK_OP <singleOrRecId> TK_CL TK_SEM | TK_WRITE TK_OP <allVar> TK_CL TK_SEM
+<allVar> ===> <var> | TK_RECORDID TK_DOT TK_FIELDID
 <arithmeticExpression> ===> <term> <expPrime>
 <expPrime> ===> <lowPrecedenceOperators> <term> <expPrime> | eps
-<term>===> <factor> <termPrime>
-<termPrime> ===> <highPrecedenceOperators><factor> <termPrime> | eps
+<term> ===> <factor> <termPrime>
+<termPrime> ===> <highPrecedenceOperators> <factor> <termPrime> | eps
 <factor> ===> TK_OP <arithmeticExpression> TK_CL | <all>
-<highPrecedenceOperator>===> TK_MUL | TK_DIV
+<highPrecedenceOperator> ===> TK_MUL | TK_DIV
 <lowPrecedenceOperators> ===> TK_PLUS | TK_MINUS
-<all>===> TK_ID | TK_NUM| TK_RNUM | TK_RECORDID <temp>
-<temp>===> eps | TK_DOT TK_FIELDID
-<booleanExpression>===>TK_OP <booleanExpression> TK_CL <logicalOp> TK_OP <booleanExpression> TK_CL
-<booleanExpression>===> <var> <relationalOp> <var>
-<booleanExpression>===> TK_NOT <booleanExpression>
-<var>===> TK_ID | TK_NUM | TK_RNUM
-<logicalOp>===>TK_AND | TK_OR
-<relationalOp>===> TK_LT | TK_LE | TK_EQ |TK_GT | TK_GE | TK_NE
-<returnStmt>===>TK_RETURN <optionalReturn> TK_SEM
-<optionalReturn>===>TK_SQL <idList> TK_SQR | eps
-<idList>===> TK_ID <more_ids>
-<more_ids>===> TK_COMMA <idList> | eps
+<all> ===> TK_ID | TK_NUM| TK_RNUM | TK_RECORDID <temp>
+<temp> ===> eps | TK_DOT TK_FIELDID
+<booleanExpression> ===> TK_OP <booleanExpression> TK_CL <logicalOp> TK_OP <booleanExpression> TK_CL
+<booleanExpression> ===> <var> <relationalOp> <var>
+<booleanExpression> ===> TK_NOT <booleanExpression>
+<var> ===> TK_ID | TK_NUM | TK_RNUM
+<logicalOp> ===> TK_AND | TK_OR
+<relationalOp> ===> TK_LT | TK_LE | TK_EQ | TK_GT | TK_GE | TK_NE
+<returnStmt> ===> TK_RETURN <optionalReturn> TK_SEM
+<optionalReturn> ===> TK_SQL <idList> TK_SQR | eps
+<idList> ===> TK_ID <more_ids>
+<more_ids> ===> TK_COMMA <idList> | eps

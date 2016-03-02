@@ -6,11 +6,16 @@
 #include "parserDef.h"
 #include "lexer.h"
 
+typedef char[20] string;
+
+typedef string[] rule;
+
 void createParseTable(FILE* G, table T)
 {
     // Assuming that we have one grammar rule in one line
     // read till \n and process rule, increment the number of terminals and non-terminals
 
+    char line[120] =
 
 }
 
