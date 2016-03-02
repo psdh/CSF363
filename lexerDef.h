@@ -12,3 +12,7 @@ typedef struct
     char* name;
     int lineNo;
 }tokenInfo;
+
+int lineNo;
+int state;
+int offset;
