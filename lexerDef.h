@@ -4,7 +4,6 @@
 // 2013A7PS151P Prabhjyot Singh Sodhi
 
 // lexerDef.h     : Contains all data definitions used in lexer.c
-#include "lexer.h"
 
 typedef struct
 {

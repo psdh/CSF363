@@ -7,3 +7,13 @@
 
 #include "parser.h"
 #include <stdio.h>
+
+typedef char** table;
+
+struct tree {
+    int n;
+    struct tree *firstKid;
+    struct tree *siblings;
+};
+
+typedef *tree parseTree;
