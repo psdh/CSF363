@@ -51,7 +51,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 		if (offset == k){
 			if(fp.feof()){
 				printf("Scanning Complete!\n");
-				break;
+				token.id = 55;
+				token.name = 'ENDOFFILE'
+				token.lineNo = lineNo;
+				return token;
 			}
 			fp = getStream(fp, b, k);
 			offset = 0;
@@ -943,5 +946,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 			exit(-1);
 			break;
 		}
-	}//end while
-}//end token_info
+	}
+	//end while
+}//end getNextToken
