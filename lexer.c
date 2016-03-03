@@ -82,7 +82,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						break;
 					case '<':
 						state=3;
-						offset++;
+						lexeme[i++] = b[offset++];
 						break;
 					case 'a':
 					case 'e':
@@ -242,7 +242,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						lexeme[i++] = b[offset++];
 						break;
 					default:
-						printf("Unsuported character %c at line %d",b[offset], lineNo);
+						printf("ERROR_2: Unknown Symbol <%c> at line<%d>",b[offset], lineNo);
 						error = 1;
 						break;
 				}
@@ -269,26 +269,32 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					case '-':
 						//@Doubt can parts of <-- be on a new line?
 						if(offset+2!=k && b[offset+1] == '-' && b[offset+2] == '-'){
-							offset+=3;
+							lexeme[i++] = b[offset++];
+							lexeme[i++] = b[offset++];
+							i = 0;
 							token.id = 1;
 							token.lineNo=lineNo;
-							token.name = "<---";
+							token.name = lexeme;
+							memset(lexeme, 0, sizeof(lexeme));
 							state = 6;
 							return token;
 						}
 						else if(offset+1!=k && b[offset+1] == '-'){
+							lexeme[i++] = b[offset++];
 							if(feof(fp)){
-								printf("Program ended with Unsuported symbol %c at line %d", b[offset+1], lineNo);
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 								error = 1;
 								break;
 							}
 							fp = getStream(fp, b, k);
 							offset=0;
 							if(b[offset]=='-'){
-								offset++;
+								lexeme[i++] = b[offset++];
 								token.id = 1;
 								token.lineNo=lineNo;
-								token.name = "<---";
+								token.name = lexeme;
+								i = 0;
+								memset(lexeme, 0 ,sizeof(lexeme));
 								state =6;
 								return token;
 							}
@@ -296,28 +302,32 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						else if(offset==k){
 							if (feof(fp)){
 								//@gyani print offsets?
-								printf("Program ended with Unsuported symbol %c at line %d", b[offset+1], lineNo);
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 								error = 1;
 								break;
 							}
 							fp = getStream(fp, b, k);
 							offset=0;
+							// come back here
 							if(b[offset] == '-' && b[offset+1] == '-'){
-								offset+=2;
+								lexeme[i++] = b[offset++];
+								lexeme[i++] = b[offset++];
+								i = 0;
 								token.id = 1;
 								token.lineNo=lineNo;
 								token.name = "<---";
+								memset(lexeme, 0 ,sizeof(lexeme));
 								state = 6;
 								return token;
 							}
 							else{
-								printf("Unsuported character %c at line %d",b[offset], lineNo);
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 								error=1;
 								break;
 							}
 						}
 						else{
-							printf("Unsuported character %c at line %d",b[offset], lineNo);
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 							error=1;
 							break;
 						}
@@ -641,7 +651,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					}
 				}
 				if(strlen(lexeme) > 20){
-					printf("identifier at line %d is longer than allowed limit\n", lineNo);
+					printf("Error_1:Identifier at line<%d> is longer than the prescribed length of 20 characters.\n", lineNo);
 					error = 1;
 					break;
 				}
@@ -691,7 +701,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						state = 15;
 						lexeme[i++] = b[offset++];
 						if (feof(fp)){
-							printf("Program ended while fetching real number\n");
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 							error =1;
 							break;
 						}
@@ -708,14 +718,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 							return token;
 						}
 						else{
-							printf("Unknown character %c on line %d while parsing real number",b[offset], lineNo);
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 							error=1;
 							break;
 						}
 					}
 				}
 				else{
-					printf("Unknown character %c on line %d while parsing real number",b[offset], lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
@@ -726,7 +736,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					break;
 				}
 				else{
-					printf("Unknown character %c on line %d while parsing real number",b[offset], lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
@@ -743,7 +753,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				}
 				//@gyani upar 2 wala scene dekho
 				if(strlen(lexeme) > 30){
-					printf("Function identifier larger than allowed limit of 30 characters at line %d", lineNo);
+					printf("Error_6:Function Identifier at line<%d> is longer than the prescribed length of 30 characters.", lineNo);
 					error = 1;
 					break;
 				}
@@ -808,7 +818,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else {
-					printf("Error while parsing record type indentier, unsupported character %c at line %d\n", b[offset], lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
@@ -818,7 +828,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					lexeme[i++] = b[offset++];
 					state = 34;
 					if(feof(fp)){
-						printf("Program ended while parsing logical and\n");
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 						error = 1;
 						break;
 					}
@@ -846,7 +856,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Error parsing logical and, Unknown character %c at line %d", b[offset], lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
@@ -855,7 +865,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					lexeme[i++] = b[offset++];
 					state = 37;
 					if(feof(fp)){
-						printf("Program ended while parsing logical or\n");
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 						error = 1;
 						break;
 					}
@@ -883,7 +893,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Error parsing logical or, Unknown character %c at line %d", b[offset], lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
@@ -899,7 +909,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Ran into an error while parsing relational equal to, unsupported character %c at line %d", b[offset],lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
@@ -934,7 +944,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					return token;
 				}
 				else{
-					printf("Ran into an error while parsing relational not equal to, unsupported character %c at line %d", b[offset],lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
 					error = 1;
 					break;
 				}
