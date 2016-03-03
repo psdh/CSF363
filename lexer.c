@@ -19,10 +19,11 @@
  * the memory on demand.
  */
 FILE *getStream(FILE *fp, buffer b, buffersize k)
-{
-    if (!feof(fp))
-        fread(b, 1, k, fp);
-
+{	int count;
+	if (!feof(fp))
+        count = fread(b, 1, k, fp);
+    //hack
+    b[k - (k - count)] = 0;
     return fp;
 }
 
@@ -49,7 +50,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 	int error = 0;
 
 	while(1){
-		if (offset == k || strlen(b)==0){
+		if (offset == k || strlen(b)==0 || b[offset] == '\0'){
 			if(feof(fp)){
 				printf("Scanning Complete!\n");
 				token.id = 55;
@@ -57,6 +58,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				token.lineNo = lineNo;
 				return token;
 			}
+			memset(b, 0, sizeof(b));
 			fp = getStream(fp, b, k);
 			offset = 0;
 		}
@@ -230,6 +232,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						token.lineNo = lineNo;
 						token.name = "~";
 						return token;
+					case ',':
+						state = 39;
+						offset++;
+						token.id = 56;
+						token.lineNo = lineNo;
+						token.name = ",";
+						return token;
 					case '=':
 						state = 40;
 						lexeme[i++] = b[offset++];
@@ -242,8 +251,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						state = 44;
 						lexeme[i++] = b[offset++];
 						break;
+					case '\0':
+						token.id = 55;
+						token.name = "ENDOFFILE";
+						token.lineNo = lineNo;
+						return token;
 					default:
-						printf("%s\n", b);
 						printf("ERROR_2: Unknown Symbol <%c> at line<%d>\n",b[offset], lineNo);
 						error = 1;
 						break;
@@ -257,6 +270,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset = 0;
 					}
@@ -270,8 +284,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 			case 3:
 				switch(b[offset]){
 					case '-':
-						//@Doubt can parts of <-- be on a new line?
-						if(offset+2!=k && b[offset+1] == '-' && b[offset+2] == '-'){
+						if(offset + 2 < k && b[offset+1] == '-' && b[offset+2] == '-'){
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
@@ -283,7 +296,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							state = 6;
 							return token;
 						}
-						else if(offset+1!=k && b[offset+1] == '-'){
+						else if(offset + 1 < k && b[offset+1] == '-'){
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
 							if(feof(fp)){
@@ -292,6 +305,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 								break;
 							}
 							else{
+								memset(b, 0, sizeof(b));
 								fp = getStream(fp, b, k);
 								offset=0;
 								if(b[offset]=='-'){
@@ -306,13 +320,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 								}
 							}
 						}
-						else if(offset==k){
+						else if(offset + 1==k){
 							if (feof(fp)){
 								//@gyani print offsets?
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error = 1;
 								break;
 							}
+							memset(b, 0, sizeof(b));
 							fp = getStream(fp, b, k);
 							offset=0;
 							// come back here
@@ -364,6 +379,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
@@ -393,14 +409,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				else if(strcmp(lexeme, "while")==0){
-					token.id = 11;
-					token.lineNo = lineNo;
-					strcpy(token.name, lexeme);
-					i = 0;
-					memset(lexeme, 0, sizeof(lexeme));
-					return token;
-				}
-				else if(strcmp(lexeme, "int")==0){
 					token.id = 12;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
@@ -408,7 +416,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
-				else if(strcmp(lexeme, "real")==0){
+				else if(strcmp(lexeme, "int")==0){
 					token.id = 13;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
@@ -416,7 +424,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
-				else if(strcmp(lexeme, "type")==0){
+				else if(strcmp(lexeme, "real")==0){
 					token.id = 14;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
@@ -424,15 +432,15 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
-				else if(strcmp(lexeme, "global")==0){
-					token.id = 16;
+				else if(strcmp(lexeme, "type")==0){
+					token.id = 15;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
-				else if(strcmp(lexeme, "parameter")==0){
+				else if(strcmp(lexeme, "global")==0){
 					token.id = 17;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
@@ -440,8 +448,16 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
-				else if(strcmp(lexeme, "list")==0){
+				else if(strcmp(lexeme, "parameter")==0){
 					token.id = 18;
+					token.lineNo = lineNo;
+					strcpy(token.name, lexeme);
+					i = 0;
+					memset(lexeme, 0, sizeof(lexeme));
+					return token;
+				}
+				else if(strcmp(lexeme, "list")==0){
+					token.id = 119;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
 					i = 0;
@@ -630,6 +646,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
@@ -660,6 +677,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
@@ -683,6 +701,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
@@ -721,6 +740,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							error =1;
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 						if (48 <= b[offset] && b[offset]<=57){
@@ -765,6 +785,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
@@ -806,6 +827,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						if (feof(fp)){
 							break;
 						}
+						memset(b, 0, sizeof(b));
 						fp = getStream(fp, b, k);
 						offset=0;
 					}
@@ -819,13 +841,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				break;
 			case 20:
 				if(97<=b[offset] && b[offset]<= 122){
-					lexeme[i++] = b[offset++];
 					while(97<=b[offset] && b[offset]<= 122){
 						lexeme[i++] = b[offset++];
 						if(offset == k){
 							if(feof(fp)){
 								break;
 							}
+							memset(b, 0, sizeof(b));
 							fp = getStream(fp, b, k);
 							offset=0;
 						}
@@ -854,6 +876,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						error = 1;
 						break;
 					}
+					memset(b, 0, sizeof(b));
 					fp = getStream(fp, b, k);
 					offset=0;
 					if(b[offset] == '&'){
@@ -892,6 +915,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						error = 1;
 						break;
 					}
+					memset(b, 0, sizeof(b));
 					fp = getStream(fp, b, k);
 					offset=0;
 					if(b[offset] == '@'){
