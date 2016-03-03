@@ -493,7 +493,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				else if(strcmp(lexeme, "list")==0){
-					token.id = 119;
+					token.id = 19;
 					token.lineNo = lineNo;
 					strcpy(token.name, lexeme);
 					i = 0;
