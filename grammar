@@ -35,7 +35,7 @@ expPrime ===> lowPrecedenceOperators term expPrime | eps RULE_END
 term ===> factor termPrime RULE_END
 termPrime ===> highPrecedenceOperators factor termPrime | eps RULE_END
 factor ===> TK_OP arithmeticExpression TK_CL | all RULE_END
-highPrecedenceOperator ===> TK_MUL | TK_DIV RULE_END
+highPrecedenceOperators ===> TK_MUL | TK_DIV RULE_END
 lowPrecedenceOperators ===> TK_PLUS | TK_MINUS RULE_END
 all ===> TK_ID | TK_NUM| TK_RNUM | TK_RECORDID temp RULE_END
 temp ===> eps | TK_DOT TK_FIELDID RULE_END
