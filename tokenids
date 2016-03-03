@@ -1,3 +1,4 @@
+#This file maps token id to the token. line number of token minus 1  is the token id, ex token id of assign op is 1
 Assignment operator
 Comment Beginning
 Field name
@@ -52,3 +53,5 @@ Relational operator equal to
 Relational operator greater than
 Relational operator greater than or equal to
 Relational operator not equal to
+ENDOFFILE
+TK_COMMA
