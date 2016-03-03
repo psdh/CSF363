@@ -25,7 +25,7 @@ moreFields ->  EPSILON
 declarations ->  declaration declarations
 declarations ->  EPSILON
 declaration ->  TK_TYPE dataType TK_COLON TK_ID TK_COLON global_or_not TK_SEM
-global_or_not ->  TK_GLOBAL
+global_or_not ->  TK_COLON TK_GLOBAL
 global_or_not ->  EPSILON
 otherStmts ->  stmt otherStmts
 otherStmts ->  EPSILON

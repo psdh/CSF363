@@ -25,7 +25,7 @@ moreFields ===> eps
 declarations ===> declaration declarations
 declarations ===> eps
 declaration ===> TK_TYPE dataType TK_COLON TK_ID TK_COLON global_or_not TK_SEM
-global_or_not ===> TK_GLOBAL
+global_or_not ===> TK_COLON TK_GLOBAL
 global_or_not ===> eps
 otherStmts ===> stmt otherStmts
 otherStmts ===> eps

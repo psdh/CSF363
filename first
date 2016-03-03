@@ -64,7 +64,7 @@ fieldDefinition TK_TYPE
 moreFields  eps, TK_TYPE
 declarations    eps, TK_TYPE
 declaration TK_TYPE
-global_or_not   TK_GLOBAL, eps
+global_or_not   TK_COLON, eps
 otherStmts  eps, TK_ID, TK_RECORDID, TK_IF, TK_CALL, TK_SQL, TK_WHILE, TK_READ, TK_WRITE
 singleOrRecId   TK_ID, TK_RECORDID
 funCallStmt TK_CALL, TK_SQL, eps

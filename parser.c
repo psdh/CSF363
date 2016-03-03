@@ -5,6 +5,7 @@
 
 #include "parserDef.h"
 #include "lexer.h"
+#include <stdlib.h>
 
 typedef char[20] string;
 
@@ -330,21 +331,27 @@ int getColumnIndex(char* s)
 
 }
 
-typedef enum ruleState
-{
-    LHS,
-    RHS
-};
+// typedef enum ruleState
+// {
+//     LHS,
+//     RHS
+// };
 
 void createParseTable(FILE* G, table T)
 {
-    // Assuming that we have one grammar rule in one line
-    // read until RULE_END and process rule, increment the number of terminals and non-terminals
-
     int terminals = 0;
     int nonTerminals = 0;
 
-    char s[25], readString[25];
+    char readString[25];
+
+    char* restOfRule;
+    size_t len = 0;
+
+    int LHS;
+
+    int* toBeMarked;
+
+    int ruleNo = 0;
 
     while(!feof(G))
     {
@@ -353,44 +360,43 @@ void createParseTable(FILE* G, table T)
         RHString = "";
         fscanf(G, "%s", readString);
 
-        ruleState state = LHS;
+        // incrementing each time
+        ruleNo++;
 
-        while(1)
+        LHSString = readString;
+        LHS = getRowIndex(readString);
+
+        fscanf(G, "%s", readString);
+        assert(strcmp(readString, "===>") == 0);
+
+        getline(&restOfRule, &len, G);
+
+        toBeMarked = getFirst(restOfRule);
+
+        counter = 0;
+
+        while(toBeMarked[counter] != -1)
         {
-            if(state == LHS)
+            if(toBeMarked[counter] == -2)
+                flag = 1;
+            T[LHS][toBeMarked[counter]] = ruleNo;
+            counter++;
+        }
+
+        if (flag == 1)
+        {
+            toBeMarked = getFollow(LHSString);
+
+            counter = 0;
+            while(toBeMarked[counter] != -1)
             {
-                strcpy(LHString, readString);
-                state = RHS;
+                if(toBeMarked[counter] == -2)
+                    flag = 1;
+                T[LHS][toBeMarked[counter]] = ruleNo;
+                counter++;
             }
-            else
-            {
-                if (strcmp(readString, "|") == )
-                // decide to add a new state for ===> or remove it entirely
-                // from the grammar
-                if (strcmp(readString, "===>") != 0)
-                {
-                    if(strcmp(readString, "RULE_END") == 0)
-                    {
-                        printf("adding rule: %s at index: %d", RHString, ind);
-
-                        markFirst(T, getRowIndex(LHString), rule_no)
-                    }
-
-                    strcat(RHString, " ");
-                    sprintf(readString, "%d", getRowIndex(readString));
-                    strcat(RHString, readString);
-                }
-                else
-                {
-                    fscanf(G, "%s", readString);
-                    strcpy(first, readString);
-                }
-            }
-
-            fscanf(G, "%s", readString);
         }
     }
-
 }
 
 parseTree parseInputSourceCode(char *testcaseFile, table T)
