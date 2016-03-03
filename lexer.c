@@ -252,6 +252,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						lexeme[i++] = b[offset++];
 						break;
 					case '\0':
+						printf("Scanning Complete!\n");
 						token.id = 55;
 						token.name = "ENDOFFILE";
 						token.lineNo = lineNo;
@@ -296,6 +297,19 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							state = 6;
 							return token;
 						}
+						else if(offset+2 <k && b[offset+1] == '-'){
+							lexeme[i++] = b[offset++];
+							lexeme[i++] = b[offset++];
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+							error = 1;
+							break;
+						}
+						else if(offset+2 <k){
+							lexeme[i++] = b[offset++];
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+							error = 1;
+							break;
+						}
 						else if(offset + 1 < k && b[offset+1] == '-'){
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
@@ -318,7 +332,18 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 									state =6;
 									return token;
 								}
+								else{
+									printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+									error = 1;
+									break;
+								}
 							}
+						}
+						else if(offset+1<k){
+							lexeme[i++] = b[offset++];
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+							error = 1;
+							break;
 						}
 						else if(offset + 1==k){
 							if (feof(fp)){
@@ -343,7 +368,15 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 								state = 6;
 								return token;
 							}
-							else{
+							else if (b[offset] == '-'){
+								lexeme[i++] = b[offset++];
+								lexeme[i++] = b[offset++];
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+								error=1;
+								break;
+							}
+							else {
+								lexeme[i++] = b[offset++];
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error=1;
 								break;
@@ -730,6 +763,18 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						memset(lexeme, 0, sizeof(lexeme));
 						return token;
 					}
+					else if(48 <= b[offset] && b[offset]<=57){
+						state = 15;
+						lexeme[i++] = b[offset++];
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+						error = 1;
+						break;
+					}
+					else{
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+						error =1;
+						break;
+					}
 				}
 				else if(offset+1==k){
 					if(48 <= b[offset] && b[offset]<=57){
@@ -889,6 +934,16 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						memset(lexeme, 0, sizeof(lexeme));
 						return token;
 					}
+					else{
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+						error = 1;
+						break;
+					}
+				}
+				else if (offset+1 ==k ){
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+					error = 1;
+					break;
 				}
 				else if(b[offset] == '&' && b[offset+1] == '&'){
 					state =35;
@@ -899,6 +954,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					token.lineNo = lineNo;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
+				}
+				else if(b[offset] == '&'){
+						lexeme[i++] = b[offset++];
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+						error = 1;
+						break;
 				}
 				else{
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
@@ -928,6 +989,16 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						memset(lexeme, 0, sizeof(lexeme));
 						return token;
 					}
+					else{
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+						error = 1;
+						break;
+					}
+				}
+				else if (offset+1 == k ){
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+					error = 1;
+					break;
 				}
 				else if(b[offset] == '@' && b[offset+1] == '@'){
 					state = 38;
@@ -938,6 +1009,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					token.lineNo = lineNo;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
+				}
+				else if(b[offset] == '@'){
+					lexeme[i++] = b[offset++];
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
+					error = 1;
+					break;
 				}
 				else{
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
