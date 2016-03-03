@@ -10,6 +10,76 @@ typedef char[20] string;
 
 typedef string[] rule;
 
+int[] getFirsts(char * input){
+
+    char * line = NULL;
+    char * token;
+    size_t len = 0;
+    int count = 0;
+    ssize_t read;
+
+    int firsts[10];
+
+    FILE *fp = fopen("first", "r");
+    if (fp == NULL){
+        exit(EXIT_FAILURE);
+    }
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        token = strtok(line, " ");
+        if( token != NULL && strcmp(token, input) == 0){
+            while(token!=NULL){
+                token = strtok(NULL, " ");
+                if(token==NULL){
+                    break;
+                }
+                firsts[count++] = getColumnIndex(token);
+            }
+            break;
+        }
+    }
+
+    firsts[count] = -1;
+
+    fclose(fp);
+    return firsts;
+}
+
+int[] getFollows(char * input){
+
+    char * line = NULL;
+    char * token;
+    size_t len = 0;
+    int count = 0;
+    ssize_t read;
+
+    int follows[10];
+
+    FILE *fp = fopen("follow", "r");
+    if (fp == NULL){
+        exit(EXIT_FAILURE);
+    }
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        token = strtok(line, " ");
+        if( token != NULL && strcmp(token, input) == 0){
+            while(token!=NULL){
+                token = strtok(NULL, " ");
+                if(token==NULL){
+                    break;
+                }
+                follows[count++] = getColumnIndex(token);
+            }
+            break;
+        }
+    }
+
+    follows[count] = -1;
+
+    fclose(fp);
+    return follows;
+}
+
 int getRowIndex(char* s)
 {
     if(strcmp(s, "program") == 0)
@@ -210,6 +280,7 @@ int getColumnIndex(char* s)
     if(strcmp(s, "TK_WHILE") == 0) { return 148; }
     if(strcmp(s, "TK_WITH") == 0) { return 149; }
     if(strcmp(s, "TK_WRITE") == 0) { return 150; }
+    if(strcmp(s, "eps" == 0 )){return -2;}
 
 }
 
