@@ -46,4 +46,4 @@ relationalOp
 returnStmt
 optionalReturn
 idList
-more_ids
+if(strcmp(s, "more_ids") == 0){ return 1;}
