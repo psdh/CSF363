@@ -955,7 +955,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 		}//end switch
 		if(error==1){
 			error = 0;
-			while(buffer[offset]!=' ' &&  buffer[offset]!='\n'){
+			while(b[offset]!=' ' &&  b[offset]!='\n'){
 				offset++;
 			}
 			i = 0;
