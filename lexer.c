@@ -259,6 +259,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						return token;
 					default:
 						printf("ERROR_2: Unknown Symbol <%c> at line<%d>\n",b[offset], lineNo);
+						offset++;
 						error = 1;
 						break;
 				}
@@ -348,6 +349,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						else if(offset + 1==k){
 							if (feof(fp)){
 								//@gyani print offsets?
+								lexeme[i++] = b[offset++];
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error = 1;
 								break;
@@ -383,6 +385,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							}
 						}
 						else{
+							lexeme[i++] = b[offset++];
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error=1;
 							break;
@@ -1083,9 +1086,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 		}//end switch
 		if(error==1){
 			error = 0;
-			while(b[offset]!=' ' && b[offset]!=' ' &&  b[offset]!='\n'){
-				offset++;
-			}
 			state = 1;
 			i = 0;
 			memset(lexeme, 0, sizeof(lexeme));
