@@ -40,15 +40,16 @@ FILE *getStream(FILE *fp, buffer b, buffersize k)
 	The global variable offset and state is continuously updated.
 	Let the parser change the state back to 1 for further parsing.
 */
-tokenInfo getNextToken(FILE *fp, buffer b, int k)
+tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 {
 	buffer lexeme = (buffer) malloc(k*sizeof(buffer));
 	int i = 0;
 	tokenInfo token;
+	token.name = (buffer) malloc(k*sizeof(buffer));
 	int error = 0;
 
 	while(1){
-		if (offset == k){
+		if (offset == k || strlen(b)==0){
 			if(feof(fp)){
 				printf("Scanning Complete!\n");
 				token.id = 55;
@@ -242,10 +243,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						lexeme[i++] = b[offset++];
 						break;
 					default:
-						printf("ERROR_2: Unknown Symbol <%c> at line<%d>",b[offset], lineNo);
+						printf("%s\n", b);
+						printf("ERROR_2: Unknown Symbol <%c> at line<%d>\n",b[offset], lineNo);
 						error = 1;
 						break;
 				}
+				break;
 			// comments
 			case 2:
 				while(b[offset++]!='\n'){
@@ -271,38 +274,42 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						if(offset+2!=k && b[offset+1] == '-' && b[offset+2] == '-'){
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
+							lexeme[i++] = b[offset++];
 							i = 0;
 							token.id = 1;
 							token.lineNo=lineNo;
-							token.name = lexeme;
+							strcpy(token.name, lexeme);
 							memset(lexeme, 0, sizeof(lexeme));
 							state = 6;
 							return token;
 						}
 						else if(offset+1!=k && b[offset+1] == '-'){
 							lexeme[i++] = b[offset++];
+							lexeme[i++] = b[offset++];
 							if(feof(fp)){
-								printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error = 1;
 								break;
 							}
-							fp = getStream(fp, b, k);
-							offset=0;
-							if(b[offset]=='-'){
-								lexeme[i++] = b[offset++];
-								token.id = 1;
-								token.lineNo=lineNo;
-								token.name = lexeme;
-								i = 0;
-								memset(lexeme, 0 ,sizeof(lexeme));
-								state =6;
-								return token;
+							else{
+								fp = getStream(fp, b, k);
+								offset=0;
+								if(b[offset]=='-'){
+									lexeme[i++] = b[offset++];
+									token.id = 1;
+									token.lineNo=lineNo;
+									strcpy(token.name, lexeme);
+									i = 0;
+									memset(lexeme, 0 ,sizeof(lexeme));
+									state =6;
+									return token;
+								}
 							}
 						}
 						else if(offset==k){
 							if (feof(fp)){
 								//@gyani print offsets?
-								printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error = 1;
 								break;
 							}
@@ -310,6 +317,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 							offset=0;
 							// come back here
 							if(b[offset] == '-' && b[offset+1] == '-'){
+								lexeme[i++] = b[offset++];
 								lexeme[i++] = b[offset++];
 								lexeme[i++] = b[offset++];
 								i = 0;
@@ -321,16 +329,17 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 								return token;
 							}
 							else{
-								printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error=1;
 								break;
 							}
 						}
 						else{
-							printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error=1;
 							break;
 						}
+						break;
 					case '=':
 						offset++;
 						token.id = 50;
@@ -346,6 +355,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						state = 3;
 						return token;
 				}
+				break;
 
 			case 8:
 				while(97 <= b[offset] && b[offset] <= 122){
@@ -361,7 +371,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				if(strcmp(lexeme,"with")==0){
 					token.id = 9;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -369,7 +379,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "parameters")==0){
 					token.id = 10;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -377,7 +387,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "end")==0){
 					token.id = 11;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -385,7 +395,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "while")==0){
 					token.id = 11;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -393,7 +403,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "int")==0){
 					token.id = 12;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -401,7 +411,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "real")==0){
 					token.id = 13;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -409,7 +419,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "type")==0){
 					token.id = 14;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -417,7 +427,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "global")==0){
 					token.id = 16;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -425,7 +435,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "parameter")==0){
 					token.id = 17;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -433,7 +443,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "list")==0){
 					token.id = 18;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -441,7 +451,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "input")==0){
 					token.id = 22;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -449,7 +459,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "output")==0){
 					token.id = 23;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -457,7 +467,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "endwhile")==0){
 					token.id = 29;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -465,7 +475,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "if")==0){
 					token.id = 32;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -473,7 +483,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "then")==0){
 					token.id = 33;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -481,7 +491,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "endif")==0){
 					token.id = 34;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -489,7 +499,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "read")==0){
 					token.id = 35;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -497,7 +507,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "write")==0){
 					token.id = 36;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -505,7 +515,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "return")==0){
 					token.id = 37;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -513,7 +523,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "call")==0){
 					token.id = 42;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -521,7 +531,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "record")==0){
 					token.id = 43;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -529,7 +539,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "endrecord")==0){
 					token.id = 44;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -537,7 +547,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else if(strcmp(lexeme, "else")==0){
 					token.id = 45;
 					token.lineNo = lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
@@ -545,12 +555,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				else{
 					token.id = 3;
 					token.lineNo=lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					// empty the lexeme array
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
+				break;
 			case 9:
 				//a-z kuch aaya
 				if (97 <= b[offset] && b[offset]<= 122){
@@ -574,11 +585,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					// rethink this @gyani
 					token.id = 3;
 					token.lineNo=lineNo;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					memset(lexeme, 0, sizeof(lexeme));
 					i=0;
 					return token;
 				}
+				break;
 			case 10:
 				//switch case increases lines for no reason :(
 				switch(b[offset]){
@@ -603,12 +615,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					default:
 						//final state pe kuch random aaya
 						token.id = 4;
-						token.name = lexeme;
+						strcpy(token.name, lexeme);
 						token.lineNo = lineNo;
 						memset(lexeme, 0, sizeof(lexeme));
 						i=0;
 						return token;
 				}
+				break;
 			case 11:
 				//b or d hi aae ja raha hai
 				while(98<=b[offset] && b[offset]<=100){
@@ -631,12 +644,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					// something apart form b-d, number showed up, abhi tak ka jitna useful hai
 					//usko send as token, not increased offset as current char is weird and will be parsed in the next run
 					token.id = 4;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					memset(lexeme, 0, sizeof(lexeme));
 					i=0;
 					return token;
 				}
+				break;
 			case 12:
 				//@gyani to str copy or not
 				//@gyani length of field?
@@ -656,11 +670,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					break;
 				}
 				token.id = 4;
-				token.name = lexeme;
+				strcpy(token.name, lexeme);
 				token.lineNo = lineNo;
 				memset(lexeme, 0, sizeof(lexeme));
 				i = 0;
 				return token;
+				break;
 			case 13:
 				while(48<= b[offset]&& b[offset]<=57){
 					lexeme[i++] = b[offset++];
@@ -678,7 +693,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					break;
 				}
 				token.id = 5;
-				token.name = lexeme;
+				strcpy(token.name, lexeme);
 				token.lineNo = lineNo;
 				memset(lexeme, 0, sizeof(lexeme));
 				return token;
@@ -689,8 +704,9 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						lexeme[i++] = b[offset++];
 						lexeme[i++] = b[offset++];
 						token.id = 6;
-						token.name= lexeme;
-						token.lineNo=lineNo++;
+						strcpy(token.name, lexeme);
+						//@gyani line nu dec kia, why
+						token.lineNo=lineNo;
 						i = 0;
 						memset(lexeme, 0, sizeof(lexeme));
 						return token;
@@ -701,7 +717,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						state = 15;
 						lexeme[i++] = b[offset++];
 						if (feof(fp)){
-							printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error =1;
 							break;
 						}
@@ -711,24 +727,25 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 							state = 16;
 							lexeme[i++] = b[offset++];
 							token.id = 6;
-							token.name = lexeme;
+							strcpy(token.name, lexeme);
 							token.lineNo = lineNo;
 							i = 0;
 							memset(lexeme, 0, sizeof(lexeme));
 							return token;
 						}
 						else{
-							printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error=1;
 							break;
 						}
 					}
 				}
 				else{
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			case 17:
 				if ((65 <=b[offset] && b[offset] <= 90) || (97 <=b[offset] && b[offset] <= 122)){
 					lexeme[i++] = b[offset++];
@@ -736,10 +753,11 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					break;
 				}
 				else{
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			case 18:
 				while((65 <=b[offset] && b[offset] <= 90) || (97 <=b[offset] && b[offset] <= 122)){
 					lexeme[i++] = b[offset++];
@@ -753,7 +771,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				}
 				//@gyani upar 2 wala scene dekho
 				if(strlen(lexeme) > 30){
-					printf("Error_6:Function Identifier at line<%d> is longer than the prescribed length of 30 characters.", lineNo);
+					printf("Error_6:Function Identifier at line<%d> is longer than the prescribed length of 30 characters.\n", lineNo);
 					error = 1;
 					break;
 				}
@@ -765,7 +783,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				// offset already upar badh gyaa hai
 				else if(strcmp("_main", lexeme) == 0){
 					token.id = 15;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i=0;
 					memset(lexeme, 0, sizeof(lexeme));
@@ -773,12 +791,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				}
 				else{
 					token.id = 7;
-					token.name = lexeme;
+					// strcpy(token.name, lexeme);
+					strcpy(token.name, lexeme);
 					token.lineNo =lineNo;
 					i =0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
+				break;
 			case 19:
 				while(48 <=b[offset] && b[offset] <= 57){
 					lexeme[i++] = b[offset++];
@@ -791,11 +811,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					}
 				}
 				token.id = 7;
-				token.name = lexeme;
+				strcpy(token.name, lexeme);
 				token.lineNo =lineNo;
 				i=0;
 				memset(lexeme, 0, sizeof(lexeme));
 				return token;
+				break;
 			case 20:
 				if(97<=b[offset] && b[offset]<= 122){
 					lexeme[i++] = b[offset++];
@@ -811,24 +832,25 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					}
 					state = 21;
 					token.id = 8;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i = 0;
 					memset(lexeme, 0 , sizeof(lexeme));
 					return token;
 				}
 				else {
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			case 33:
 				//@gyani offset++, array natak
 				if(offset+1==k && b[offset]=='&'){
 					lexeme[i++] = b[offset++];
 					state = 34;
 					if(feof(fp)){
-						printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
 					}
@@ -839,7 +861,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						lexeme[i++] = b[offset++];
 						i = 0;
 						token.id = 46;
-						token.name = lexeme;
+						strcpy(token.name, lexeme);
 						token.lineNo = lineNo;
 						memset(lexeme, 0, sizeof(lexeme));
 						return token;
@@ -850,22 +872,23 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					lexeme[i++] = b[offset++];
 					lexeme[i++] = b[offset++];
 					token.id = 46;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
 				else{
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			case 36:
 				if(offset+1==k && b[offset]=='@'){
 					lexeme[i++] = b[offset++];
 					state = 37;
 					if(feof(fp)){
-						printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
 					}
@@ -876,7 +899,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 						lexeme[i++] = b[offset++];
 						i = 0;
 						token.id = 47;
-						token.name = lexeme;
+						strcpy(token.name, lexeme);
 						token.lineNo = lineNo;
 						memset(lexeme, 0, sizeof(lexeme));
 						return token;
@@ -887,38 +910,40 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 					lexeme[i++] = b[offset++];
 					lexeme[i++] = b[offset++];
 					token.id = 47;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
 				else{
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			case 40:
 				if(b[offset] == '='){
 					state = 41;
 					lexeme[i++] = b[offset++];
 					token.id = 51;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
 				else{
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			case 42:
 				if(b[offset] == '='){
 					state = 43;
 					lexeme[i++] = b[offset++];
 					token.id = 53;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
@@ -926,28 +951,30 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				}
 				else{
 					token.id = 52;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
+				break;
 			case 44:
 				if(b[offset] == '='){
 					state = 45;
 					lexeme[i++] = b[offset++];
 					token.id = 54;
-					token.name = lexeme;
+					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i = 0;
 					memset(lexeme, 0, sizeof(lexeme));
 					return token;
 				}
 				else{
-					printf("ERROR_3: Unknown pattern <%s> at line number <%d>", lexeme, lineNo);
+					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
+				break;
 			default:
 				printf("Illegal state %d reached! How?", state);
 				error = 1;
@@ -955,16 +982,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 		}//end switch
 		if(error==1){
 			error = 0;
-			while(b[offset]!=' ' &&  b[offset]!='\n'){
+			while(b[offset]!=' ' && b[offset]!=' ' &&  b[offset]!='\n'){
 				offset++;
 			}
+			state = 1;
 			i = 0;
 			memset(lexeme, 0, sizeof(lexeme));
 		}
 	}
 	//end while
 }//end getNextToken
-
-int main(){
-	return 0;
-}
