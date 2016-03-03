@@ -954,9 +954,12 @@ tokenInfo getNextToken(FILE *fp, buffer b, int k)
 				break;
 		}//end switch
 		if(error==1){
-			printf("lexer exitting due to some error :(");
-			exit(-1);
-			break;
+			error = 0;
+			while(buffer[offset]!=' ' &&  buffer[offset]!='\n'){
+				offset++;
+			}
+			i = 0;
+			memset(lexeme, 0, sizeof(lexeme));
 		}
 	}
 	//end while
