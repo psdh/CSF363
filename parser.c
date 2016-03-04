@@ -9,13 +9,14 @@
 
 int* getFirsts(char * input){
 
-    char * line = NULL;
+    char* line;
+    line = (char*) malloc(sizeof(char)*100);
     char * token;
     size_t len = 0;
     int count = 0;
     ssize_t read;
 
-    int firsts[10];
+    int firsts[25];
 
     FILE *fp = fopen("first", "r");
     if (fp == NULL){
@@ -23,6 +24,7 @@ int* getFirsts(char * input){
     }
 
     while ((read = getline(&line, &len, fp)) != -1) {
+        line[read - 1] = '\0';
         token = strtok(line, " ");
         if( token != NULL && strcmp(token, input) == 0){
             while(token!=NULL){
@@ -48,10 +50,9 @@ int* first(char * input){
     int count = 0;
     char * token;
     token = strtok(input, " ");
-    int epislonFound = 0;
+    int epislonFound = 1;
     while(token!=NULL && epislonFound == 1){
-        epislonFound = 1;
-        token = strtok(input, " ");
+        epislonFound = 0;
         current = getFirsts(token);
         int i = 0;
         while(current[i]!=-1){
@@ -60,6 +61,8 @@ int* first(char * input){
             }
             firsts[count++] = current[i++];
         }
+        token = strtok(NULL, " ");
+
     }
     firsts[count] = -1;
     return firsts;
@@ -73,7 +76,7 @@ int* getFollows(char * input){
     int count = 0;
     ssize_t read;
 
-    int follows[10];
+    int follows[25];
 
     FILE *fp = fopen("follow", "r");
     if (fp == NULL){
@@ -81,6 +84,7 @@ int* getFollows(char * input){
     }
 
     while ((read = getline(&line, &len, fp)) != -1) {
+        line[read - 1] = '\0';
         token = strtok(line, " ");
         if( token != NULL && strcmp(token, input) == 0){
             while(token!=NULL){
@@ -110,7 +114,6 @@ int* follow(char * input){
     int epislonFound = 0;
     while(token!=NULL && epislonFound == 1){
         epislonFound = 1;
-        token = strtok(input, " ");
         current = getFollows(token);
         int i = 0;
         while(current[i]!=-1){
@@ -119,6 +122,8 @@ int* follow(char * input){
             }
             firsts[count++] = current[i++];
         }
+        token = strtok(NULL, " ");
+
     }
     firsts[count] = -1;
     return firsts;
@@ -329,7 +334,7 @@ char* getCorrespondingToken(int f){
         case 52: return "TK_GT";
         case 53: return "TK_GE";
         case 54: return "TK_NE";
-        case 55: return "TK_ENDOFFILE";
+        case 55: return "$";
         case 56: return "TK_COMMA";
     }
 }
@@ -388,8 +393,8 @@ int getColumnIndex(char* s)
     if(strcmp(s, "TK_WHILE") == 0) { return 12; }
     if(strcmp(s, "TK_WITH") == 0) { return 9; }
     if(strcmp(s, "TK_WRITE") == 0) { return 36; }
-    if(strcmp(s, "eps" == 0 )){return -2;}
-
+    if(strcmp(s, "eps") == 0 ) {return -2;}
+    if(strcmp(s, "$") == 0) { return 55; }
     return -90;
 }
 
@@ -413,7 +418,7 @@ void initializeTable(table T)
     for (i = 0;i<55;i++)
     {
         for (j = 0;j<55;j++)
-            T[i][j] = 1000;
+            T[i][j] = -1;
     }
 }
 
@@ -425,7 +430,8 @@ void createParseTable(FILE* G, table T)
     int terminals = 0;
     int nonTerminals = 0;
 
-    char* readString;
+    char readString[100];
+
     char LHSString[25];
 
     char* restOfRule;
@@ -444,7 +450,6 @@ void createParseTable(FILE* G, table T)
     {
         flag = 0;
 
-        readString = "";
         fscanf(G, "%s", readString);
 
         // incrementing each time
@@ -457,7 +462,8 @@ void createParseTable(FILE* G, table T)
         if (strcmp(readString, "===>") != 0)
             printf("ERROR !!! :(");
 
-        getline(&restOfRule, &len, G);
+        int read = getline(&restOfRule, &len, G);
+        restOfRule[read - 1] = '\0';
 
         toBeMarked = first(restOfRule);
 
@@ -466,8 +472,12 @@ void createParseTable(FILE* G, table T)
         while(toBeMarked[counter] != -1)
         {
             if(toBeMarked[counter] == -2)
+            {
                 flag = 1;
-            T[LHS][toBeMarked[counter]] = ruleNo;
+                counter++;
+                continue;
+            }
+            T[LHS % 100][toBeMarked[counter] % 100] = ruleNo;
             counter++;
         }
 
@@ -478,9 +488,13 @@ void createParseTable(FILE* G, table T)
             counter = 0;
             while(toBeMarked[counter] != -1)
             {
-                if(toBeMarked[counter] == -2)
-                    flag = 1;
-                T[LHS][toBeMarked[counter]] = ruleNo;
+                // in case of $
+                if(toBeMarked[counter] == 55)
+                {
+                    counter++;
+                    continue;
+                }
+                T[LHS % 100][toBeMarked[counter]] = ruleNo;
                 counter++;
             }
         }
@@ -514,7 +528,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
     // push "dollar" or -47 to indicate the end of the stack
     push(head, -47);
     // push "program" to start parsing
-    push(head, 0);
+    push(head, 100);
 
     tokenInfo token;
     int ruleNum;
@@ -642,6 +656,31 @@ int pop(stack*head)
 
 int main()
 {
-    printf("wanna get some?");
+    printf("Now We will parse!!! :D");
+
+    FILE* fp;
+
+    fp = fopen("grammar", "r");
+
+    table doNow = (int **) malloc(55 * sizeof(int *));
+
+    int i = 0;
+
+    for (i=0; i<55; i++)
+         doNow[i] = (int *) malloc(55 * sizeof(int));
+
+    createParseTable(fp, doNow);
+
+    int j = 0;
+
+    for (i = 0;i<55;i++)
+    {
+        for(j=0;j<55;j++)
+            printf(" %d ", doNow[i][j]);
+
+        printf("\n");
+    }
+    fclose(fp);
+
     return 0;
 }

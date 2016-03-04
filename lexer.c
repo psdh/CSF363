@@ -54,7 +54,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 			if(feof(fp)){
 				printf("Scanning Complete!\n");
 				token.id = 55;
-				token.name = "ENDOFFILE";
+				token.name = "$";
 				token.lineNo = lineNo;
 				return token;
 			}
@@ -254,7 +254,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					case '\0':
 						printf("Scanning Complete!\n");
 						token.id = 55;
-						token.name = "ENDOFFILE";
+						token.name = "$";
 						token.lineNo = lineNo;
 						return token;
 					default:
