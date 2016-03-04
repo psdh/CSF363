@@ -275,6 +275,69 @@ int getRowIndex(char* s)
 
 }
 
+
+char * token getCorrespondingToken(int f){
+    switch(f){
+        case 1: return "TK_ASSIGNOP";
+        case 2: return "TK_COMMENT";
+        case 3: return "TK_FIELDID";
+        case 4: return "TK_ID";
+        case 5: return "TK_NUM";
+        case 6: return "TK_RNUM";
+        case 7: return "TK_FUNID";
+        case 8: return "TK_RECORDID";
+        case 9: return "TK_WITH";
+        case 10: return "TK_PARAMETERS";
+        case 11: return "TK_END";
+        case 12: return "TK_WHILE";
+        case 13: return "TK_INT";
+        case 14: return "TK_REAL";
+        case 15: return "TK_TYPE";
+        case 16: return "TK_MAIN";
+        case 17: return "TK_GLOBAL";
+        case 18: return "TK_PARAMETER";
+        case 19: return "TK_LIST";
+        case 20: return "TK_SQL";
+        case 21: return "TK_SQR";
+        case 22: return "TK_INPUT";
+        case 23: return "TK_OUTPUT";
+        case 24: return "TK_INT";
+        case 25: return "TK_REAL";
+        case 26: return "TK_SEM";
+        case 27: return "TK_COLON";
+        case 28: return "TK_DOT";
+        case 29: return "TK_ENDWHILE";
+        case 30: return "TK_OP";
+        case 31: return "TK_CL";
+        case 32: return "TK_IF";
+        case 33: return "TK_THEN";
+        case 34: return "TK_ENDIF";
+        case 35: return "TK_READ";
+        case 36: return "TK_WRITE";
+        case 37: return "TK_RETURN";
+        case 38: return "TK_PLUS";
+        case 39: return "TK_MINUS";
+        case 40: return "TK_MUL";
+        case 41: return "TK_DIV";
+        case 42: return "TK_CALL";
+        case 43: return "TK_RECORD";
+        case 44: return "TK_ENDRECORD";
+        case 45: return "TK_ELSE";
+        case 46: return "TK_AND";
+        case 47: return "TK_OR";
+        case 48: return "TK_NOT";
+        case 49: return "TK_LT";
+        case 50: return "TK_LE";
+        case 51: return "TK_EQ";
+        case 52: return "TK_GT";
+        case 53: return "TK_GE";
+        case 53: return "TK_LE";
+        case 54: return "TK_NE";
+        case 55: return "TK_ENDOFFILE";
+        case 56: return "TK_COMMA";
+    }
+}
+
 int getColumnIndex(char* s)
 {
     if(strcmp(s, "TK_AND") == 0) { return 100; }
