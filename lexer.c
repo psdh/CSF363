@@ -688,7 +688,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					}
 				}
 				// number aaya matlab state transition
-				if (!feof(fp) && 48 <=b[offset] && b[offset]<=57){
+				if (b[offset] != '\0' && offset != k && 48 <=b[offset] && b[offset]<=57){
 					state = 12;
 					lexeme[i++] = b[offset++];
 					break;
@@ -742,7 +742,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						offset=0;
 					}
 				}
-				if(!feof(fp) && b[offset] == '.'){
+				if(b[offset] != '\0' && offset != k && b[offset] == '.'){
 					state = 14;
 					lexeme[i++] = b[offset++];
 					break;
@@ -844,7 +844,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					error = 1;
 					break;
 				}
-				if(!feof(fp) && 48 <=b[offset] && b[offset] <= 57){
+				if(b[offset] != '\0' && offset != k  && 48 <=b[offset] && b[offset] <= 57){
 					lexeme[i++] =b[offset++];
 					state = 19;
 					break;
