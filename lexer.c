@@ -851,7 +851,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				// offset already upar badh gyaa hai
 				else if(strcmp("_main", lexeme) == 0){
-					token.id = 15;
+					token.id = 16;
 					strcpy(token.name, lexeme);
 					token.lineNo = lineNo;
 					i=0;

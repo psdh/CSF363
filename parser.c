@@ -132,147 +132,148 @@ int[] follow(char * input){
 int getRowIndex(char* s)
 {
     if(strcmp(s, "program") == 0)
-        return 0;
+        return 100;
     if(strcmp(s, "mainFunction") == 0)
-        return 1;
+        return 101;
 
     if(strcmp(s, "otherFunctions") == 0)
-        return 2;
+        return 102;
 
     if(strcmp(s, "function") == 0)
-        return 3;
+        return 103;
 
     if(strcmp(s, "input_par") == 0)
-        return 4;
+        return 104;
 
     if(strcmp(s, "output_par") == 0)
-        return 5;
+        return 105;
 
     if(strcmp(s, "parameter_list") == 0)
-        return 6;
+        return 106;
 
     if(strcmp(s, "dataType") == 0)
-        return 7;
+        return 107;
 
     if(strcmp(s, "primitiveDatatype") == 0)
-        return 8;
+        return 108;
 
     if(strcmp(s, "constructedDatatype") == 0)
-        return 9;
+        return 109;
 
     if(strcmp(s, "remaining_list") == 0)
-        return 10;
+        return 110;
 
     if(strcmp(s, "stmts") == 0)
-        return 11;
+        return 111;
 
     if(strcmp(s, "typeDefinitions") == 0)
-        return 12;
+        return 112;
 
     if(strcmp(s, "typeDefinition") == 0)
-        return 13;
+        return 113;
 
     if(strcmp(s, "fieldDefinitions") == 0)
-        return 14;
+        return 114;
 
     if(strcmp(s, "fieldDefinition") == 0)
-        return 15;
+        return 115;
 
     if(strcmp(s, "moreFields") == 0)
-        return 16;
+        return 116;
 
     if(strcmp(s, "declarations") == 0)
-        return 17;
+        return 117;
 
     if(strcmp(s, "declaration") == 0)
-        return 18;
+        return 118;
 
     if(strcmp(s, "global_or_not") == 0)
-        return 19;
+        return 119;
 
     if(strcmp(s, "otherStmts") == 0)
-        return 20;
+        return 120;
 
     if(strcmp(s, "stmt") == 0)
-        return 21;
+        return 121;
 
     if(strcmp(s, "assignmentStmt") == 0)
-        return 22;
+        return 122;
 
     if(strcmp(s, "singleOrRecId") == 0)
-        return 23;
+        return 123;
 
     if(strcmp(s, "funCallStmt") == 0)
-        return 24;
+        return 124;
 
     if(strcmp(s, "outputParameters") == 0)
-        return 25;
+        return 125;
 
     if(strcmp(s, "inputParameters") == 0)
-        return 18;
+        return 126;
 
     if(strcmp(s, "iterativeStmt") == 0)
-        return 18;
+        return 127;
 
     if(strcmp(s, "conditionalStmt") == 0)
-        return 18;
+        return 128;
 
     if(strcmp(s, "elsePart") == 0)
-        return 18;
+        return 129;
 
     if(strcmp(s, "ioStmt") == 0)
-        return 18;
+        return 130;
 
     if(strcmp(s, "allVar") == 0)
-        return 18;
+        return 131;
 
     if(strcmp(s, "arithmeticExpression") == 0)
-        return 18;
+        return 132;
 
     if(strcmp(s, "expPrime") == 0)
-        return 18;
+        return 133;
 
     if(strcmp(s, "term") == 0)
-        return 18;
+        return 134;
 
     if(strcmp(s, "termPrime") == 0)
-        return 18;
+        return 135;
 
     if(strcmp(s, "factor") == 0)
-        return 18;
+        return 136;
 
     if(strcmp(s, "highPrecedenceOperators") == 0)
-        return 18;
+        return 137;
 
     if(strcmp(s, "lowPrecedenceOperators") == 0)
-        return 18;
+        return 138;
 
     if(strcmp(s, "all") == 0)
-        return 18;
+        return 139;
 
     if(strcmp(s, "temp") == 0)
-        return 18;
+        return 140;
 
     if(strcmp(s, "booleanExpression") == 0)
-        return 18;
+        return 141;
 
     if(strcmp(s, "var") == 0)
-        return 18;
+        return 142;
 
     if(strcmp(s, "logicalOp") == 0)
-        return 18;
+        return 143;
 
     if(strcmp(s, "relationalOp") == 0)
-        return 18;
+        return 144;
     if(strcmp(s, "returnStmt") == 0)
+    	return 145;
 
     if(strcmp(s, "optionalReturn") == 0)
+    	return 146;
 
     if(strcmp(s, "idList") == 0)
-
+    	return 147;
     if(strcmp(s, "more_ids") == 0)
-        return
-
+        return 148;
 }
 
 
@@ -331,7 +332,6 @@ char * token getCorrespondingToken(int f){
         case 51: return "TK_EQ";
         case 52: return "TK_GT";
         case 53: return "TK_GE";
-        case 53: return "TK_GE";
         case 54: return "TK_NE";
         case 55: return "TK_ENDOFFILE";
         case 56: return "TK_COMMA";
@@ -340,58 +340,58 @@ char * token getCorrespondingToken(int f){
 
 int getColumnIndex(char* s)
 {
-    if(strcmp(s, "TK_AND") == 0) { return 100; }
-    if(strcmp(s, "TK_ASSIGNOP") == 0) { return 101; }
-    if(strcmp(s, "TK_CALL") == 0) { return 102; }
-    if(strcmp(s, "TK_CL") == 0) { return 103; }
-    if(strcmp(s, "TK_COLON") == 0) { return 104; }
-    if(strcmp(s, "TK_COMMA") == 0) { return 105; }
-    if(strcmp(s, "TK_DIV") == 0) { return 106; }
-    if(strcmp(s, "TK_DOT") == 0) { return 107; }
-    if(strcmp(s, "TK_ELSE") == 0) { return 108; }
-    if(strcmp(s, "TK_END") == 0) { return 109; }
-    if(strcmp(s, "TK_ENDIF") == 0) { return 110; }
-    if(strcmp(s, "TK_ENDRECORD") == 0) { return 111; }
-    if(strcmp(s, "TK_ENDWHILE") == 0) { return 112; }
-    if(strcmp(s, "TK_EQ") == 0) { return 113; }
-    if(strcmp(s, "TK_FIELDID") == 0) { return 114; }
-    if(strcmp(s, "TK_FUNID") == 0) { return 115; }
-    if(strcmp(s, "TK_GE") == 0) { return 116; }
-    if(strcmp(s, "TK_GLOBAL") == 0) { return 117; }
-    if(strcmp(s, "TK_GT") == 0) { return 118; }
-    if(strcmp(s, "TK_ID") == 0) { return 119; }
-    if(strcmp(s, "TK_IF") == 0) { return 120; }
-    if(strcmp(s, "TK_INPUT") == 0) { return 121; }
-    if(strcmp(s, "TK_INT") == 0) { return 122; }
-    if(strcmp(s, "TK_LE") == 0) { return 123; }
-    if(strcmp(s, "TK_LIST") == 0) { return 124; }
-    if(strcmp(s, "TK_LT") == 0) { return 125; }
-    if(strcmp(s, "TK_MAIN") == 0) { return 126; }
-    if(strcmp(s, "TK_MINUS") == 0) { return 127; }
-    if(strcmp(s, "TK_MUL") == 0) { return 128; }
-    if(strcmp(s, "TK_NE") == 0) { return 129; }
-    if(strcmp(s, "TK_NOT") == 0) { return 130; }
-    if(strcmp(s, "TK_NUM") == 0) { return 131; }
-    if(strcmp(s, "TK_OP") == 0) { return 132; }
-    if(strcmp(s, "TK_OR") == 0) { return 133; }
-    if(strcmp(s, "TK_OUTPUT") == 0) { return 134; }
-    if(strcmp(s, "TK_PARAMETER") == 0) { return 135; }
-    if(strcmp(s, "TK_PARAMETERS") == 0) { return 136; }
-    if(strcmp(s, "TK_PLUS") == 0) { return 137; }
-    if(strcmp(s, "TK_READ") == 0) { return 138; }
-    if(strcmp(s, "TK_REAL") == 0) { return 139; }
-    if(strcmp(s, "TK_RECORD") == 0) { return 140; }
-    if(strcmp(s, "TK_RECORDID") == 0) { return 141; }
-    if(strcmp(s, "TK_RETURN") == 0) { return 141; }
-    if(strcmp(s, "TK_RNUM") == 0) { return 142; }
-    if(strcmp(s, "TK_SEM") == 0) { return 143; }
-    if(strcmp(s, "TK_SQL") == 0) { return 144; }
-    if(strcmp(s, "TK_SQR") == 0) { return 145; }
-    if(strcmp(s, "TK_THEN") == 0) { return 146; }
-    if(strcmp(s, "TK_TYPE") == 0) { return 147; }
-    if(strcmp(s, "TK_WHILE") == 0) { return 148; }
-    if(strcmp(s, "TK_WITH") == 0) { return 149; }
-    if(strcmp(s, "TK_WRITE") == 0) { return 150; }
+    if(strcmp(s, "TK_AND") == 0) { return 46; }
+    if(strcmp(s, "TK_ASSIGNOP") == 0) { return 1; }
+    if(strcmp(s, "TK_CALL") == 0) { return 42; }
+    if(strcmp(s, "TK_CL") == 0) { return 31; }
+    if(strcmp(s, "TK_COLON") == 0) { return 27; }
+    if(strcmp(s, "TK_COMMA") == 0) { return 56; }
+    if(strcmp(s, "TK_DIV") == 0) { return 41; }
+    if(strcmp(s, "TK_DOT") == 0) { return 28; }
+    if(strcmp(s, "TK_ELSE") == 0) { return 45; }
+    if(strcmp(s, "TK_END") == 0) { return 11; }
+    if(strcmp(s, "TK_ENDIF") == 0) { return 34; }
+    if(strcmp(s, "TK_ENDRECORD") == 0) { return 44; }
+    if(strcmp(s, "TK_ENDWHILE") == 0) { return 29; }
+    if(strcmp(s, "TK_EQ") == 0) { return 51; }
+    if(strcmp(s, "TK_FIELDID") == 0) { return 3; }
+    if(strcmp(s, "TK_FUNID") == 0) { return 7; }
+    if(strcmp(s, "TK_GE") == 0) { return 53; }
+    if(strcmp(s, "TK_GLOBAL") == 0) { return 17; }
+    if(strcmp(s, "TK_GT") == 0) { return 52; }
+    if(strcmp(s, "TK_ID") == 0) { return 4; }
+    if(strcmp(s, "TK_IF") == 0) { return 32; }
+    if(strcmp(s, "TK_INPUT") == 0) { return 22; }
+    if(strcmp(s, "TK_INT") == 0) { return 13; }
+    if(strcmp(s, "TK_LE") == 0) { return 50; }
+    if(strcmp(s, "TK_LIST") == 0) { return 19; }
+    if(strcmp(s, "TK_LT") == 0) { return 49; }
+    if(strcmp(s, "TK_MAIN") == 0) { return 16; }
+    if(strcmp(s, "TK_MINUS") == 0) { return 39; }
+    if(strcmp(s, "TK_MUL") == 0) { return 40; }
+    if(strcmp(s, "TK_NE") == 0) { return 54; }
+    if(strcmp(s, "TK_NOT") == 0) { return 48; }
+    if(strcmp(s, "TK_NUM") == 0) { return 5; }
+    if(strcmp(s, "TK_OP") == 0) { return 30; }
+    if(strcmp(s, "TK_OR") == 0) { return 47; }
+    if(strcmp(s, "TK_OUTPUT") == 0) { return 23; }
+    if(strcmp(s, "TK_PARAMETER") == 0) { return 18; }
+    if(strcmp(s, "TK_PARAMETERS") == 0) { return 10; }
+    if(strcmp(s, "TK_PLUS") == 0) { return 38; }
+    if(strcmp(s, "TK_READ") == 0) { return 35; }
+    if(strcmp(s, "TK_REAL") == 0) { return 14; }
+    if(strcmp(s, "TK_RECORD") == 0) { return 43; }
+    if(strcmp(s, "TK_RECORDID") == 0) { return 8; }
+    if(strcmp(s, "TK_RETURN") == 0) { return 37; }
+    if(strcmp(s, "TK_RNUM") == 0) { return 6; }
+    if(strcmp(s, "TK_SEM") == 0) { return 26; }
+    if(strcmp(s, "TK_SQL") == 0) { return 20; }
+    if(strcmp(s, "TK_SQR") == 0) { return 21; }
+    if(strcmp(s, "TK_THEN") == 0) { return 33; }
+    if(strcmp(s, "TK_TYPE") == 0) { return 15; }
+    if(strcmp(s, "TK_WHILE") == 0) { return 12; }
+    if(strcmp(s, "TK_WITH") == 0) { return 9; }
+    if(strcmp(s, "TK_WRITE") == 0) { return 36; }
     if(strcmp(s, "eps" == 0 )){return -2;}
 
 }
