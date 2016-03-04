@@ -489,6 +489,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
     push(head, 0);
 
     tokenInfo token;
+    int ruleNum;
 
     // parsing now!
     while(1)
@@ -509,14 +510,14 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
             else
             {
                 popVal = pop(head);
-                curr = next(curr)
+                curr = next(curr);
                 token = getNextToken(fp, b, bufsize);
             }
         }
 
         ruleNum = T[popVal][token.id];
 
-        push_ints(head, getRuleRHSrev(ruleNum), curr);
+        head = push_ints(head, getRuleRHSrev(ruleNum), curr);
     }
 }
 
@@ -533,12 +534,14 @@ int* getRuleRHSrev(int rule)
     int* ret;
     ret = (int*) malloc(sizeof(int)*8);
 
-    for(int i = 0; i<8 ;i++)
+    int i;
+
+    for(i = 0; i<8 ;i++)
         ret[i] = 1000;
 
     char* toks = strtok(GRule[rule], " ");
 
-    counter = 0;
+    int counter = 0;
 
     while(toks != NULL)
     {
@@ -551,11 +554,6 @@ int* getRuleRHSrev(int rule)
 }
 
 // add stack methods
-struct stack
-{
-    int data;
-    stack* next;
-};
 
 stack* push(stack* head, int val)
 {
@@ -570,7 +568,7 @@ stack* push(stack* head, int val)
 
 stack* push_ints(stack* head, int* ints, parseTree curr)
 {
-    counter = 0;
+    int counter = 0;
 
     parseTree new = (parseTree) malloc(sizeof(*curr));
 
@@ -606,7 +604,7 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
 
 int pop(stack*head)
 {
-    int outVal = head->val;
+    int outVal = head->data;
 
     head = head->next;
 
@@ -627,96 +625,3 @@ int print(stack* head)
 
     return 0;
 }
-
-char *GRule[95];
-GRule[0] = "<otherFunctions> <mainFunction> ";
-GRule[1] = "TK_MAIN <stmts> TK_END ";
-GRule[2] = "<function> <otherFunctions> ";
-GRule[3] = "eps ";
-GRule[4] = "TK_FUNID <input_par> <output_par> TK_SEM <stmts> TK_END ";
-GRule[5] = "TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR ";
-GRule[6] = "TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR ";
-GRule[7] = "eps ";
-GRule[8] = "<dataType> TK_ID <remaining_list> ";
-GRule[9] = "<primitiveDatatype> ";
-GRule[10] = "<constructedDatatype> ";
-GRule[11] = "TK_INT ";
-GRule[12] = "TK_REAL ";
-GRule[13] = "TK_RECORD TK_RECORDID ";
-GRule[14] = "TK_COMMA <parameter_list> ";
-GRule[15] = "eps ";
-GRule[16] = "<typeDefinitions> <declarations> <otherStmts> <returnStmt> ";
-GRule[17] = "<typeDefinition> <typeDefinitions> ";
-GRule[18] = "eps ";
-GRule[19] = "TK_RECORD TK_RECORDID <fieldDefinitions> TK_ENDRECORD TK_SEM ";
-GRule[20] = "<fieldDefinition> <fieldDefinition> <moreFields> ";
-GRule[21] = "TK_TYPE <primitiveDatatype> TK_COLON TK_FIELDID TK_SEM ";
-GRule[22] = "<fieldDefinition> <moreFields> ";
-GRule[23] = "eps ";
-GRule[24] = "<declaration> <declarations> ";
-GRule[25] = "eps ";
-GRule[26] = "TK_TYPE <dataType> TK_COLON TK_ID <global_or_not> TK_SEM ";
-GRule[27] = "TK_COLON TK_GLOBAL ";
-GRule[28] = "eps ";
-GRule[29] = "<stmt> <otherStmts> ";
-GRule[30] = "eps ";
-GRule[31] = "<assignmentStmt> ";
-GRule[32] = "<iterativeStmt> ";
-GRule[33] = "<conditionalStmt> ";
-GRule[34] = "<ioStmt> ";
-GRule[35] = "<funCallStmt> ";
-GRule[36] = "<singleOrRecId> TK_ASSIGNOP <arithmeticExpression> TK_SEM ";
-GRule[37] = "TK_ID <singleA> ";
-GRule[38] = "TK_DOT TK_FIELDID ";
-GRule[39] = "eps ";
-GRule[40] = "<outputParameters> TK_CALL TK_FUNID TK_WITH TK_PARAMETERS <inputParameters> TK_SEM ";
-GRule[41] = "TK_SQL <idList> TK_SQR TK_ASSIGNOP ";
-GRule[42] = "eps ";
-GRule[43] = "TK_SQL <idList> TK_SQR ";
-GRule[44] = "TK_WHILE TK_OP <booleanExpression> TK_CL <stmt> <otherStmts> TK_ENDWHILE ";
-GRule[45] = "TK_IF TK_OP <booleanExpression> TK_CL TK_THEN <stmt> <otherStmts> <elsePart> ";
-GRule[46] = "TK_ELSE <stmt> <otherStmts> TK_ENDIF ";
-GRule[47] = "TK_ENDIF ";
-GRule[48] = "TK_READ TK_OP <singleOrRecId> TK_CL TK_SEM ";
-GRule[49] = "TK_WRITE TK_OP <allVar> TK_CL TK_SEM ";
-GRule[50] = "<singleOrRecId> ";
-GRule[51] = "TK_RECORDID TK_DOT TK_FIELDID ";
-GRule[52] = "<term> <expPrime> ";
-GRule[53] = "<lowPrecedenceOperators> <term> <expPrime> ";
-GRule[54] = "eps ";
-GRule[55] = "<factor> <termPrime> ";
-GRule[56] = "<highPrecedenceOperators> <factor> <termPrime> ";
-GRule[57] = "eps ";
-GRule[58] = "TK_OP <arithmeticExpression> TK_CL ";
-GRule[59] = "<all> ";
-GRule[60] = "TK_MUL ";
-GRule[61] = "TK_DIV ";
-GRule[62] = "TK_PLUS ";
-GRule[63] = "TK_MINUS ";
-GRule[64] = "TK_ID ";
-GRule[65] = "TK_NUM ";
-GRule[66] = "TK_RNUM ";
-GRule[67] = "TK_RECORDID <temp> ";
-GRule[68] = "eps ";
-GRule[69] = "TK_DOT TK_FIELD ";
-GRule[70] = "TK_OP <booleanExpression> TK_CL <logicalOp> TK_OP <booleanExpression> TK_CL ";
-GRule[71] = "<var> <relationalOp> <var> ";
-GRule[72] = "TK_NOT <booleanExpression> ";
-GRule[73] = "TK_ID ";
-GRule[74] = "TK_NUM ";
-GRule[75] = "TK_RNUM ";
-GRule[76] = "TK_AND ";
-GRule[77] = "TK_OR ";
-GRule[78] = "TK_LT ";
-GRule[79] = "TK_LE ";
-GRule[80] = "TK_EQ ";
-GRule[81] = "TK_GT ";
-GRule[82] = "TK_GE ";
-GRule[83] = "TK_NE ";
-GRule[84] = "TK_RETURN <optionalReturn> TK_SEM ";
-GRule[85] = "TK_SQL <idList> TK_SQR ";
-GRule[86] = "eps ";
-GRule[87] = "TK_ID <more_ids> ";
-GRule[88] = "TK_COMMA <idList> ";
-GRule[89] = "eps ";
-

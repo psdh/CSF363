@@ -5,7 +5,9 @@
 
 // parser.h        : Contains function prototype declarations of functions in parser.c
 
-#include "parserDef.h"
+
+#ifndef PARSER_H_INCLUDED
+#define PARSER_H_INCLUDED
 
 // void createParseTable(grammar G, table T): This function takes as input the grammar G,
 // uses FIRST and FOLLOW information to populate  the table T appropriately.
@@ -15,3 +17,5 @@ void createParseTable(FILE* G, table T);
 parseTree parseInputSourceCode(char *testcaseFile, table T);
 
 void printParseTree(parseTree  PT, char *outfile);
+
+#endif

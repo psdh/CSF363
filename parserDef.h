@@ -5,6 +5,9 @@
 
 // parserDef.h: Contains all definitions for data types such as grammar, table, parseTree etc. used in parser.c
 
+#ifndef PARSERDEF_H_INCLUDED
+#define PARSERDEF_H_INCLUDED
+
 #include "parser.h"
 #include <stdio.h>
 
@@ -19,8 +22,115 @@ struct tree {
 
 typedef struct tree* parseTree;
 
+parseTree next(parseTree);
+
 struct stack;
 typedef struct stack stack;
+
+struct stack
+{
+    int data;
+    stack* next;
+};
+
+stack* push_ints(stack*, int* , parseTree);
+stack* push(stack*, int);
+
+int* getRuleRHSrev(int);
+
+char GRule[95][100] = {
+    "<otherFunctions> <mainFunction> ",
+    "TK_MAIN <stmts> TK_END ",
+    "<function> <otherFunctions> ",
+    "eps ",
+    "TK_FUNID <input_par> <output_par> TK_SEM <stmts> TK_END ",
+    "TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR ",
+    "TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR ",
+    "eps ",
+    "<dataType> TK_ID <remaining_list> ",
+    "<primitiveDatatype> ",
+    "<constructedDatatype> ",
+    "TK_INT ",
+    "TK_REAL ",
+    "TK_RECORD TK_RECORDID ",
+    "TK_COMMA <parameter_list> ",
+    "eps ",
+    "<typeDefinitions> <declarations> <otherStmts> <returnStmt> ",
+    "<typeDefinition> <typeDefinitions> ",
+    "eps ",
+    "TK_RECORD TK_RECORDID <fieldDefinitions> TK_ENDRECORD TK_SEM ",
+    "<fieldDefinition> <fieldDefinition> <moreFields> ",
+    "TK_TYPE <primitiveDatatype> TK_COLON TK_FIELDID TK_SEM ",
+    "<fieldDefinition> <moreFields> ",
+    "eps ",
+    "<declaration> <declarations> ",
+    "eps ",
+    "TK_TYPE <dataType> TK_COLON TK_ID <global_or_not> TK_SEM ",
+    "TK_COLON TK_GLOBAL ",
+    "eps ",
+    "<stmt> <otherStmts> ",
+    "eps ",
+    "<assignmentStmt> ",
+    "<iterativeStmt> ",
+    "<conditionalStmt> ",
+    "<ioStmt> ",
+    "<funCallStmt> ",
+    "<singleOrRecId> TK_ASSIGNOP <arithmeticExpression> TK_SEM ",
+    "TK_ID <singleA> ",
+    "TK_DOT TK_FIELDID ",
+    "eps ",
+    "<outputParameters> TK_CALL TK_FUNID TK_WITH TK_PARAMETERS <inputParameters> TK_SEM ",
+    "TK_SQL <idList> TK_SQR TK_ASSIGNOP ",
+    "eps ",
+    "TK_SQL <idList> TK_SQR ",
+    "TK_WHILE TK_OP <booleanExpression> TK_CL <stmt> <otherStmts> TK_ENDWHILE ",
+    "TK_IF TK_OP <booleanExpression> TK_CL TK_THEN <stmt> <otherStmts> <elsePart> ",
+    "TK_ELSE <stmt> <otherStmts> TK_ENDIF ",
+    "TK_ENDIF ",
+    "TK_READ TK_OP <singleOrRecId> TK_CL TK_SEM ",
+    "TK_WRITE TK_OP <allVar> TK_CL TK_SEM ",
+    "<singleOrRecId> ",
+    "TK_RECORDID TK_DOT TK_FIELDID ",
+    "<term> <expPrime> ",
+    "<lowPrecedenceOperators> <term> <expPrime> ",
+    "eps ",
+    "<factor> <termPrime> ",
+    "<highPrecedenceOperators> <factor> <termPrime> ",
+    "eps ",
+    "TK_OP <arithmeticExpression> TK_CL ",
+    "<all> ",
+    "TK_MUL ",
+    "TK_DIV ",
+    "TK_PLUS ",
+    "TK_MINUS ",
+    "TK_ID ",
+    "TK_NUM ",
+    "TK_RNUM ",
+    "TK_RECORDID <temp> ",
+    "eps ",
+    "TK_DOT TK_FIELD ",
+    "TK_OP <booleanExpression> TK_CL <logicalOp> TK_OP <booleanExpression> TK_CL ",
+    "<var> <relationalOp> <var> ",
+    "TK_NOT <booleanExpression> ",
+    "TK_ID ",
+    "TK_NUM ",
+    "TK_RNUM ",
+    "TK_AND ",
+    "TK_OR ",
+    "TK_LT ",
+    "TK_LE ",
+    "TK_EQ ",
+    "TK_GT ",
+    "TK_GE ",
+    "TK_NE ",
+    "TK_RETURN <optionalReturn> TK_SEM ",
+    "TK_SQL <idList> TK_SQR ",
+    "eps ",
+    "TK_ID <more_ids> ",
+    "TK_COMMA <idList> ",
+    "eps ",
+};
+
 
 typedef enum terms {
     // Non-Terminals first!
@@ -233,3 +343,5 @@ char* termsArray = [
                     "TK_WRITE",
                     ]
 typedef *tree parseTree;
+
+#endif
