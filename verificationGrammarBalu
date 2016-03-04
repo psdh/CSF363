@@ -1,0 +1,92 @@
+program otherFunctions mainFunction
+mainFunction TK_MAIN stmts TK_END
+otherFunctions function otherFunctions
+otherFunctions TK_EPSILON
+function TK_FUNID input_par output_par TK_SEM stmts TK_END
+input_par TK_INPUTTK_PARAMETERTK_LISTTK_SQL parameter_list TK_SQR
+output_par TK_OUTPUTTK_PARAMETERTK_LISTTK_SQL parameter_list TK_SQR
+output_par TK_EPSILON
+parameter_list dataType TK_ID remaining_list
+dataType primitiveDatatype
+dataType constructedDatatype
+primitiveDatatype TK_INT
+primitiveDatatype TK_REAL
+constructedDatatype TK_RECORDTK_RECORDID
+remaining_list TK_COMMA parameter_list
+remaining_list TK_EPSILON
+stmts typeDefinitions declarations otherStmts returnStmt
+typeDefinitions typeDefinition typeDefinitions
+typeDefinitions TK_EPSILON
+typeDefinition TK_RECORDTK_RECORDID fieldDefinitions TK_ENDRECORDTK_SEM
+fieldDefinitions fieldDefinition fieldDefinition moreFields
+fieldDefinition TK_TYPE primitiveDatatype TK_COLONTK_FIELDIDTK_SEM
+moreFields fieldDefinition moreFields
+moreFields TK_EPSILON
+declarations declaration declarations
+declarations TK_EPSILON
+declaration TK_TYPE dataType TK_COLONTK_ID global_or_not TK_SEM
+global_or_not TK_COLONTK_GLOBAL
+global_or_not TK_EPSILON
+otherStmts stmt otherStmts
+otherStmts TK_EPSILON
+stmt assignmentStmt
+stmt iterativeStmt
+stmt conditionalStmt
+stmt ioStmt
+stmt funCallStmt
+assignmentStmt singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM
+singleOrRecId TK_ID new_24
+new_24 TK_DOTTK_FIELDID
+new_24 TK_EPSILON
+funCallStmt outputParameters TK_CALLTK_FUNIDTK_WITHTK_PARAMETERS inputParameters TK_SEM
+outputParameters TK_SQL idList TK_SQRTK_ASSIGNOP
+outputParameters TK_EPSILON
+inputParameters TK_SQL idList TK_SQR
+iterativeStmt TK_WHILETK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE
+conditionalStmt TK_IFTK_OP booleanExpression TK_CLTK_THEN stmt otherStmts elsePart
+elsePart TK_ELSE stmt otherStmts TK_ENDIF
+elsePart TK_ENDIF
+ioStmt TK_READTK_OP singleOrRecId TK_CLTK_SEM
+ioStmt TK_WRITETK_OP allVar TK_CLTK_SEM
+allVar TK_NUM
+allVar TK_RNUM
+allVar TK_ID allVar2
+allVar2 TK_DOTTK_FIELDID
+allVar2 TK_EPSILON
+arithmeticExpression term expPrime
+expPrime lowPrecedenceOperators term expPrime
+expPrime TK_EPSILON
+term factor termPrime
+termPrime highPrecedenceOperator factor termPrime
+termPrime TK_EPSILON
+factor TK_OP arithmeticExpression TK_CL
+factor all
+highPrecedenceOperator TK_MUL
+highPrecedenceOperator TK_DIV
+lowPrecedenceOperators TK_PLUS
+lowPrecedenceOperators TK_MINUS
+all TK_ID all2
+all TK_NUM
+all TK_RNUM
+all2 TK_DOTTK_FIELDID
+all2 TK_EPSILON
+booleanExpression TK_OP booleanExpression TK_CL logicalOp TK_OP booleanExpression TK_CL
+booleanExpression var relationalOp var
+booleanExpression TK_NOTTK_OP booleanExpression TK_CL
+var TK_ID
+var TK_NUM
+var TK_RNUM
+logicalOp TK_AND
+logicalOp TK_OR
+relationalOp TK_LE
+relationalOp TK_LT
+relationalOp TK_EQ
+relationalOp TK_GT
+relationalOp TK_GE
+relationalOp TK_NE
+returnStmt TK_RETURN optionalReturn TK_SEM
+optionalReturn TK_SQL idList TK_SQR
+optionalReturn TK_EPSILON
+idList TK_ID more_ids
+more_ids TK_COMMA idList
+more_ids TK_EPSILON

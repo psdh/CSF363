@@ -624,6 +624,6 @@ int pop(stack*head)
 
 int main()
 {
-    printf("doign osmething");
+    printf("wanna get some?");
     return 0;
 }
