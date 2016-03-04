@@ -331,7 +331,7 @@ char * token getCorrespondingToken(int f){
         case 51: return "TK_EQ";
         case 52: return "TK_GT";
         case 53: return "TK_GE";
-        case 53: return "TK_LE";
+        case 53: return "TK_GE";
         case 54: return "TK_NE";
         case 55: return "TK_ENDOFFILE";
         case 56: return "TK_COMMA";
