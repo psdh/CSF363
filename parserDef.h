@@ -1,4 +1,4 @@
-// filename: lexer.c
+// filename: parserDef.h
 // Batch 47
 // 2013A7PS126P Gyanendra Mishra
 // 2013A7PS151P Prabhjyot Singh Sodhi
@@ -8,7 +8,6 @@
 #ifndef PARSERDEF_H_INCLUDED
 #define PARSERDEF_H_INCLUDED
 
-#include "parser.h"
 #include <stdio.h>
 
 typedef char** table;
@@ -131,114 +130,7 @@ char GRule[95][100] = {
     "eps ",
 };
 
-
-typedef enum terms {
-    // Non-Terminals first!
-    program = 0,
-    mainFunction,
-    otherFunctions,
-    function,
-    input_par,
-    output_par,
-    parameter_list,
-    dataType,
-    primitiveDatatype,
-    constructedDatatype,
-    remaining_list,
-    stmts,
-    typeDefinitions,
-    typeDefinition,
-    fieldDefinitions,
-    fieldDefinition,
-    moreFields,
-    declarations,
-    declaration,
-    global_or_not,
-    otherStmts,
-    stmt,
-    assignmentStmt,
-    singleOrRecId,
-    funCallStmt,
-    outputParameters,
-    inputParameters,
-    iterativeStmt,
-    conditionalStmt,
-    elsePart,
-    ioStmt,
-    allVar,
-    arithmeticExpression,
-    expPrime,
-    term,
-    termPrime,
-    factor,
-    highPrecedenceOperator,
-    lowPrecedenceOperators,
-    all,
-    temp,
-    booleanExpression,
-    var,
-    logicalOp,
-    relationalOp,
-    returnStmt,
-    optionalReturn,
-    idList,
-    more_ids,
-    // Terminals now!
-    TK_AND,
-    TK_ASSIGNOP,
-    TK_CALL,
-    TK_CL,
-    TK_COLON,
-    TK_COMMA,
-    TK_DIV,
-    TK_DOT,
-    TK_ELSE,
-    TK_END,
-    TK_ENDIF,
-    TK_ENDRECORD,
-    TK_ENDWHILE,
-    TK_EQ,
-    TK_FIELDID,
-    TK_FUNID,
-    TK_GE,
-    TK_GLOBAL,
-    TK_GT,
-    TK_ID,
-    TK_IF,
-    TK_INPUT,
-    TK_INT,
-    TK_LE,
-    TK_LIST,
-    TK_LT,
-    TK_MAIN,
-    TK_MINUS,
-    TK_MUL,
-    TK_NE,
-    TK_NOT,
-    TK_NUM,
-    TK_OP,
-    TK_OR,
-    TK_OUTPUT,
-    TK_PARAMETER,
-    TK_PARAMETERS,
-    TK_PLUS,
-    TK_READ,
-    TK_REAL,
-    TK_RECORD,
-    TK_RECORDID,
-    TK_RETURN,
-    TK_RNUM,
-    TK_SEM,
-    TK_SQL,
-    TK_SQR,
-    TK_THEN,
-    TK_TYPE,
-    TK_WHILE,
-    TK_WITH,
-    TK_WRITE,
-};
-
-char* termsArray = [
+char termsArray[101][30] = {
                     "program",
                     "mainFunction",
                     "otherFunctions",
@@ -341,7 +233,6 @@ char* termsArray = [
                     "TK_WHILE",
                     "TK_WITH",
                     "TK_WRITE",
-                    ]
-typedef *tree parseTree;
+                    };
 
 #endif

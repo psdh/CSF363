@@ -1,4 +1,4 @@
-// filename: lexer.c
+// filename: parser.h
 // Batch 47
 // 2013A7PS126P Gyanendra Mishra
 // 2013A7PS151P Prabhjyot Singh Sodhi
@@ -8,6 +8,9 @@
 
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
+
+#include "parserDef.h"
+#include <stdio.h>
 
 // void createParseTable(grammar G, table T): This function takes as input the grammar G,
 // uses FIRST and FOLLOW information to populate  the table T appropriately.

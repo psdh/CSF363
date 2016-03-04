@@ -7,11 +7,7 @@
 #include "lexer.h"
 #include <stdlib.h>
 
-typedef char[20] string;
-
-typedef string[] rule;
-
-int[] getFirsts(char * input){
+int* getFirsts(char * input){
 
     char * line = NULL;
     char * token;
@@ -46,10 +42,10 @@ int[] getFirsts(char * input){
     return firsts;
 }
 
-int[] first(char * input){
+int* first(char * input){
     int firsts[1000];
-    int current[10];
-    count = 0;
+    int* current;
+    int count = 0;
     char * token;
     token = strtok(input, " ");
     int epislonFound = 0;
@@ -69,7 +65,7 @@ int[] first(char * input){
     return firsts;
 }
 
-int[] getFollows(char * input){
+int* getFollows(char * input){
 
     char * line = NULL;
     char * token;
@@ -105,10 +101,10 @@ int[] getFollows(char * input){
 }
 
 
-int[] follow(char * input){
+int* follow(char * input){
     int firsts[1000];
-    int current[10];
-    count = 0;
+    int* current;
+    int count = 0;
     char * token;
     token = strtok(input, " ");
     int epislonFound = 0;
@@ -277,7 +273,7 @@ int getRowIndex(char* s)
 }
 
 
-char * token getCorrespondingToken(int f){
+char* getCorrespondingToken(int f){
     switch(f){
         case 1: return "TK_ASSIGNOP";
         case 2: return "TK_COMMENT";
@@ -394,6 +390,17 @@ int getColumnIndex(char* s)
     if(strcmp(s, "TK_WRITE") == 0) { return 36; }
     if(strcmp(s, "eps" == 0 )){return -2;}
 
+    return -90;
+}
+
+int getIndex(char* tok)
+{
+    int ret = getColumnIndex(tok);
+
+    if (ret == -90)
+        ret = getRowIndex(tok);
+
+    return ret;
 }
 
 // @psdh add default rule number -69 or something else
@@ -402,7 +409,8 @@ void createParseTable(FILE* G, table T)
     int terminals = 0;
     int nonTerminals = 0;
 
-    char readString[25];
+    char* readString;
+    char LHSString[25];
 
     char* restOfRule;
     size_t len = 0;
@@ -412,22 +420,24 @@ void createParseTable(FILE* G, table T)
     int* toBeMarked;
 
     int ruleNo = 0;
+    int counter;
+    // @psdh check if this has to be re initialized in each loop
+    int flag = 0;
 
     while(!feof(G))
     {
-        s = "";
         readString = "";
-        RHString = "";
         fscanf(G, "%s", readString);
 
         // incrementing each time
         ruleNo++;
 
-        LHSString = readString;
+        strcpy(LHSString, readString);
         LHS = getRowIndex(readString);
 
         fscanf(G, "%s", readString);
-        assert(strcmp(readString, "===>") == 0);
+        if (strcmp(readString, "===>") != 0)
+            printf("ERROR !!! :(");
 
         getline(&restOfRule, &len, G);
 
@@ -481,15 +491,16 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
     ptree->firstKid = NULL;
     ptree->siblings = NULL;
 
-    parseTree curr = tree;
+    parseTree curr = ptree;
 
     // push "dollar" or -47 to indicate the end of the stack
-    push(head, -47)
+    push(head, -47);
     // push "program" to start parsing
     push(head, 0);
 
     tokenInfo token;
     int ruleNum;
+    int popVal;
 
     // parsing now!
     while(1)
@@ -611,17 +622,8 @@ int pop(stack*head)
     return outVal;
 }
 
-int print(stack* head)
+int main()
 {
-    stack* temp = head;
-
-    printf("\n");
-    while (temp->next != NULL)
-    {
-        printf("  %d  -->", temp->data);
-        temp = temp->next;
-    }
-    printf("%d\n", temp->data);
-
+    printf("doign osmething");
     return 0;
 }
