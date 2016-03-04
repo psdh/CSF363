@@ -11,52 +11,6 @@ typedef char[20] string;
 
 typedef string[] rule;
 
-int[] first(char * input){
-    int firsts[1000];
-    int current[10];
-    count = 0;
-    char * token;
-    token = strtok(input, " ");
-    int epislonFound = 0;
-    while(token!=NULL && epislonFound == 1){
-        epislonFound = 1;
-        token = strtok(input, " ");
-        current = getFirsts(token);
-        int i = 0;
-        while(current[i]!=-1){
-            if(current[i] == -2) {
-                epislonFound = 1;
-            }
-            firsts[count++] = current[i++];
-        }
-    }
-    firsts[count] = -1;
-    return firsts;
-}
-
-int[] follow(char * input){
-    int firsts[1000];
-    int current[10];
-    count = 0;
-    char * token;
-    token = strtok(input, " ");
-    int epislonFound = 0;
-    while(token!=NULL && epislonFound == 1){
-        epislonFound = 1;
-        token = strtok(input, " ");
-        current = getFollows(token);
-        int i = 0;
-        while(current[i]!=-1){
-            if(current[i] == -2) {
-                epislonFound = 1;
-            }
-            firsts[count++] = current[i++];
-        }
-    }
-    firsts[count] = -1;
-    return firsts;
-}
-
 int[] getFirsts(char * input){
 
     char * line = NULL;
@@ -89,6 +43,29 @@ int[] getFirsts(char * input){
     firsts[count] = -1;
 
     fclose(fp);
+    return firsts;
+}
+
+int[] first(char * input){
+    int firsts[1000];
+    int current[10];
+    count = 0;
+    char * token;
+    token = strtok(input, " ");
+    int epislonFound = 0;
+    while(token!=NULL && epislonFound == 1){
+        epislonFound = 1;
+        token = strtok(input, " ");
+        current = getFirsts(token);
+        int i = 0;
+        while(current[i]!=-1){
+            if(current[i] == -2) {
+                epislonFound = 1;
+            }
+            firsts[count++] = current[i++];
+        }
+    }
+    firsts[count] = -1;
     return firsts;
 }
 
@@ -126,6 +103,31 @@ int[] getFollows(char * input){
     fclose(fp);
     return follows;
 }
+
+
+int[] follow(char * input){
+    int firsts[1000];
+    int current[10];
+    count = 0;
+    char * token;
+    token = strtok(input, " ");
+    int epislonFound = 0;
+    while(token!=NULL && epislonFound == 1){
+        epislonFound = 1;
+        token = strtok(input, " ");
+        current = getFollows(token);
+        int i = 0;
+        while(current[i]!=-1){
+            if(current[i] == -2) {
+                epislonFound = 1;
+            }
+            firsts[count++] = current[i++];
+        }
+    }
+    firsts[count] = -1;
+    return firsts;
+}
+
 
 int getRowIndex(char* s)
 {
@@ -371,7 +373,7 @@ void createParseTable(FILE* G, table T)
 
         getline(&restOfRule, &len, G);
 
-        toBeMarked = getFirst(restOfRule);
+        toBeMarked = first(restOfRule);
 
         counter = 0;
 
@@ -385,7 +387,7 @@ void createParseTable(FILE* G, table T)
 
         if (flag == 1)
         {
-            toBeMarked = getFollow(LHSString);
+            toBeMarked = getFollows(LHSString);
 
             counter = 0;
             while(toBeMarked[counter] != -1)
