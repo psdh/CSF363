@@ -6,11 +6,15 @@
 // lexer.h           : Contains function prototype declarations of functions in lexer.c
 
 #include <stdio.h>
-#include "lexerDef.h"
+#include"lexerDef.h"
 
-typedef int buffersize;
-typedef char* buffer;
+#ifndef LEXER_H_INCLUDED
+#define LEXER_H_INCLUDED
 
 FILE *getStream(FILE *fp, buffer B, buffersize k);
 
-tokenInfo  getNextToken(FILE *fp);
+// TODO<psdh> define tokenInfo (probably a struct that  will be used when storing in the symbol table)
+// Figure out where must tokenInfo be defined (which file that is)
+tokenInfo  getNextToken(FILE *fp, buffer b, buffersize k);
+
+#endif
