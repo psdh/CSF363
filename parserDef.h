@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-typedef char** table;
+typedef int** table;
 
 struct tree {
     int id;

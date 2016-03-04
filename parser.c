@@ -403,9 +403,25 @@ int getIndex(char* tok)
     return ret;
 }
 
+// initializing parsing table to rule no 1000
+// 1000 indicates *no rule*
+void initializeTable(table T)
+{
+    int i = 0;
+    int j = 0;
+
+    for (i = 0;i<55;i++)
+    {
+        for (j = 0;j<55;j++)
+            T[i][j] = 1000;
+    }
+}
+
 // @psdh add default rule number -69 or something else
 void createParseTable(FILE* G, table T)
 {
+    initializeTable(T);
+
     int terminals = 0;
     int nonTerminals = 0;
 
@@ -426,6 +442,8 @@ void createParseTable(FILE* G, table T)
 
     while(!feof(G))
     {
+        flag = 0;
+
         readString = "";
         fscanf(G, "%s", readString);
 
