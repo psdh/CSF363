@@ -1,4 +1,4 @@
-// filename: lexer.c
+// filename: parser.c
 // Batch 47
 // 2013A7PS126P Gyanendra Mishra
 // 2013A7PS151P Prabhjyot Singh Sodhi
@@ -396,12 +396,7 @@ int getColumnIndex(char* s)
 
 }
 
-// typedef enum ruleState
-// {
-//     LHS,
-//     RHS
-// };
-
+// @psdh add default rule number -69 or something else
 void createParseTable(FILE* G, table T)
 {
     int terminals = 0;
@@ -466,23 +461,172 @@ void createParseTable(FILE* G, table T)
 
 parseTree parseInputSourceCode(char *testcaseFile, table T)
 {
+    // initialize file pointer
     FILE *fp;
     fp = fopen(testcaseFile, 'rb');
 
-    buffer[2] b;
-    buffersize bufsize = 100;
+    // initialize buffer
+    buffer b;
+    buffersize bufsize = 25;
 
-    b[0] = (char*) malloc(sizeof(char)*bufsize);
-    b[1] = (char*) malloc(sizeof(char)*bufsize);
+    b = (char*) malloc(sizeof(char)*bufsize);
 
-    int count = 0;
-    fp = getStream(fp, b[count % 2], bufsize);
+    // initialize stack
+    stack* head = (stack*) malloc(sizeof(stack));
+    head->next = NULL;
 
+    // initialize parseTree
+    parseTree ptree = (parseTree) malloc(sizeof(struct tree));
+    ptree->id = 0;
+    ptree->firstKid = NULL;
+    ptree->siblings = NULL;
+
+    parseTree curr = tree;
+
+    // push "dollar" or -47 to indicate the end of the stack
+    push(head, -47)
+    // push "program" to start parsing
+    push(head, 0);
+
+    tokenInfo token;
+
+    // parsing now!
+    while(1)
+    {
+        token = getNextToken(fp, b, bufsize);
+
+        popVal = pop(head);
+
+        // if $ is popped
+        if(popVal == -47)
+        {
+            // some error report here!
+        }
+
+        while (popVal >= 100) {
+            if (popVal != token.id)
+                printf("ERROR: popped value should be same as token");
+            else
+            {
+                popVal = pop(head);
+                curr = next(curr)
+                token = getNextToken(fp, b, bufsize);
+            }
+        }
+
+        ruleNum = T[popVal][token.id];
+
+        push_ints(head, getRuleRHSrev(ruleNum), curr);
+    }
 }
 
-void markFirst(table T, int index, );
+parseTree next(parseTree curr)
+{
+    if(curr->siblings == NULL)
+        return curr->parent;
+    else
+        return curr->siblings;
+}
+
+int* getRuleRHSrev(int rule)
+{
+    int* ret;
+    ret = (int*) malloc(sizeof(int)*8);
+
+    for(int i = 0; i<8 ;i++)
+        ret[i] = 1000;
+
+    char* toks = strtok(GRule[rule], " ");
+
+    counter = 0;
+
+    while(toks != NULL)
+    {
+        ret[counter] = getIndex(toks);
+        counter++;
+        toks = strtok(NULL, " ");
+    }
+
+    return ret;
+}
 
 // add stack methods
+struct stack
+{
+    int data;
+    stack* next;
+};
+
+stack* push(stack* head, int val)
+{
+    // Allocate new space
+    stack* new = (stack*) malloc(sizeof(stack));
+    new->data = val;
+    new->next = head;
+    head = new;
+
+    return head;
+}
+
+stack* push_ints(stack* head, int* ints, parseTree curr)
+{
+    counter = 0;
+
+    parseTree new = (parseTree) malloc(sizeof(*curr));
+
+    new->id = ints[0];
+    new->siblings = NULL;
+    new->parent = curr;
+    curr->firstKid = new;
+
+    counter++;
+
+    parseTree prev = new;
+    while(ints[counter] != 1000 && counter < 8)
+    {
+        parseTree temp = (parseTree) malloc(sizeof(*curr));
+        temp->siblings=NULL;
+        temp->parent = curr;
+        prev->siblings = temp;
+        prev = temp;
+        counter++;
+    }
+
+    while (counter >= 0)
+    {
+        counter--;
+        if(ints[counter] == 1000)
+            continue;
+
+        head = push(head, ints[counter]);
+    }
+
+    return head;
+}
+
+int pop(stack*head)
+{
+    int outVal = head->val;
+
+    head = head->next;
+
+    return outVal;
+}
+
+int print(stack* head)
+{
+    stack* temp = head;
+
+    printf("\n");
+    while (temp->next != NULL)
+    {
+        printf("  %d  -->", temp->data);
+        temp = temp->next;
+    }
+    printf("%d\n", temp->data);
+
+    return 0;
+}
 
 char *GRule[95];
 GRule[0] = "<otherFunctions> <mainFunction> ";

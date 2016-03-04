@@ -3,7 +3,7 @@
 // 2013A7PS126P Gyanendra Mishra
 // 2013A7PS151P Prabhjyot Singh Sodhi
 
-// parserDef.h  : Contains all definitions for data types such as grammar, table, parseTree etc. used in parser.c
+// parserDef.h: Contains all definitions for data types such as grammar, table, parseTree etc. used in parser.c
 
 #include "parser.h"
 #include <stdio.h>
@@ -11,10 +11,16 @@
 typedef char** table;
 
 struct tree {
-    int n;
+    int id;
+    struct tree *parent;
     struct tree *firstKid;
     struct tree *siblings;
 };
+
+typedef struct tree* parseTree;
+
+struct stack;
+typedef struct stack stack;
 
 typedef enum terms {
     // Non-Terminals first!
