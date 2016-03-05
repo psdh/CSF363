@@ -9,6 +9,7 @@
 #include <string.h>
 
 #define table_row 60
+int flag_eps;
 
 int* getFirsts(char * input){
 
@@ -28,7 +29,14 @@ int* getFirsts(char * input){
 
     while ((read = getline(&line, &len, fp)) != -1) {
         line[read - 1] = '\0';
-        token = strtok(line, " ");
+
+        char* temp;
+        temp = (char*) malloc(200*sizeof(char));
+
+        strcpy(temp, line);
+
+
+        token = strtok(temp, " ");
         if( token != NULL && strcmp(token, input) == 0){
             while(token!=NULL){
                 token = strtok(NULL, " ");
@@ -52,11 +60,25 @@ int* first(char * input){
     int* current;
     int count = 0;
     char * token;
-    token = strtok(input, " ");
+
+    char* temp;
+    temp = (char*) malloc(200*sizeof(char));
+
+    strcpy(temp, input);
+
+    token = strtok(temp, " ");
+
+    char* token_copy;
+    token_copy = (char*) malloc(200*sizeof(char));
+
     int epislonFound = 1;
     while(token!=NULL && epislonFound == 1){
+        printf("%s\n", token);
         epislonFound = 0;
-        current = getFirsts(token);
+
+        strcpy(token_copy, token);
+
+        current = getFirsts(token_copy);
         int i = 0;
         while(current[i]!=-1){
             if(current[i] == 57) {
@@ -88,7 +110,14 @@ int* getFollows(char * input){
 
     while ((read = getline(&line, &len, fp)) != -1) {
         line[read - 1] = '\0';
-        token = strtok(line, " ");
+
+        char* temp;
+        temp = (char*) malloc(200*sizeof(char));
+
+        strcpy(temp, line);
+
+        token = strtok(temp, " ");
+
         if( token != NULL && strcmp(token, input) == 0){
             while(token!=NULL){
                 token = strtok(NULL, " ");
@@ -113,7 +142,14 @@ int* follow(char * input){
     int* current;
     int count = 0;
     char * token;
-    token = strtok(input, " ");
+
+    char* temp;
+    temp = (char*) malloc(200*sizeof(char));
+
+    strcpy(temp, input);
+
+    token = strtok(temp, " ");
+
     int epislonFound = 0;
     while(token!=NULL && epislonFound == 1){
         epislonFound = 1;
@@ -480,7 +516,7 @@ void initializeTable(table T)
     }
 }
 
-// @psdh add default rule number -69 or something else
+// default rule number -1
 void createParseTable(FILE* G, table T)
 {
     initializeTable(T);
@@ -501,7 +537,7 @@ void createParseTable(FILE* G, table T)
 
     int ruleNo = 0;
     int counter;
-    // @psdh check if this has to be re initialized in each loop
+
     int flag = 0;
 
 
@@ -530,7 +566,7 @@ void createParseTable(FILE* G, table T)
 
         while(toBeMarked[counter] != -1)
         {
-            printf("%d\n", toBeMarked[counter]);
+            // printf("%d\n", toBeMarked[counter]);
             if(toBeMarked[counter] == 57)
             {
                 flag = 1;
@@ -548,7 +584,7 @@ void createParseTable(FILE* G, table T)
             counter = 0;
             while(toBeMarked[counter] != -1)
             {
-                printf("%d\n", toBeMarked[counter]);
+                // printf("%d\n", toBeMarked[counter]);
                 // in case of $
                 if(toBeMarked[counter] == 55)
                 {
@@ -575,6 +611,8 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
     // initialize buffer
     buffer b;
     buffersize bufsize = 25;
+
+    lineNo = 1;
 
     b = (buffer) malloc(sizeof(char)*bufsize);
 
@@ -634,7 +672,10 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 popVal = popped.data;
                 head = popped.next;
 
-                curr = curr->siblings == NULL?curr->parent:curr->siblings;
+                while (curr->siblings == NULL)
+                    curr = curr->parent;
+
+                curr = curr->siblings;
                 continue;
             }
 
@@ -652,7 +693,10 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 popVal = popped.data;
                 head = popped.next;
 
-                curr = curr->siblings == NULL?curr->parent:curr->siblings;
+                while (curr->siblings == NULL)
+                    curr = curr->parent;
+
+                curr = curr->siblings;
 
                 state = 1;
                 token = getNextToken(fp, b, bufsize);
@@ -665,12 +709,15 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
         if (ruleNum == -1)
         {
-            printf("panga re! :(");
+            printf("rule not found");
             printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
             exit(0);
         }
+
         head = push_ints(head, getRuleRHSrev(ruleNum), curr);
+
         curr = curr->firstKid;
+
         printf("\n\n\n");
         printParseTree(ptree);
     }
@@ -709,7 +756,11 @@ int* getRuleRHSrev(int rule)
     for(i = 0; i<8 ;i++)
         ret[i] = 1000;
 
-    char* toks = strtok(GRule[rule], " ");
+    char* temp;
+    temp = (char*) malloc(200*sizeof(char));
+
+    strcpy(temp, GRule[rule]);
+    char* toks = strtok(temp, " ");
 
     int counter = 0;
 
@@ -752,6 +803,9 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
     parseTree prev = new;
     while(ints[counter] != 1000 && counter < 8)
     {
+        if(ints[counter] == 57)
+            flag_eps = 1;
+
         parseTree temp = (parseTree) malloc(sizeof(*curr));
         temp->id = ints[counter];
         temp->siblings=NULL;

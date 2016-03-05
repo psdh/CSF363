@@ -75,6 +75,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						state=1;
 						offset++;
 						break;
+					case '\r':
+						state = 1;
+						offset++;
+						break;
 					case '\n':
 						state=1;
 						lineNo++;
@@ -267,7 +271,8 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				break;
 			// comments
 			case 2:
-				while(b[offset++]!='\n'){
+				while(b[offset++]!='\n')
+				{
 					if (offset == k || b[offset] == '\0'){
 						// comment at end of file
 						if (feof(fp)){
