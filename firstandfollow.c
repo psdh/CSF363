@@ -78,9 +78,10 @@ int epsilonInFirst(char  * name){
     return 0;
 }
 
-int alreadyThere(char * word, char buffer[500][500]){
+int alreadyThere(char * word, char buffer[500][500], int ff){
     int i =0;
-    while(i!=500){
+    while(i!=ff){
+    	printf("%s\n", buffer[i]);
         if(strcmp(word, buffer[i])==0)
             return i;
         i++;
@@ -118,7 +119,7 @@ void getFirst(char * rule, char * Filename){
 	int i = 0;
     if(isDone(rule) == -1){
         if (isTerminal(rule) == 1) {
-	        if(alreadyThere(rule, temp_seen)==-1){
+	        if(alreadyThere(rule, temp_seen, i)==-1){
 	            strcpy(done_firsts[done_count],rule);
 	            strcpy(firsts[done_count++],rule);
 	            strcpy(temp_seen[i++], rule);
@@ -127,20 +128,20 @@ void getFirst(char * rule, char * Filename){
         else{
             FILE * fp = fopen(Filename, "r");
             char * line = NULL;
-        size_t len = 0;
-        ssize_t read;
-        char left[100];
-        char right[100];
+	        size_t len = 0;
+	        ssize_t read;
+	        char left[100];
+	        char right[100];
             char buffer[500];
             strcpy(buffer, "");
             while((read = getline(&line, &len, fp)) != -1){
                 sscanf(line, "%s ===> %[^\n\t]", left, right);
                 if (strcmp(left, rule)== 0){
-                	printf("%s\%s\n", );
                     if (strcmp(right, "eps") == 0){
+		                // printf("%s\t%s\n", rule, right);
                     	has_eps_rule = 1;
-                    	if(alreadyThere("eps", temp_seen)== -1){
-	                        strcat(buffer, right);
+                    	if(alreadyThere("eps", temp_seen, i)== -1){
+	                        strcat(buffer, "eps");
 	                        strcat(buffer, " ");
 	                        strcpy(temp_seen[i++], "eps");
 		                }
@@ -163,8 +164,7 @@ void getFirst(char * rule, char * Filename){
                             	continue;
                             }
                             if(isTerminal(copy)){
-                            	printf("%s\t%s\t%d\n", copy, rule, i);
-                                if(alreadyThere(copy, temp_seen)==-1){
+                                if(alreadyThere(copy, temp_seen, i)==-1){
                                     strcat(buffer, copy);
                                     strcat(buffer, " ");
                                     strcpy(temp_seen[i++], copy);
@@ -172,8 +172,11 @@ void getFirst(char * rule, char * Filename){
                                 break;
                             }
                             else if(isDone(copy)!=-1 && epsilonInFirst(copy) == 0){
-                            	printf("11%s\n", rule);
-                                if(alreadyThere(copy, temp_seen)==-1){
+                                if(alreadyThere(copy, temp_seen, i)==-1){
+                                    char* token = strtok(firsts[isDone(copy)]);
+                                    while(token!=NULL){
+                                    	
+                                    }
                                     strcat(buffer, firsts[isDone(copy)]);
                                     strcat(buffer, " ");
                                     strcpy(temp_seen[i++], copy);
@@ -181,19 +184,17 @@ void getFirst(char * rule, char * Filename){
                                 break;
                             }
                             else if(isDone(copy)!=-1){
-                            	printf("22%s\n", rule);
-                                if(alreadyThere(copy, temp_seen)==-1){
+                                if(alreadyThere(copy, temp_seen, i)==-1){
                                     strcat(buffer, firsts[isDone(copy)]);
                                     strcat(buffer, " ");
                                     strcpy(temp_seen[i++], copy);
                                 }
                             }
                             else{
-                            	printf("33%s\t%s\n", rule, copy);
                                 // char * fname;
                                 // printf("%s Called %s\n", rule, copy);
                                 getFirst(copy, Filename);
-                                if(alreadyThere(copy, temp_seen)==-1){
+                                if(alreadyThere(copy, temp_seen, i)==-1){
                                     strcat(buffer, firsts[isDone(copy)]);
                                     strcat(buffer, " ");
                                     strcpy(temp_seen[i++], copy);
@@ -209,7 +210,8 @@ void getFirst(char * rule, char * Filename){
                             if(token!=NULL){
                                 strcpy(copy, token);
                                 if (has_eps_rule != 1){
-                                	int position_of_eps = alreadyThere("eps", temp_seen);
+                                	int position_of_eps = alreadyThere("eps", temp_seen, i);
+                                	printf("%d\t%s\n", position_of_eps, rule);
                                 	if(position_of_eps !=-1){
                                 		// printf("%s\n", "GANDAGI");
                                 		strcpy(temp_seen[position_of_eps], "GARBAGEDATA");
