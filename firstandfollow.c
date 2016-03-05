@@ -136,7 +136,7 @@ void getFirst(char * rule, char * Filename){
             while((read = getline(&line, &len, fp)) != -1){
             	char lineBuffer[500];
             	strcpy(lineBuffer, "");
-                sscanf(line, "%s ===> %[^\n\t]", left, right);
+                sscanf(line, "%s ===> %[^\r\n\t]", left, right);
                 if (strcmp(left, rule)== 0){
                 	// printf("===%s\t%s===\n", rule, buffer);
                     if (strcmp(right, "eps") == 0){
@@ -191,7 +191,7 @@ void getFirst(char * rule, char * Filename){
                             break;
                             }
                             else if(isDone(copy)!=-1){
-                            	// printf("%s\n", firsts[isDone(copy)]);
+                            	// printf("%sf", firsts[isDone(copy)]);
                             	char* tempstr = (char*) calloc(strlen(firsts[isDone(copy)])+1, sizeof(char));
                             	strcpy(tempstr, firsts[isDone(copy)]);
                                 char* token_temp = strtok(tempstr, " ");
@@ -284,7 +284,7 @@ int doubleDependence(char * rule1, char * rule2, char * Filename){
     int one_in_two = 0;
     int two_in_one = 0;
     while((read = getline(&line, &len, fp)) != -1){
-    	sscanf(line, "%s ===> %[^\n\t]", left, right);
+    	sscanf(line, "%s ===> %[^\r\n\t]", left, right);
     	char * token = strtok(right, " ");
     	while(token!= NULL){
     		if(strcmp(token, rule2) == 0 && strcmp(left, rule1) == 0){
@@ -317,7 +317,7 @@ void getFollow(char * rule, char * Filename, char * original){
         char right[100];
         while((read = getline(&line, &len, fp)) != -1){
         	// printf(">>%s\n", line);
-	        sscanf(line, "%s ===> %[^\n\t]", left, right);
+	        sscanf(line, "%s ===> %[^\r\n\t]", left, right);
 	        char * saveptr;
 	        char * token;
 	        int found=-1;
@@ -489,12 +489,13 @@ void first(char  * Filename){
     }
 
     i=0;
-    printf("%s\n", "firsts");
+    fp = fopen("firsts.txt", "w");
     while(i!= done_count){
-        printf("%s\t", done_firsts[i]);
-        printf("%s\n", firsts[i++]);
-        // i++;
+    	firsts[i][strlen(firsts[i])-1] = '\0';
+    	fprintf(fp, "%s %s\n", done_firsts[i], firsts[i]);
+    	i++;
     }
+    fclose(fp);
 
     i=0;
     while(i!= non_terminal_count){
@@ -506,13 +507,18 @@ void first(char  * Filename){
         i++;
     }
 
-    printf("%s\n","follows");
+    // printf("%s\n","follows");
+    fp =fopen("follows.txt", "w");
     i = 0;
     while(i!=df_count){
-    	printf("\n%s\t", done_follows[i]);
-    	printf("%s\n", follows[i++]);
+    	// printf("%s %s\n", done_follows[i], follows[i]);
+    	follows[i][strlen(follows[i])-1] = '\0';
+    	fprintf(fp, "%s %s\n", done_follows[i], follows[i]);
+    	i++;
     }
-
+    fclose(fp);
+    printf("%s\n", "Find firsts at firsts.txt");
+    printf("%s\n", "Find follows at follows.txt");
 }
 
 
