@@ -53,7 +53,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 	while(1){
 		if (offset == k || strlen(b)==0 || b[offset] == '\0'){
 			if(feof(fp)){
-				printf("Scanning Complete!\n");
+				printf("\nScanning Complete!\n");
 				token.id = 55;
 				token.name = "$";
 				token.lineNo = lineNo;

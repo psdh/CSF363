@@ -75,7 +75,7 @@ int* first(char * input){
 
     int epislonFound = 1;
     while(token!=NULL && epislonFound == 1){
-        printf("%s\n", token);
+        // printf("%s\n", token);
         epislonFound = 0;
 
         strcpy(token_copy, token);
@@ -138,7 +138,6 @@ int* getFollows(char * input){
     return follows;
 }
 
-
 int* follow(char * input){
     int firsts[1000];
     int* current;
@@ -170,158 +169,60 @@ int* follow(char * input){
     return firsts;
 }
 
-
 int getRowIndex(char* s)
 {
-    if(strcmp(s, "program") == 0)
-        return 100;
-    if(strcmp(s, "mainFunction") == 0)
-        return 101;
-
-    if(strcmp(s, "otherFunctions") == 0)
-        return 102;
-
-    if(strcmp(s, "function") == 0)
-        return 103;
-
-    if(strcmp(s, "input_par") == 0)
-        return 104;
-
-    if(strcmp(s, "output_par") == 0)
-        return 105;
-
-    if(strcmp(s, "parameter_list") == 0)
-        return 106;
-
-    if(strcmp(s, "dataType") == 0)
-        return 107;
-
-    if(strcmp(s, "primitiveDatatype") == 0)
-        return 108;
-
-    if(strcmp(s, "constructedDatatype") == 0)
-        return 109;
-
-    if(strcmp(s, "remaining_list") == 0)
-        return 110;
-
-    if(strcmp(s, "stmts") == 0)
-        return 111;
-
-    if(strcmp(s, "typeDefinitions") == 0)
-        return 112;
-
-    if(strcmp(s, "typeDefinition") == 0)
-        return 113;
-
-    if(strcmp(s, "fieldDefinitions") == 0)
-        return 114;
-
-    if(strcmp(s, "fieldDefinition") == 0)
-        return 115;
-
-    if(strcmp(s, "moreFields") == 0)
-        return 116;
-
-    if(strcmp(s, "declarations") == 0)
-        return 117;
-
-    if(strcmp(s, "declaration") == 0)
-        return 118;
-
-    if(strcmp(s, "global_or_not") == 0)
-        return 119;
-
-    if(strcmp(s, "otherStmts") == 0)
-        return 120;
-
-    if(strcmp(s, "stmt") == 0)
-        return 121;
-
-    if(strcmp(s, "assignmentStmt") == 0)
-        return 122;
-
-    if(strcmp(s, "singleOrRecId") == 0)
-        return 123;
-
-    if(strcmp(s, "funCallStmt") == 0)
-        return 124;
-
-    if(strcmp(s, "outputParameters") == 0)
-        return 125;
-
-    if(strcmp(s, "inputParameters") == 0)
-        return 126;
-
-    if(strcmp(s, "iterativeStmt") == 0)
-        return 127;
-
-    if(strcmp(s, "conditionalStmt") == 0)
-        return 128;
-
-    if(strcmp(s, "elsePart") == 0)
-        return 129;
-
-    if(strcmp(s, "ioStmt") == 0)
-        return 130;
-
-    if(strcmp(s, "allVar") == 0)
-        return 131;
-
-    if(strcmp(s, "arithmeticExpression") == 0)
-        return 132;
-
-    if(strcmp(s, "expPrime") == 0)
-        return 133;
-
-    if(strcmp(s, "term") == 0)
-        return 134;
-
-    if(strcmp(s, "termPrime") == 0)
-        return 135;
-
-    if(strcmp(s, "factor") == 0)
-        return 136;
-
-    if(strcmp(s, "highPrecedenceOperators") == 0)
-        return 137;
-
-    if(strcmp(s, "lowPrecedenceOperators") == 0)
-        return 138;
-
-    if(strcmp(s, "all") == 0)
-        return 139;
-
-    if(strcmp(s, "temp") == 0)
-        return 140;
-
-    if(strcmp(s, "booleanExpression") == 0)
-        return 141;
-
-    if(strcmp(s, "var") == 0)
-        return 142;
-
-    if(strcmp(s, "logicalOp") == 0)
-        return 143;
-
-    if(strcmp(s, "relationalOp") == 0)
-        return 144;
-    if(strcmp(s, "returnStmt") == 0)
-    	return 145;
-
-    if(strcmp(s, "optionalReturn") == 0)
-    	return 146;
-
-    if(strcmp(s, "idList") == 0)
-    	return 147;
-    if(strcmp(s, "more_ids") == 0)
-        return 148;
-    if(strcmp(s, "new24") == 0)
-        return 149;
-    if(strcmp(s, "newVar") == 0)
-        return 150;
+    if(strcmp(s, "program") == 0) { return 100; }
+    if(strcmp(s, "mainFunction") == 0) { return 101; }
+    if(strcmp(s, "otherFunctions") == 0) { return 102; }
+    if(strcmp(s, "function") == 0) { return 103; }
+    if(strcmp(s, "input_par") == 0) { return 104; }
+    if(strcmp(s, "output_par") == 0) { return 105; }
+    if(strcmp(s, "parameter_list") == 0) { return 106; }
+    if(strcmp(s, "dataType") == 0) { return 107; }
+    if(strcmp(s, "primitiveDatatype") == 0) { return 108; }
+    if(strcmp(s, "constructedDatatype") == 0) { return 109; }
+    if(strcmp(s, "remaining_list") == 0) { return 110; }
+    if(strcmp(s, "stmts") == 0) { return 111; }
+    if(strcmp(s, "typeDefinitions") == 0) { return 112; }
+    if(strcmp(s, "typeDefinition") == 0) { return 113; }
+    if(strcmp(s, "fieldDefinitions") == 0) { return 114; }
+    if(strcmp(s, "fieldDefinition") == 0) { return 115; }
+    if(strcmp(s, "moreFields") == 0) { return 116; }
+    if(strcmp(s, "declarations") == 0) { return 117; }
+    if(strcmp(s, "declaration") == 0) { return 118; }
+    if(strcmp(s, "global_or_not") == 0) { return 119; }
+    if(strcmp(s, "otherStmts") == 0) { return 120; }
+    if(strcmp(s, "stmt") == 0) { return 121; }
+    if(strcmp(s, "assignmentStmt") == 0) { return 122; }
+    if(strcmp(s, "singleOrRecId") == 0) { return 123; }
+    if(strcmp(s, "funCallStmt") == 0) { return 124; }
+    if(strcmp(s, "outputParameters") == 0) { return 125; }
+    if(strcmp(s, "inputParameters") == 0) { return 126; }
+    if(strcmp(s, "iterativeStmt") == 0) { return 127; }
+    if(strcmp(s, "conditionalStmt") == 0) { return 128; }
+    if(strcmp(s, "elsePart") == 0) { return 129; }
+    if(strcmp(s, "ioStmt") == 0) { return 130; }
+    if(strcmp(s, "allVar") == 0) { return 131; }
+    if(strcmp(s, "arithmeticExpression") == 0) { return 132; }
+    if(strcmp(s, "expPrime") == 0) { return 133; }
+    if(strcmp(s, "term") == 0) { return 134; }
+    if(strcmp(s, "termPrime") == 0) { return 135; }
+    if(strcmp(s, "factor") == 0) { return 136; }
+    if(strcmp(s, "highPrecedenceOperators") == 0) { return 137; }
+    if(strcmp(s, "lowPrecedenceOperators") == 0) { return 138; }
+    if(strcmp(s, "all") == 0) { return 139; }
+    if(strcmp(s, "temp") == 0) { return 140; }
+    if(strcmp(s, "booleanExpression") == 0) { return 141; }
+    if(strcmp(s, "var") == 0) { return 142; }
+    if(strcmp(s, "logicalOp") == 0) { return 143; }
+    if(strcmp(s, "relationalOp") == 0) { return 144; }
+    if(strcmp(s, "returnStmt") == 0) { return 145; }
+    if(strcmp(s, "optionalReturn") == 0) { return 146; }
+    if(strcmp(s, "idList") == 0) { return 147; }
+    if(strcmp(s, "more_ids") == 0) { return 148; }
+    if(strcmp(s, "new24") == 0) { return 149; }
+    if(strcmp(s, "newVar") == 0) { return 150; }
 }
-
 
 char* getCorrespondingToken(int f){
     switch(f){
@@ -655,7 +556,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         token = getNextToken(fp , b, bufsize);
     }
 
-    printf("\n\n%d\n\n", token.lineNo);
+    // printf("\n\n%d\n\n", token.lineNo);
     // parsing now!
     while(1)
     {
@@ -667,9 +568,11 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         head = popped.next;
 
         // if $ is popped
-        if(popVal == -47)
+        if(popVal == -47 && token.id == 55)
         {
-            // some error report here!
+            // printf("token here: %d", token.id);
+            printf("Parsing now complete!");
+            return curr;
         }
 
         while (popVal < 100) {
@@ -689,10 +592,17 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
             if (popVal != token.id)
             {
-                printf("ERROR: popped value should be same as token");
-                printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+                if(popVal == -47 && token.id == 55)
+                {
+                    // printf("token here: %d", token.id);
+                    printf("\n\nParsing now complete!");
+                    return curr;
+                }
+
+                printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>",
+                       getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(popVal));
+                // printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
                 fclose(fp);
-                exit(0);
             }
             else
             {
@@ -707,10 +617,11 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 curr = curr->siblings;
 
                 state = 1;
+
                 token = getNextToken(fp, b, bufsize);
                 while (token.id == 2)
                     token = getNextToken(fp , b, bufsize);
-                printf("\n\n%d\n\n", token.lineNo);
+                // printf("\n\n%d\n\n", token.lineNo);
             }
         }
 
@@ -719,9 +630,8 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         if (ruleNum == -1)
         {
             printf("rule not found");
-            printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+            // printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
             fclose(fp);
-            exit(0);
         }
 
         head = push_ints(head, getRuleRHSrev(ruleNum), curr);
@@ -743,7 +653,7 @@ void printParseTree(parseTree  curr)
 
     if(curr->firstKid != NULL)
     {
-        printf("\ngoing to first kid with id: %d %d\n\n", curr->firstKid->id, curr->id);
+        // printf("\ngoing to first kid with id: %d %d\n\n", curr->firstKid->id, curr->id);
         printParseTree(curr->firstKid);
     }
     else
@@ -754,7 +664,7 @@ void printParseTree(parseTree  curr)
 
     if(curr != NULL)
     {
-        printf("\ngoing to siblings with id: %d %d\n\n", curr->id, prev->id);
+        // printf("\ngoing to siblings with id: %d %d\n\n", curr->id, prev->id);
         return printParseTree(curr);
     }
 }
@@ -891,13 +801,14 @@ int main()
 
     int j = 0;
 
-    for (i = 0;i<table_row;i++)
-    {
-        for(j=0;j<table_row;j++)
-            printf(" %d ", doNow[i][j]);
+    // for (i = 0;i<table_row;i++)
+    // {
+    //     for(j=0;j<table_row;j++)
+    //         printf(" %d ", doNow[i][j]);
 
-        printf("\n");
-    }
+    //     printf("\n");
+    // }
+
     fclose(fp);
 
     printf("\nCreated Parsing Table\n");
@@ -908,6 +819,5 @@ int main()
 
     n = parseInputSourceCode(filename, doNow);
 
-    printf("chal gaya\n");
     return 0;
 }
