@@ -339,6 +339,60 @@ char* getCorrespondingToken(int f){
         case 54: return "TK_NE";
         case 55: return "$";
         case 56: return "TK_COMMA";
+
+        // non-terminals below!
+
+        case 100: return "program";
+        case 101: return "mainFunction";
+        case 102: return "otherFunctions";
+        case 103: return "function";
+        case 104: return "input_par";
+        case 105: return "output_par";
+        case 106: return "parameter_list";
+        case 107: return "dataType";
+        case 108: return "primitiveDatatype";
+        case 109: return "constructedDatatype";
+        case 110: return "remaining_list";
+        case 111: return "stmts";
+        case 112: return "typeDefinitions";
+        case 113: return "typeDefinition";
+        case 114: return "fieldDefinitions";
+        case 115: return "fieldDefinition";
+        case 116: return "moreFields";
+        case 117: return "declarations";
+        case 118: return "declaration";
+        case 119: return "global_or_not";
+        case 120: return "otherStmts";
+        case 121: return "stmt";
+        case 122: return "assignmentStmt";
+        case 123: return "singleOrRecId";
+        case 124: return "funCallStmt";
+        case 125: return "outputParameters";
+        case 126: return "inputParameters";
+        case 127: return "iterativeStmt";
+        case 128: return "conditionalStmt";
+        case 129: return "elsePart";
+        case 130: return "ioStmt";
+        case 131: return "allVar";
+        case 132: return "arithmeticExpression";
+        case 133: return "expPrime";
+        case 134: return "term";
+        case 135: return "termPrime";
+        case 136: return "factor";
+        case 137: return "highPrecedenceOperators";
+        case 138: return "lowPrecedenceOperators";
+        case 139: return "all";
+        case 140: return "temp";
+        case 141: return "booleanExpression";
+        case 142: return "var";
+        case 143: return "logicalOp";
+        case 144: return "relationalOp";
+        case 145: return "returnStmt";
+        case 146: return "optionalReturn";
+        case 147: return "idList";
+        case 148: return "more_ids";
+
+        default: return "NOTHING";
     }
 }
 
@@ -531,7 +585,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
     // initialize parseTree
     parseTree ptree = (parseTree) malloc(sizeof(struct tree));
-    ptree->id = 0;
+    ptree->id = 100;
     ptree->firstKid = NULL;
     ptree->siblings = NULL;
 
@@ -573,7 +627,12 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
         while (popVal < 100) {
             if (popVal != token.id)
+            {
                 printf("ERROR: popped value should be same as token");
+                printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+
+                exit(0);
+            }
             else
             {
                 popped = pop(head);
@@ -592,7 +651,34 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
         ruleNum = T[popVal % 100][token.id];
 
+        if (ruleNum == -1)
+        {
+            printf("panga re! :(");
+            printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+            exit(0);
+        }
         head = push_ints(head, getRuleRHSrev(ruleNum), curr);
+        curr = curr->firstKid;
+        printf("\n\n\n");
+        printParseTree(ptree);
+    }
+}
+
+void printParseTree(parseTree  curr)
+{
+    // print for debugging!!
+
+    if(curr->firstKid != NULL)
+        printParseTree(curr->firstKid);
+    else
+        printf("\n id: %d, name: %s parent id: %d", curr->id, getCorrespondingToken(curr->id), curr->parent->id);
+
+    curr = curr->siblings;
+
+    while(curr != NULL)
+    {
+        printParseTree(curr);
+        curr = curr->siblings;
     }
 }
 
@@ -658,6 +744,7 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
     while(ints[counter] != 1000 && counter < 8)
     {
         parseTree temp = (parseTree) malloc(sizeof(*curr));
+        temp->id = ints[counter];
         temp->siblings=NULL;
         temp->parent = curr;
         prev->siblings = temp;
