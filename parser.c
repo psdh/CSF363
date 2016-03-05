@@ -691,7 +691,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
             {
                 printf("ERROR: popped value should be same as token");
                 printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
-
+                fclose(fp);
                 exit(0);
             }
             else
@@ -720,6 +720,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         {
             printf("rule not found");
             printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+            fclose(fp);
             exit(0);
         }
 
