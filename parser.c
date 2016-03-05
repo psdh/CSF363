@@ -59,7 +59,7 @@ int* first(char * input){
         current = getFirsts(token);
         int i = 0;
         while(current[i]!=-1){
-            if(current[i] == -2) {
+            if(current[i] == 57) {
                 epislonFound = 1;
             }
             firsts[count++] = current[i++];
@@ -120,7 +120,7 @@ int* follow(char * input){
         current = getFollows(token);
         int i = 0;
         while(current[i]!=-1){
-            if(current[i] == -2) {
+            if(current[i] == 57) {
                 epislonFound = 1;
             }
             firsts[count++] = current[i++];
@@ -339,6 +339,7 @@ char* getCorrespondingToken(int f){
         case 54: return "TK_NE";
         case 55: return "$";
         case 56: return "TK_COMMA";
+        case 57: return "eps";
 
         // non-terminals below!
 
@@ -450,7 +451,7 @@ int getColumnIndex(char* s)
     if(strcmp(s, "TK_WHILE") == 0) { return 12; }
     if(strcmp(s, "TK_WITH") == 0) { return 9; }
     if(strcmp(s, "TK_WRITE") == 0) { return 36; }
-    if(strcmp(s, "eps") == 0 ) {return -2;}
+    if(strcmp(s, "eps") == 0 ) {return 57;}
     if(strcmp(s, "$") == 0) { return 55; }
     return -90;
 }
@@ -530,7 +531,7 @@ void createParseTable(FILE* G, table T)
         while(toBeMarked[counter] != -1)
         {
             printf("%d\n", toBeMarked[counter]);
-            if(toBeMarked[counter] == -2)
+            if(toBeMarked[counter] == 57)
             {
                 flag = 1;
                 counter++;
@@ -626,6 +627,17 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         }
 
         while (popVal < 100) {
+            if (popVal == 57)
+            {
+                popped = pop(head);
+
+                popVal = popped.data;
+                head = popped.next;
+
+                curr = curr->siblings == NULL?curr->parent:curr->siblings;
+                continue;
+            }
+
             if (popVal != token.id)
             {
                 printf("ERROR: popped value should be same as token");
@@ -640,7 +652,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 popVal = popped.data;
                 head = popped.next;
 
-                curr = next(curr);
+                curr = curr->siblings == NULL?curr->parent:curr->siblings;
 
                 state = 1;
                 token = getNextToken(fp, b, bufsize);
@@ -675,11 +687,8 @@ void printParseTree(parseTree  curr)
 
     curr = curr->siblings;
 
-    while(curr != NULL)
-    {
-        printParseTree(curr);
-        curr = curr->siblings;
-    }
+    if(curr != NULL)
+        return printParseTree(curr);
 }
 
 parseTree next(parseTree curr)
