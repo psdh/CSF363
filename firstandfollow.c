@@ -3,15 +3,19 @@
 #include <stdlib.h>
 // list of terminals and non terminals that have been processed
 char done_firsts[500][500];
+char done_follows[500][500];
 // their corresponding firsts
 char firsts[500][500];
+char follows[500][500];
 // list of seen terminals and non terminals
 char seen[110][110];
 char nonTerminals[110][110];
 char terminals[110][110];
 
 int done_count = 0;
+int df_count = 0;
 int firsts_count = 0;
+int follows_count = 0;
 int seen_count = 0;
 int non_terminal_count = 0;
 int terminal_count = 0;
@@ -132,12 +136,13 @@ void getFirst(char * rule, char * Filename){
             while((read = getline(&line, &len, fp)) != -1){
                 sscanf(line, "%s ===> %[^\n\t]", left, right);
                 if (strcmp(left, rule)== 0){
+                	printf("%s\%s\n", );
                     if (strcmp(right, "eps") == 0){
                     	has_eps_rule = 1;
-                    	if(alreadyThere(right, temp_seen)== -1){
+                    	if(alreadyThere("eps", temp_seen)== -1){
 	                        strcat(buffer, right);
 	                        strcat(buffer, " ");
-	                        strcpy(temp_seen[i++], right);
+	                        strcpy(temp_seen[i++], "eps");
 		                }
                     }
                     else{
@@ -158,6 +163,7 @@ void getFirst(char * rule, char * Filename){
                             	continue;
                             }
                             if(isTerminal(copy)){
+                            	printf("%s\t%s\t%d\n", copy, rule, i);
                                 if(alreadyThere(copy, temp_seen)==-1){
                                     strcat(buffer, copy);
                                     strcat(buffer, " ");
@@ -166,6 +172,7 @@ void getFirst(char * rule, char * Filename){
                                 break;
                             }
                             else if(isDone(copy)!=-1 && epsilonInFirst(copy) == 0){
+                            	printf("11%s\n", rule);
                                 if(alreadyThere(copy, temp_seen)==-1){
                                     strcat(buffer, firsts[isDone(copy)]);
                                     strcat(buffer, " ");
@@ -174,6 +181,7 @@ void getFirst(char * rule, char * Filename){
                                 break;
                             }
                             else if(isDone(copy)!=-1){
+                            	printf("22%s\n", rule);
                                 if(alreadyThere(copy, temp_seen)==-1){
                                     strcat(buffer, firsts[isDone(copy)]);
                                     strcat(buffer, " ");
@@ -181,6 +189,7 @@ void getFirst(char * rule, char * Filename){
                                 }
                             }
                             else{
+                            	printf("33%s\t%s\n", rule, copy);
                                 // char * fname;
                                 // printf("%s Called %s\n", rule, copy);
                                 getFirst(copy, Filename);
@@ -202,10 +211,10 @@ void getFirst(char * rule, char * Filename){
                                 if (has_eps_rule != 1){
                                 	int position_of_eps = alreadyThere("eps", temp_seen);
                                 	if(position_of_eps !=-1){
+                                		// printf("%s\n", "GANDAGI");
                                 		strcpy(temp_seen[position_of_eps], "GARBAGEDATA");
-                                		printf("%s\n", buffer);
                                 		removeFromString(buffer, "eps");
-                                		printf("%s\n", buffer);
+                                		// printf("%/s\n", buffer);
                                 	}
                                 }
                             }
@@ -235,6 +244,29 @@ void getFollow(char * rule, char * Filename){
         char left[100];
         char right[100];
         while((read = getline(&line, &len, fp)) != -1){
+	        sscanf(line, "%s ===> %[^\n\t]", left, right);
+	        char * saveptr;
+	        char * token;
+	        token = strtok_r(right , " ", &saveptr);
+	        int found= 0 ;
+	        while(token!=NULL){
+	        	//token is found
+	        	if (strcmp(token, rule) == 0)
+	        	{
+	        		found = 1;
+	        	}
+	        	else if(found == 1 ){
+
+	        	}
+	        	token = strtok_r(right , " ", &saveptr);
+	        	if(token == NULL && strcmp(token, rule)){
+	        		if(followFound(left)){
+	        			strcpy(follows[df_count++], follows[followFound(left)]);
+	        			strcpy(follows[df_count++], " ");
+	        			strcpy(done_follows[df_count++], rule);
+	        		}
+	        	}
+	        }
         }
 	}//outmostif
 }
@@ -293,6 +325,7 @@ void first(char  * Filename){
     while(i!= done_count){
         printf("%s\t", done_firsts[i]);
         printf("%s\n", firsts[i++]);
+        // i++;
     }
 
 }
