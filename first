@@ -69,7 +69,7 @@ global_or_not   TK_COLON eps
 otherStmts  eps TK_ID TK_IF TK_CALL TK_SQL TK_WHILE TK_READ TK_WRITE
 singleOrRecId   TK_ID
 new24   TK_DOT eps
-funCallStmt TK_CALL TK_SQL eps
+funCallStmt TK_CALL TK_SQL
 outputParameters    TK_SQL eps
 inputParameters TK_SQL
 iterativeStmt   TK_WHILE

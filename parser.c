@@ -20,6 +20,7 @@ int* getFirsts(char * input){
     int count = 0;
     ssize_t read;
 
+
     int firsts[25];
 
     FILE *fp = fopen("first", "r");
@@ -60,13 +61,14 @@ int* first(char * input){
     int* current;
     int count = 0;
     char * token;
+    char* save;
 
     char* temp;
     temp = (char*) malloc(200*sizeof(char));
 
     strcpy(temp, input);
 
-    token = strtok(temp, " ");
+    token = strtok_r(temp, " ", &save);
 
     char* token_copy;
     token_copy = (char*) malloc(200*sizeof(char));
@@ -86,7 +88,7 @@ int* first(char * input){
             }
             firsts[count++] = current[i++];
         }
-        token = strtok(NULL, " ");
+        token = strtok_r(NULL, " ", &save);
 
     }
     firsts[count] = -1;
@@ -314,6 +316,10 @@ int getRowIndex(char* s)
     	return 147;
     if(strcmp(s, "more_ids") == 0)
         return 148;
+    if(strcmp(s, "new24") == 0)
+        return 149;
+    if(strcmp(s, "newVar") == 0)
+        return 150;
 }
 
 
@@ -428,7 +434,8 @@ char* getCorrespondingToken(int f){
         case 146: return "optionalReturn";
         case 147: return "idList";
         case 148: return "more_ids";
-
+        case 149: return "new24";
+        case 150: return "newVar";
         default: return "NOTHING";
     }
 }
@@ -648,6 +655,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         token = getNextToken(fp , b, bufsize);
     }
 
+    printf("\n\n%d\n\n", token.lineNo);
     // parsing now!
     while(1)
     {
@@ -702,6 +710,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 token = getNextToken(fp, b, bufsize);
                 while (token.id == 2)
                     token = getNextToken(fp , b, bufsize);
+                printf("\n\n%d\n\n", token.lineNo);
             }
         }
 
@@ -727,15 +736,26 @@ void printParseTree(parseTree  curr)
 {
     // print for debugging!!
 
+    if (curr == NULL)
+        return;
+
+
     if(curr->firstKid != NULL)
+    {
+        printf("\ngoing to first kid with id: %d %d\n\n", curr->firstKid->id, curr->id);
         printParseTree(curr->firstKid);
+    }
     else
         printf("\n id: %d, name: %s parent id: %d", curr->id, getCorrespondingToken(curr->id), curr->parent->id);
 
+    parseTree prev = curr;
     curr = curr->siblings;
 
     if(curr != NULL)
+    {
+        printf("\ngoing to siblings with id: %d %d\n\n", curr->id, prev->id);
         return printParseTree(curr);
+    }
 }
 
 parseTree next(parseTree curr)
@@ -796,6 +816,7 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
     new->id = ints[0];
     new->siblings = NULL;
     new->parent = curr;
+    new->firstKid = NULL;
     curr->firstKid = new;
 
     counter++;
@@ -808,7 +829,8 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
 
         parseTree temp = (parseTree) malloc(sizeof(*curr));
         temp->id = ints[counter];
-        temp->siblings=NULL;
+        temp->siblings = NULL;
+        temp->firstKid = NULL;
         temp->parent = curr;
         prev->siblings = temp;
         prev = temp;
@@ -881,7 +903,7 @@ int main()
 
 
     parseTree n;
-    char filename[] = "testcases/testcase1.txt";
+    char filename[] = "testcases/testcase3.txt";
 
     n = parseInputSourceCode(filename, doNow);
 
