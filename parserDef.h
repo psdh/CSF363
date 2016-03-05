@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 
+#define table_row 60
+
 typedef int** table;
 
 struct tree {
@@ -34,10 +36,12 @@ struct stack
 
 stack* push_ints(stack*, int* , parseTree);
 stack* push(stack*, int);
+stack pop(stack*);
 
 int* getRuleRHSrev(int);
 
 char GRule[95][100] = {
+    "",
     "otherFunctions mainFunction",
     "TK_MAIN stmts TK_END",
     "function otherFunctions",

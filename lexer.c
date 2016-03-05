@@ -43,6 +43,7 @@ FILE *getStream(FILE *fp, buffer b, buffersize k)
 */
 tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 {
+	state = 1;
 	buffer lexeme = (buffer) malloc(k*sizeof(buffer));
 	int i = 0;
 	tokenInfo token;

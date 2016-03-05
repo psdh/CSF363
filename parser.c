@@ -6,6 +6,9 @@
 #include "parserDef.h"
 #include "lexer.h"
 #include <stdlib.h>
+#include <string.h>
+
+#define table_row 60
 
 int* getFirsts(char * input){
 
@@ -415,9 +418,9 @@ void initializeTable(table T)
     int i = 0;
     int j = 0;
 
-    for (i = 0;i<55;i++)
+    for (i = 0;i<table_row;i++)
     {
-        for (j = 0;j<55;j++)
+        for (j = 0;j<table_row;j++)
             T[i][j] = -1;
     }
 }
@@ -446,6 +449,7 @@ void createParseTable(FILE* G, table T)
     // @psdh check if this has to be re initialized in each loop
     int flag = 0;
 
+
     while(!feof(G))
     {
         flag = 0;
@@ -471,6 +475,7 @@ void createParseTable(FILE* G, table T)
 
         while(toBeMarked[counter] != -1)
         {
+            printf("%d\n", toBeMarked[counter]);
             if(toBeMarked[counter] == -2)
             {
                 flag = 1;
@@ -488,6 +493,7 @@ void createParseTable(FILE* G, table T)
             counter = 0;
             while(toBeMarked[counter] != -1)
             {
+                printf("%d\n", toBeMarked[counter]);
                 // in case of $
                 if(toBeMarked[counter] == 55)
                 {
@@ -505,13 +511,19 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 {
     // initialize file pointer
     FILE *fp;
-    fp = fopen(testcaseFile, 'rb');
+    fp = fopen(testcaseFile, "rb");
+
+    if (fp == NULL) {
+        perror("Error");
+    }
 
     // initialize buffer
     buffer b;
     buffersize bufsize = 25;
 
-    b = (char*) malloc(sizeof(char)*bufsize);
+    b = (buffer) malloc(sizeof(char)*bufsize);
+
+    memset(b, 0, sizeof(b));
 
     // initialize stack
     stack* head = (stack*) malloc(sizeof(stack));
@@ -526,20 +538,32 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
     parseTree curr = ptree;
 
     // push "dollar" or -47 to indicate the end of the stack
-    push(head, -47);
+    head = push(head, -47);
     // push "program" to start parsing
-    push(head, 100);
+    head = push(head, 100);
 
     tokenInfo token;
     int ruleNum;
     int popVal;
 
+    stack popped;
+
+    token = getNextToken(fp, b, bufsize);
+    while (token.id == 2)
+    {
+        state = 1;
+        token = getNextToken(fp , b, bufsize);
+    }
+
     // parsing now!
     while(1)
     {
-        token = getNextToken(fp, b, bufsize);
+        state = 1;
 
-        popVal = pop(head);
+        popped = pop(head);
+
+        popVal = popped.data;
+        head = popped.next;
 
         // if $ is popped
         if(popVal == -47)
@@ -547,18 +571,26 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
             // some error report here!
         }
 
-        while (popVal >= 100) {
+        while (popVal < 100) {
             if (popVal != token.id)
                 printf("ERROR: popped value should be same as token");
             else
             {
-                popVal = pop(head);
+                popped = pop(head);
+
+                popVal = popped.data;
+                head = popped.next;
+
                 curr = next(curr);
+
+                state = 1;
                 token = getNextToken(fp, b, bufsize);
+                while (token.id == 2)
+                    token = getNextToken(fp , b, bufsize);
             }
         }
 
-        ruleNum = T[popVal][token.id];
+        ruleNum = T[popVal % 100][token.id];
 
         head = push_ints(head, getRuleRHSrev(ruleNum), curr);
     }
@@ -604,9 +636,9 @@ stack* push(stack* head, int val)
     stack* new = (stack*) malloc(sizeof(stack));
     new->data = val;
     new->next = head;
-    head = new;
+    // head = new;
 
-    return head;
+    return new;
 }
 
 stack* push_ints(stack* head, int* ints, parseTree curr)
@@ -633,25 +665,38 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
         counter++;
     }
 
+    counter--;
+
     while (counter >= 0)
     {
-        counter--;
         if(ints[counter] == 1000)
+        {
+            counter--;
             continue;
+        }
 
         head = push(head, ints[counter]);
+        counter--;
     }
 
     return head;
 }
 
-int pop(stack*head)
+stack pop(stack* head)
 {
-    int outVal = head->data;
+    stack* temp;
+    temp = head;
 
-    head = head->next;
+    int outVal = temp->data;
 
-    return outVal;
+    head = temp->next;
+
+    free(temp);
+
+    stack ret;
+    ret.data = outVal;
+    ret.next = head;
+    return ret;
 }
 
 int main()
@@ -662,25 +707,34 @@ int main()
 
     fp = fopen("grammar", "r");
 
-    table doNow = (int **) malloc(55 * sizeof(int *));
+    table doNow = (int **) malloc(table_row * sizeof(int *));
 
     int i = 0;
 
-    for (i=0; i<55; i++)
-         doNow[i] = (int *) malloc(55 * sizeof(int));
+    for (i=0; i<table_row; i++)
+         doNow[i] = (int *) malloc(table_row * sizeof(int));
 
     createParseTable(fp, doNow);
 
     int j = 0;
 
-    for (i = 0;i<55;i++)
+    for (i = 0;i<table_row;i++)
     {
-        for(j=0;j<55;j++)
+        for(j=0;j<table_row;j++)
             printf(" %d ", doNow[i][j]);
 
         printf("\n");
     }
     fclose(fp);
 
+    printf("\nCreated Parsing Table\n");
+
+
+    parseTree n;
+    char filename[] = "testcases/testcase1.txt";
+
+    n = parseInputSourceCode(filename, doNow);
+
+    printf("chal gaya\n");
     return 0;
 }
