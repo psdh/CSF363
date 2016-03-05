@@ -43,6 +43,7 @@ FILE *getStream(FILE *fp, buffer b, buffersize k)
 */
 tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 {
+	state = 1;
 	buffer lexeme = (buffer) malloc(k*sizeof(buffer));
 	int i = 0;
 	tokenInfo token;
@@ -54,7 +55,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 			if(feof(fp)){
 				printf("Scanning Complete!\n");
 				token.id = 55;
-				token.name = "ENDOFFILE";
+				token.name = "$";
 				token.lineNo = lineNo;
 				return token;
 			}
@@ -72,6 +73,10 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						break;
 					case ' ':
 						state=1;
+						offset++;
+						break;
+					case '\r':
+						state = 1;
 						offset++;
 						break;
 					case '\n':
@@ -254,7 +259,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					case '\0':
 						printf("Scanning Complete!\n");
 						token.id = 55;
-						token.name = "ENDOFFILE";
+						token.name = "$";
 						token.lineNo = lineNo;
 						return token;
 					default:
@@ -266,7 +271,8 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				break;
 			// comments
 			case 2:
-				while(b[offset++]!='\n'){
+				while(b[offset++]!='\n')
+				{
 					if (offset == k || b[offset] == '\0'){
 						// comment at end of file
 						if (feof(fp)){

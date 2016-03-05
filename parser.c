@@ -1,4 +1,4 @@
-// filename: lexer.c
+// filename: parser.c
 // Batch 47
 // 2013A7PS126P Gyanendra Mishra
 // 2013A7PS151P Prabhjyot Singh Sodhi
@@ -6,20 +6,22 @@
 #include "parserDef.h"
 #include "lexer.h"
 #include <stdlib.h>
+#include <string.h>
 
-typedef char[20] string;
+#define table_row 60
+int flag_eps;
 
-typedef string[] rule;
+int* getFirsts(char * input){
 
-int[] getFirsts(char * input){
-
-    char * line = NULL;
+    char* line;
+    line = (char*) malloc(sizeof(char)*100);
     char * token;
     size_t len = 0;
     int count = 0;
     ssize_t read;
 
-    int firsts[10];
+
+    int firsts[25];
 
     FILE *fp = fopen("first", "r");
     if (fp == NULL){
@@ -27,7 +29,15 @@ int[] getFirsts(char * input){
     }
 
     while ((read = getline(&line, &len, fp)) != -1) {
-        token = strtok(line, " ");
+        line[read - 1] = '\0';
+
+        char* temp;
+        temp = (char*) malloc(200*sizeof(char));
+
+        strcpy(temp, line);
+
+
+        token = strtok(temp, " ");
         if( token != NULL && strcmp(token, input) == 0){
             while(token!=NULL){
                 token = strtok(NULL, " ");
@@ -46,30 +56,46 @@ int[] getFirsts(char * input){
     return firsts;
 }
 
-int[] first(char * input){
+int* first(char * input){
     int firsts[1000];
-    int current[10];
-    count = 0;
+    int* current;
+    int count = 0;
     char * token;
-    token = strtok(input, " ");
-    int epislonFound = 0;
+    char* save;
+
+    char* temp;
+    temp = (char*) malloc(200*sizeof(char));
+
+    strcpy(temp, input);
+
+    token = strtok_r(temp, " ", &save);
+
+    char* token_copy;
+    token_copy = (char*) malloc(200*sizeof(char));
+
+    int epislonFound = 1;
     while(token!=NULL && epislonFound == 1){
-        epislonFound = 1;
-        token = strtok(input, " ");
-        current = getFirsts(token);
+        printf("%s\n", token);
+        epislonFound = 0;
+
+        strcpy(token_copy, token);
+
+        current = getFirsts(token_copy);
         int i = 0;
         while(current[i]!=-1){
-            if(current[i] == -2) {
+            if(current[i] == 57) {
                 epislonFound = 1;
             }
             firsts[count++] = current[i++];
         }
+        token = strtok_r(NULL, " ", &save);
+
     }
     firsts[count] = -1;
     return firsts;
 }
 
-int[] getFollows(char * input){
+int* getFollows(char * input){
 
     char * line = NULL;
     char * token;
@@ -77,7 +103,7 @@ int[] getFollows(char * input){
     int count = 0;
     ssize_t read;
 
-    int follows[10];
+    int follows[25];
 
     FILE *fp = fopen("follow", "r");
     if (fp == NULL){
@@ -85,7 +111,15 @@ int[] getFollows(char * input){
     }
 
     while ((read = getline(&line, &len, fp)) != -1) {
-        token = strtok(line, " ");
+        line[read - 1] = '\0';
+
+        char* temp;
+        temp = (char*) malloc(200*sizeof(char));
+
+        strcpy(temp, line);
+
+        token = strtok(temp, " ");
+
         if( token != NULL && strcmp(token, input) == 0){
             while(token!=NULL){
                 token = strtok(NULL, " ");
@@ -105,24 +139,32 @@ int[] getFollows(char * input){
 }
 
 
-int[] follow(char * input){
+int* follow(char * input){
     int firsts[1000];
-    int current[10];
-    count = 0;
+    int* current;
+    int count = 0;
     char * token;
-    token = strtok(input, " ");
+
+    char* temp;
+    temp = (char*) malloc(200*sizeof(char));
+
+    strcpy(temp, input);
+
+    token = strtok(temp, " ");
+
     int epislonFound = 0;
     while(token!=NULL && epislonFound == 1){
         epislonFound = 1;
-        token = strtok(input, " ");
         current = getFollows(token);
         int i = 0;
         while(current[i]!=-1){
-            if(current[i] == -2) {
+            if(current[i] == 57) {
                 epislonFound = 1;
             }
             firsts[count++] = current[i++];
         }
+        token = strtok(NULL, " ");
+
     }
     firsts[count] = -1;
     return firsts;
@@ -274,10 +316,14 @@ int getRowIndex(char* s)
     	return 147;
     if(strcmp(s, "more_ids") == 0)
         return 148;
+    if(strcmp(s, "new24") == 0)
+        return 149;
+    if(strcmp(s, "newVar") == 0)
+        return 150;
 }
 
 
-char * token getCorrespondingToken(int f){
+char* getCorrespondingToken(int f){
     switch(f){
         case 1: return "TK_ASSIGNOP";
         case 2: return "TK_COMMENT";
@@ -333,8 +379,64 @@ char * token getCorrespondingToken(int f){
         case 52: return "TK_GT";
         case 53: return "TK_GE";
         case 54: return "TK_NE";
-        case 55: return "TK_ENDOFFILE";
+        case 55: return "$";
         case 56: return "TK_COMMA";
+        case 57: return "eps";
+
+        // non-terminals below!
+
+        case 100: return "program";
+        case 101: return "mainFunction";
+        case 102: return "otherFunctions";
+        case 103: return "function";
+        case 104: return "input_par";
+        case 105: return "output_par";
+        case 106: return "parameter_list";
+        case 107: return "dataType";
+        case 108: return "primitiveDatatype";
+        case 109: return "constructedDatatype";
+        case 110: return "remaining_list";
+        case 111: return "stmts";
+        case 112: return "typeDefinitions";
+        case 113: return "typeDefinition";
+        case 114: return "fieldDefinitions";
+        case 115: return "fieldDefinition";
+        case 116: return "moreFields";
+        case 117: return "declarations";
+        case 118: return "declaration";
+        case 119: return "global_or_not";
+        case 120: return "otherStmts";
+        case 121: return "stmt";
+        case 122: return "assignmentStmt";
+        case 123: return "singleOrRecId";
+        case 124: return "funCallStmt";
+        case 125: return "outputParameters";
+        case 126: return "inputParameters";
+        case 127: return "iterativeStmt";
+        case 128: return "conditionalStmt";
+        case 129: return "elsePart";
+        case 130: return "ioStmt";
+        case 131: return "allVar";
+        case 132: return "arithmeticExpression";
+        case 133: return "expPrime";
+        case 134: return "term";
+        case 135: return "termPrime";
+        case 136: return "factor";
+        case 137: return "highPrecedenceOperators";
+        case 138: return "lowPrecedenceOperators";
+        case 139: return "all";
+        case 140: return "temp";
+        case 141: return "booleanExpression";
+        case 142: return "var";
+        case 143: return "logicalOp";
+        case 144: return "relationalOp";
+        case 145: return "returnStmt";
+        case 146: return "optionalReturn";
+        case 147: return "idList";
+        case 148: return "more_ids";
+        case 149: return "new24";
+        case 150: return "newVar";
+        default: return "NOTHING";
     }
 }
 
@@ -392,22 +494,46 @@ int getColumnIndex(char* s)
     if(strcmp(s, "TK_WHILE") == 0) { return 12; }
     if(strcmp(s, "TK_WITH") == 0) { return 9; }
     if(strcmp(s, "TK_WRITE") == 0) { return 36; }
-    if(strcmp(s, "eps" == 0 )){return -2;}
-
+    if(strcmp(s, "eps") == 0 ) {return 57;}
+    if(strcmp(s, "$") == 0) { return 55; }
+    return -90;
 }
 
-// typedef enum ruleState
-// {
-//     LHS,
-//     RHS
-// };
+int getIndex(char* tok)
+{
+    int ret = getColumnIndex(tok);
 
+    if (ret == -90)
+        ret = getRowIndex(tok);
+
+    return ret;
+}
+
+// initializing parsing table to rule no 1000
+// 1000 indicates *no rule*
+void initializeTable(table T)
+{
+    int i = 0;
+    int j = 0;
+
+    for (i = 0;i<table_row;i++)
+    {
+        for (j = 0;j<table_row;j++)
+            T[i][j] = -1;
+    }
+}
+
+// default rule number -1
 void createParseTable(FILE* G, table T)
 {
+    initializeTable(T);
+
     int terminals = 0;
     int nonTerminals = 0;
 
-    char readString[25];
+    char readString[100];
+
+    char LHSString[25];
 
     char* restOfRule;
     size_t len = 0;
@@ -417,24 +543,29 @@ void createParseTable(FILE* G, table T)
     int* toBeMarked;
 
     int ruleNo = 0;
+    int counter;
+
+    int flag = 0;
+
 
     while(!feof(G))
     {
-        s = "";
-        readString = "";
-        RHString = "";
+        flag = 0;
+
         fscanf(G, "%s", readString);
 
         // incrementing each time
         ruleNo++;
 
-        LHSString = readString;
+        strcpy(LHSString, readString);
         LHS = getRowIndex(readString);
 
         fscanf(G, "%s", readString);
-        assert(strcmp(readString, "===>") == 0);
+        if (strcmp(readString, "===>") != 0)
+            printf("ERROR !!! :(");
 
-        getline(&restOfRule, &len, G);
+        int read = getline(&restOfRule, &len, G);
+        restOfRule[read - 1] = '\0';
 
         toBeMarked = first(restOfRule);
 
@@ -442,9 +573,14 @@ void createParseTable(FILE* G, table T)
 
         while(toBeMarked[counter] != -1)
         {
-            if(toBeMarked[counter] == -2)
+            // printf("%d\n", toBeMarked[counter]);
+            if(toBeMarked[counter] == 57)
+            {
                 flag = 1;
-            T[LHS][toBeMarked[counter]] = ruleNo;
+                counter++;
+                continue;
+            }
+            T[LHS % 100][toBeMarked[counter] % 100] = ruleNo;
             counter++;
         }
 
@@ -455,9 +591,14 @@ void createParseTable(FILE* G, table T)
             counter = 0;
             while(toBeMarked[counter] != -1)
             {
-                if(toBeMarked[counter] == -2)
-                    flag = 1;
-                T[LHS][toBeMarked[counter]] = ruleNo;
+                // printf("%d\n", toBeMarked[counter]);
+                // in case of $
+                if(toBeMarked[counter] == 55)
+                {
+                    counter++;
+                    continue;
+                }
+                T[LHS % 100][toBeMarked[counter]] = ruleNo;
                 counter++;
             }
         }
@@ -466,113 +607,307 @@ void createParseTable(FILE* G, table T)
 
 parseTree parseInputSourceCode(char *testcaseFile, table T)
 {
+    // initialize file pointer
     FILE *fp;
-    fp = fopen(testcaseFile, 'rb');
+    fp = fopen(testcaseFile, "rb");
 
-    buffer[2] b;
-    buffersize bufsize = 100;
+    if (fp == NULL) {
+        perror("Error");
+    }
 
-    b[0] = (char*) malloc(sizeof(char)*bufsize);
-    b[1] = (char*) malloc(sizeof(char)*bufsize);
+    // initialize buffer
+    buffer b;
+    buffersize bufsize = 25;
 
-    int count = 0;
-    fp = getStream(fp, b[count % 2], bufsize);
+    lineNo = 1;
 
+    b = (buffer) malloc(sizeof(char)*bufsize);
+
+    memset(b, 0, sizeof(b));
+
+    // initialize stack
+    stack* head = (stack*) malloc(sizeof(stack));
+    head->next = NULL;
+
+    // initialize parseTree
+    parseTree ptree = (parseTree) malloc(sizeof(struct tree));
+    ptree->id = 100;
+    ptree->firstKid = NULL;
+    ptree->siblings = NULL;
+
+    parseTree curr = ptree;
+
+    // push "dollar" or -47 to indicate the end of the stack
+    head = push(head, -47);
+    // push "program" to start parsing
+    head = push(head, 100);
+
+    tokenInfo token;
+    int ruleNum;
+    int popVal;
+
+    stack popped;
+
+    token = getNextToken(fp, b, bufsize);
+    while (token.id == 2)
+    {
+        state = 1;
+        token = getNextToken(fp , b, bufsize);
+    }
+
+    printf("\n\n%d\n\n", token.lineNo);
+    // parsing now!
+    while(1)
+    {
+        state = 1;
+
+        popped = pop(head);
+
+        popVal = popped.data;
+        head = popped.next;
+
+        // if $ is popped
+        if(popVal == -47)
+        {
+            // some error report here!
+        }
+
+        while (popVal < 100) {
+            if (popVal == 57)
+            {
+                popped = pop(head);
+
+                popVal = popped.data;
+                head = popped.next;
+
+                while (curr->siblings == NULL)
+                    curr = curr->parent;
+
+                curr = curr->siblings;
+                continue;
+            }
+
+            if (popVal != token.id)
+            {
+                printf("ERROR: popped value should be same as token");
+                printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+                fclose(fp);
+                exit(0);
+            }
+            else
+            {
+                popped = pop(head);
+
+                popVal = popped.data;
+                head = popped.next;
+
+                while (curr->siblings == NULL)
+                    curr = curr->parent;
+
+                curr = curr->siblings;
+
+                state = 1;
+                token = getNextToken(fp, b, bufsize);
+                while (token.id == 2)
+                    token = getNextToken(fp , b, bufsize);
+                printf("\n\n%d\n\n", token.lineNo);
+            }
+        }
+
+        ruleNum = T[popVal % 100][token.id];
+
+        if (ruleNum == -1)
+        {
+            printf("rule not found");
+            printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
+            fclose(fp);
+            exit(0);
+        }
+
+        head = push_ints(head, getRuleRHSrev(ruleNum), curr);
+
+        curr = curr->firstKid;
+
+        printf("\n\n\n");
+        printParseTree(ptree);
+    }
 }
 
-void markFirst(table T, int index, );
+void printParseTree(parseTree  curr)
+{
+    // print for debugging!!
+
+    if (curr == NULL)
+        return;
+
+
+    if(curr->firstKid != NULL)
+    {
+        printf("\ngoing to first kid with id: %d %d\n\n", curr->firstKid->id, curr->id);
+        printParseTree(curr->firstKid);
+    }
+    else
+        printf("\n id: %d, name: %s parent id: %d", curr->id, getCorrespondingToken(curr->id), curr->parent->id);
+
+    parseTree prev = curr;
+    curr = curr->siblings;
+
+    if(curr != NULL)
+    {
+        printf("\ngoing to siblings with id: %d %d\n\n", curr->id, prev->id);
+        return printParseTree(curr);
+    }
+}
+
+parseTree next(parseTree curr)
+{
+    if(curr->siblings == NULL)
+        return curr->parent;
+    else
+        return curr->siblings;
+}
+
+int* getRuleRHSrev(int rule)
+{
+    int* ret;
+    ret = (int*) malloc(sizeof(int)*8);
+
+    int i;
+
+    for(i = 0; i<8 ;i++)
+        ret[i] = 1000;
+
+    char* temp;
+    temp = (char*) malloc(200*sizeof(char));
+
+    strcpy(temp, GRule[rule]);
+    char* toks = strtok(temp, " ");
+
+    int counter = 0;
+
+    while(toks != NULL)
+    {
+        ret[counter] = getIndex(toks);
+        counter++;
+        toks = strtok(NULL, " ");
+    }
+
+    return ret;
+}
 
 // add stack methods
 
-char *GRule[95];
-GRule[0] = "<otherFunctions> <mainFunction> ";
-GRule[1] = "TK_MAIN <stmts> TK_END ";
-GRule[2] = "<function> <otherFunctions> ";
-GRule[3] = "eps ";
-GRule[4] = "TK_FUNID <input_par> <output_par> TK_SEM <stmts> TK_END ";
-GRule[5] = "TK_INPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR ";
-GRule[6] = "TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL <parameter_list> TK_SQR ";
-GRule[7] = "eps ";
-GRule[8] = "<dataType> TK_ID <remaining_list> ";
-GRule[9] = "<primitiveDatatype> ";
-GRule[10] = "<constructedDatatype> ";
-GRule[11] = "TK_INT ";
-GRule[12] = "TK_REAL ";
-GRule[13] = "TK_RECORD TK_RECORDID ";
-GRule[14] = "TK_COMMA <parameter_list> ";
-GRule[15] = "eps ";
-GRule[16] = "<typeDefinitions> <declarations> <otherStmts> <returnStmt> ";
-GRule[17] = "<typeDefinition> <typeDefinitions> ";
-GRule[18] = "eps ";
-GRule[19] = "TK_RECORD TK_RECORDID <fieldDefinitions> TK_ENDRECORD TK_SEM ";
-GRule[20] = "<fieldDefinition> <fieldDefinition> <moreFields> ";
-GRule[21] = "TK_TYPE <primitiveDatatype> TK_COLON TK_FIELDID TK_SEM ";
-GRule[22] = "<fieldDefinition> <moreFields> ";
-GRule[23] = "eps ";
-GRule[24] = "<declaration> <declarations> ";
-GRule[25] = "eps ";
-GRule[26] = "TK_TYPE <dataType> TK_COLON TK_ID <global_or_not> TK_SEM ";
-GRule[27] = "TK_COLON TK_GLOBAL ";
-GRule[28] = "eps ";
-GRule[29] = "<stmt> <otherStmts> ";
-GRule[30] = "eps ";
-GRule[31] = "<assignmentStmt> ";
-GRule[32] = "<iterativeStmt> ";
-GRule[33] = "<conditionalStmt> ";
-GRule[34] = "<ioStmt> ";
-GRule[35] = "<funCallStmt> ";
-GRule[36] = "<singleOrRecId> TK_ASSIGNOP <arithmeticExpression> TK_SEM ";
-GRule[37] = "TK_ID <singleA> ";
-GRule[38] = "TK_DOT TK_FIELDID ";
-GRule[39] = "eps ";
-GRule[40] = "<outputParameters> TK_CALL TK_FUNID TK_WITH TK_PARAMETERS <inputParameters> TK_SEM ";
-GRule[41] = "TK_SQL <idList> TK_SQR TK_ASSIGNOP ";
-GRule[42] = "eps ";
-GRule[43] = "TK_SQL <idList> TK_SQR ";
-GRule[44] = "TK_WHILE TK_OP <booleanExpression> TK_CL <stmt> <otherStmts> TK_ENDWHILE ";
-GRule[45] = "TK_IF TK_OP <booleanExpression> TK_CL TK_THEN <stmt> <otherStmts> <elsePart> ";
-GRule[46] = "TK_ELSE <stmt> <otherStmts> TK_ENDIF ";
-GRule[47] = "TK_ENDIF ";
-GRule[48] = "TK_READ TK_OP <singleOrRecId> TK_CL TK_SEM ";
-GRule[49] = "TK_WRITE TK_OP <allVar> TK_CL TK_SEM ";
-GRule[50] = "<singleOrRecId> ";
-GRule[51] = "TK_RECORDID TK_DOT TK_FIELDID ";
-GRule[52] = "<term> <expPrime> ";
-GRule[53] = "<lowPrecedenceOperators> <term> <expPrime> ";
-GRule[54] = "eps ";
-GRule[55] = "<factor> <termPrime> ";
-GRule[56] = "<highPrecedenceOperators> <factor> <termPrime> ";
-GRule[57] = "eps ";
-GRule[58] = "TK_OP <arithmeticExpression> TK_CL ";
-GRule[59] = "<all> ";
-GRule[60] = "TK_MUL ";
-GRule[61] = "TK_DIV ";
-GRule[62] = "TK_PLUS ";
-GRule[63] = "TK_MINUS ";
-GRule[64] = "TK_ID ";
-GRule[65] = "TK_NUM ";
-GRule[66] = "TK_RNUM ";
-GRule[67] = "TK_RECORDID <temp> ";
-GRule[68] = "eps ";
-GRule[69] = "TK_DOT TK_FIELD ";
-GRule[70] = "TK_OP <booleanExpression> TK_CL <logicalOp> TK_OP <booleanExpression> TK_CL ";
-GRule[71] = "<var> <relationalOp> <var> ";
-GRule[72] = "TK_NOT <booleanExpression> ";
-GRule[73] = "TK_ID ";
-GRule[74] = "TK_NUM ";
-GRule[75] = "TK_RNUM ";
-GRule[76] = "TK_AND ";
-GRule[77] = "TK_OR ";
-GRule[78] = "TK_LT ";
-GRule[79] = "TK_LE ";
-GRule[80] = "TK_EQ ";
-GRule[81] = "TK_GT ";
-GRule[82] = "TK_GE ";
-GRule[83] = "TK_NE ";
-GRule[84] = "TK_RETURN <optionalReturn> TK_SEM ";
-GRule[85] = "TK_SQL <idList> TK_SQR ";
-GRule[86] = "eps ";
-GRule[87] = "TK_ID <more_ids> ";
-GRule[88] = "TK_COMMA <idList> ";
-GRule[89] = "eps ";
+stack* push(stack* head, int val)
+{
+    // Allocate new space
+    stack* new = (stack*) malloc(sizeof(stack));
+    new->data = val;
+    new->next = head;
+    // head = new;
 
+    return new;
+}
+
+stack* push_ints(stack* head, int* ints, parseTree curr)
+{
+    int counter = 0;
+
+    parseTree new = (parseTree) malloc(sizeof(*curr));
+
+    new->id = ints[0];
+    new->siblings = NULL;
+    new->parent = curr;
+    new->firstKid = NULL;
+    curr->firstKid = new;
+
+    counter++;
+
+    parseTree prev = new;
+    while(ints[counter] != 1000 && counter < 8)
+    {
+        if(ints[counter] == 57)
+            flag_eps = 1;
+
+        parseTree temp = (parseTree) malloc(sizeof(*curr));
+        temp->id = ints[counter];
+        temp->siblings = NULL;
+        temp->firstKid = NULL;
+        temp->parent = curr;
+        prev->siblings = temp;
+        prev = temp;
+        counter++;
+    }
+
+    counter--;
+
+    while (counter >= 0)
+    {
+        if(ints[counter] == 1000)
+        {
+            counter--;
+            continue;
+        }
+
+        head = push(head, ints[counter]);
+        counter--;
+    }
+
+    return head;
+}
+
+stack pop(stack* head)
+{
+    stack* temp;
+    temp = head;
+
+    int outVal = temp->data;
+
+    head = temp->next;
+
+    free(temp);
+
+    stack ret;
+    ret.data = outVal;
+    ret.next = head;
+    return ret;
+}
+
+int main()
+{
+    printf("Now We will parse!!! :D");
+
+    FILE* fp;
+
+    fp = fopen("grammar", "r");
+
+    table doNow = (int **) malloc(table_row * sizeof(int *));
+
+    int i = 0;
+
+    for (i=0; i<table_row; i++)
+         doNow[i] = (int *) malloc(table_row * sizeof(int));
+
+    createParseTable(fp, doNow);
+
+    int j = 0;
+
+    for (i = 0;i<table_row;i++)
+    {
+        for(j=0;j<table_row;j++)
+            printf(" %d ", doNow[i][j]);
+
+        printf("\n");
+    }
+    fclose(fp);
+
+    printf("\nCreated Parsing Table\n");
+
+
+    parseTree n;
+    char filename[] = "testcases/testcase3.txt";
+
+    n = parseInputSourceCode(filename, doNow);
+
+    printf("chal gaya\n");
+    return 0;
+}

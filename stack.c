@@ -34,7 +34,7 @@ int print(node* head)
         printf("  %d  -->", temp->data);
         temp = temp->next;
     }
-    printf("  %d\n", temp->data);
+    printf("%d\n", temp->data);
 
     return 0;
 }
