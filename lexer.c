@@ -39,7 +39,7 @@ FILE *getStream(FILE *fp, buffer b, buffersize k)
 	Updates line number as '\n' is encountered.
 	On finding a token it returns the token.
 	The global variable offset and state is continuously updated.
-	Let the parser change the state back to 1 for further parsing.
+	Errors are printed as they come.
 */
 tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 {
@@ -64,6 +64,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 			offset = 0;
 		}
 		switch(state){
+			//starting state
 			case 1:
 				switch(b[offset])
 				{
@@ -413,7 +414,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						return token;
 				}
 				break;
-
+			//field id and all keywords except _main
 			case 8:
 				while(97 <= b[offset] && b[offset] <= 122){
 					lexeme[i++] = b[offset++];
@@ -620,16 +621,15 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				break;
+			//b-d was encountered, so one of fieldid or id
 			case 9:
-				//a-z kuch aaya
+				//a-z
 				if (97 <= b[offset] && b[offset]<= 122){
 					state = 8;
 					lexeme[i++] = b[offset++];
-					// why repeat the case 8 code, let it take care now.
 					break;
 				}
 				// some number comes up
-				// @thought file pointer ke changes kahan store ho rahe hain?, passed as pointer so probably is ok
 				else if(48 <= b[offset] && b[offset]<=57){
 					state = 10;
 					lexeme[i++] = b[offset++];
@@ -637,10 +637,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				//something random pops in, we are in a final state so thngs are good
 				else{
-					// can't increase offset as had unsupported symbol but was ata final state
-					// change state to 1 @sodhi warna scene hoga
-					// unused symbol jaega agar kahin accept hua toh sahi
-					// rethink this @gyani
 					token.id = 3;
 					token.lineNo=lineNo;
 					strcpy(token.name, lexeme);
@@ -650,7 +646,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				break;
 			case 10:
-				//switch case increases lines for no reason :(
+				//id is being processed
 				switch(b[offset]){
 					case 'b':
 					case 'c':
@@ -671,7 +667,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						lexeme[i++] = b[offset++];
 						break;
 					default:
-						//final state pe kuch random aaya
 						token.id = 4;
 						strcpy(token.name, lexeme);
 						token.lineNo = lineNo;
@@ -681,7 +676,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				break;
 			case 11:
-				//b or d hi aae ja raha hai
+				//something between b,c and d
 				while(98<=b[offset] && b[offset]<=100){
 					lexeme[i++] = b[offset++];
 					if (offset == k || b[offset] == '\0'){
@@ -693,7 +688,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						offset=0;
 					}
 				}
-				// number aaya matlab state transition
 				if (b[offset] != '\0' && offset != k && 48 <=b[offset] && b[offset]<=57){
 					state = 12;
 					lexeme[i++] = b[offset++];
@@ -711,8 +705,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				break;
 			case 12:
-				//@gyani to str copy or not
-				//@gyani length of field?
 				while(48<= b[offset] &&  b[offset]<=57){
 					lexeme[i++] = b[offset++];
 					if (offset == k || b[offset] == '\0'){
@@ -724,6 +716,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						offset=0;
 					}
 				}
+				// minimum length of 20 is enforced automatically, as it will be detected as fieldid
 				if(strlen(lexeme) > 20){
 					printf("Error_1:Identifier at line<%d> is longer than the prescribed length of 20 characters.\n", lineNo);
 					error = 1;
@@ -737,6 +730,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				return token;
 				break;
 			case 13:
+				//integer number that may become rnum
 				while(48<= b[offset]&& b[offset]<=57){
 					lexeme[i++] = b[offset++];
 					if (offset == k || b[offset] == '\0'){
@@ -759,6 +753,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				memset(lexeme, 0, sizeof(lexeme));
 				return token;
 			case 14:
+				//real number
 				if(offset+1!=k){
 					if (48 <= b[offset] && b[offset]<=57 && 48 <= b[offset+1] && b[offset+1]<=57){
 						state = 16;
@@ -844,7 +839,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						offset=0;
 					}
 				}
-				//@gyani upar 2 wala scene dekho
 				if(strlen(lexeme) > 30){
 					printf("Error_6:Function Identifier at line<%d> is longer than the prescribed length of 30 characters.\n", lineNo);
 					error = 1;
@@ -855,7 +849,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					state = 19;
 					break;
 				}
-				// offset already upar badh gyaa hai
+				// offset already has been increased
 				else if(strcmp("_main", lexeme) == 0){
 					token.id = 16;
 					strcpy(token.name, lexeme);
@@ -866,7 +860,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				else{
 					token.id = 7;
-					// strcpy(token.name, lexeme);
 					strcpy(token.name, lexeme);
 					token.lineNo =lineNo;
 					i =0;
@@ -921,7 +914,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				break;
 			case 33:
-				//@gyani offset++, array natak
 				if(offset+1==k && b[offset]=='&'){
 					lexeme[i++] = b[offset++];
 					state = 34;
