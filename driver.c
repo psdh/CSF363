@@ -10,6 +10,8 @@
 #include "lexer.c"
 #include "lexer.h"
 #include "lexerDef.h"
+#include "parser.h"
+#include "parserDef.h"
 
 void commentFreeCode(char const* Filename){
 	FILE * fp;
@@ -154,13 +156,25 @@ int main(int argc, char const *argv[])
 				printAllTokens(argv[1]);
 				break;
 			case 3:
-				//parse table
-				break;
-			case 4:
-				// parseTree();
-				break;
+            case 4:
+                table t = (int **) malloc(table_row * sizeof(int *));
+
+                int i = 0;
+
+                for (i=0; i<table_row; i++)
+                     t[i] = (int *) malloc(table_row * sizeof(int));
+
+                createParseTable(fp, t);
+
+                parseTree answer = parseInputSourceCode(argv[1], doNow);
+
+                if (choice == 3)
+                    break;
+
+                printParseTree(answer, argv[2]);
+
 			case 5:
-				printf("Thank You!");
+				printf("\n\nThank You!\n");
 				exit(0);
 				break;
 

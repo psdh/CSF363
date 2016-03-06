@@ -19,6 +19,8 @@ struct tree {
     struct tree *parent;
     struct tree *firstKid;
     struct tree *siblings;
+    char* lexeme;
+    int lineNo;
 };
 
 typedef struct tree* parseTree;
