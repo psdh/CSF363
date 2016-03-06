@@ -10,6 +10,7 @@
 #define PARSER_H_INCLUDED
 
 #include "parserDef.h"
+
 #include <stdio.h>
 
 // void createParseTable(grammar G, table T): This function takes as input the grammar G,

@@ -23,7 +23,7 @@ int* getFirsts(char * input){
 
     int firsts[25];
 
-    FILE *fp = fopen("first", "r");
+    FILE *fp = fopen("firsts.txt", "r");
     if (fp == NULL){
         exit(EXIT_FAILURE);
     }
@@ -105,7 +105,7 @@ int* getFollows(char * input){
 
     int follows[25];
 
-    FILE *fp = fopen("follow", "r");
+    FILE *fp = fopen("follows.txt", "r");
     if (fp == NULL){
         exit(EXIT_FAILURE);
     }
@@ -573,7 +573,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         if(popVal == -47 && token.id == 55)
         {
             // printf("token here: %d", token.id);
-            printf("Parsing now complete!");
+            printf("Parsing now complete!\n");
             return curr;
         }
 
@@ -752,7 +752,7 @@ void printParseTree(parseTree  curr, char* outfile)
 {
     FILE* f = fopen(outfile, "w");
 
-    fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueLFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
+    fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
     printParseTree_r(curr, f);
     fclose(f);
 
@@ -875,40 +875,138 @@ stack pop(stack* head)
     return ret;
 }
 
-int main()
-{
-    FILE* fp;
 
-    fp = fopen("grammar", "r");
+char GRule[95][100] = {
+    "",
+    "otherFunctions mainFunction",
+    "TK_MAIN stmts TK_END",
+    "function otherFunctions",
+    "eps",
+    "TK_FUNID input_par output_par TK_SEM stmts TK_END",
+    "TK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR",
+    "TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR",
+    "eps",
+    "dataType TK_ID remaining_list",
+    "primitiveDatatype",
+    "constructedDatatype",
+    "TK_INT",
+    "TK_REAL",
+    "TK_RECORD TK_RECORDID",
+    "TK_COMMA parameter_list",
+    "eps",
+    "typeDefinitions declarations otherStmts returnStmt",
+    "typeDefinition typeDefinitions",
+    "eps",
+    "TK_RECORD TK_RECORDID fieldDefinitions TK_ENDRECORD TK_SEM",
+    "fieldDefinition fieldDefinition moreFields",
+    "TK_TYPE primitiveDatatype TK_COLON TK_FIELDID TK_SEM",
+    "fieldDefinition moreFields",
+    "eps",
+    "declaration declarations",
+    "eps",
+    "TK_TYPE dataType TK_COLON TK_ID global_or_not TK_SEM",
+    "TK_COLON TK_GLOBAL",
+    "eps",
+    "stmt otherStmts",
+    "eps",
+    "assignmentStmt",
+    "iterativeStmt",
+    "conditionalStmt",
+    "ioStmt",
+    "funCallStmt",
+    "singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM",
+    "TK_ID new24",
+    "TK_DOT TK_FIELDID",
+    "eps",
+    "outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM",
+    "TK_SQL idList TK_SQR TK_ASSIGNOP",
+    "eps",
+    "TK_SQL idList TK_SQR",
+    "TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE",
+    "TK_IF TK_OP booleanExpression TK_CL TK_THEN stmt otherStmts elsePart",
+    "TK_ELSE stmt otherStmts TK_ENDIF",
+    "TK_ENDIF",
+    "TK_READ TK_OP singleOrRecId TK_CL TK_SEM",
+    "TK_WRITE TK_OP allVar TK_CL TK_SEM",
+    "TK_ID newVar",
+    "TK_NUM",
+    "TK_RNUM",
+    "TK_DOT TK_FIELDID",
+    "eps",
+    "term expPrime",
+    "lowPrecedenceOperators term expPrime",
+    "eps",
+    "factor termPrime",
+    "highPrecedenceOperators factor termPrime",
+    "eps",
+    "TK_OP arithmeticExpression TK_CL",
+    "all",
+    "TK_MUL",
+    "TK_DIV",
+    "TK_PLUS",
+    "TK_MINUS",
+    "TK_NUM",
+    "TK_RNUM",
+    "TK_ID temp",
+    "TK_DOT TK_FIELDID",
+    "eps",
+    "TK_OP booleanExpression TK_CL logicalOp TK_OP booleanExpression TK_CL",
+    "var relationalOp var",
+    "TK_NOT TK_OP booleanExpression TK_CL",
+    "TK_ID",
+    "TK_NUM",
+    "TK_RNUM",
+    "TK_AND",
+    "TK_OR",
+    "TK_LT",
+    "TK_LE",
+    "TK_EQ",
+    "TK_GT",
+    "TK_GE",
+    "TK_NE",
+    "TK_RETURN optionalReturn TK_SEM",
+    "TK_SQL idList TK_SQR",
+    "eps",
+    "TK_ID more_ids",
+    "TK_COMMA idList",
+    "eps",
+};
 
-    table doNow = (int **) malloc(table_row * sizeof(int *));
 
-    int i = 0;
+// int main()
+// {
+//     FILE* fp;
 
-    for (i=0; i<table_row; i++)
-         doNow[i] = (int *) malloc(table_row * sizeof(int));
+//     fp = fopen("grammar", "r");
 
-    createParseTable(fp, doNow);
+//     table doNow = (int **) malloc(table_row * sizeof(int *));
 
-    int j = 0;
+//     int i = 0;
 
-    // for (i = 0;i<table_row;i++)
-    // {
-    //     for(j=0;j<table_row;j++)
-    //         printf(" %d ", doNow[i][j]);
+//     for (i=0; i<table_row; i++)
+//          doNow[i] = (int *) malloc(table_row * sizeof(int));
 
-    //     printf("\n");
-    // }
+//     createParseTable(fp, doNow);
 
-    fclose(fp);
+//     int j = 0;
 
-    printf("\nCreated Parsing Table\n");
+//     // for (i = 0;i<table_row;i++)
+//     // {
+//     //     for(j=0;j<table_row;j++)
+//     //         printf(" %d ", doNow[i][j]);
+
+//     //     printf("\n");
+//     // }
+
+//     fclose(fp);
+
+//     printf("\nCreated Parsing Table\n");
 
 
-    parseTree n;
-    char filename[] = "testcases/testcase4.txt";
+//     parseTree n;
+//     char filename[] = "testcases/testcase1.txt";
 
-    n = parseInputSourceCode(filename, doNow);
+//     n = parseInputSourceCode(filename, doNow);
 
-    return 0;
-}
+//     return 0;
+// }
