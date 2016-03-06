@@ -322,13 +322,13 @@ void getFollow(char * rule, char * Filename, char * original){
 	        char * saveptr;
 	        char * token;
 	        int found=-1;
+            // printf("%s\n", right);
 	        token = strtok_r(right , " ", &saveptr);
 	        while(token!=NULL){
 	        	char * copy = (char*)calloc(strlen(token)+1, sizeof(char));
 				strcpy(copy, token);
         		token = strtok_r(NULL , " ", &saveptr);
 	        	if(token == NULL && strcmp(copy, rule) == 0){
-	        		// printf("FOO%s\t%s\n", left, rule);
 	        		if(followFound(left) != -1){
 	        			char * tempstr = (char*)calloc(strlen(follows[followFound(left)])+1, sizeof(char));
 	        			char * temp_tokens = strtok(tempstr, " ");
@@ -351,7 +351,10 @@ void getFollow(char * rule, char * Filename, char * original){
 	        			if(strcmp(left, original) !=0 && strcmp(left, rule) !=0 && doubleDependence(rule, left, Filename) == 0){
 		        			// printf("!%s\t%s\t%s!\n", left, original, rule);
 		        			// printf("%s\n", "AGAR");
+                            df_count++;
 		        			getFollow(left, Filename, original);
+                            df_count--;
+                            df_count--;
 		        			char * tempstr = (char*)calloc(strlen(follows[followFound(left)])+1, sizeof(char));
 		        			char * temp_tokens = strtok(tempstr, " ");
 		        			strcpy(tempstr, follows[followFound(left)]);
@@ -368,10 +371,12 @@ void getFollow(char * rule, char * Filename, char * original){
 	        		}
 	        	}
 	        	else if(strcmp(copy, rule) == 0){
-	        		// printf("%s\n", "a");
+                    // printf("%s\n", line);
 	        		found = 1;
 	        	}
 	        	else if(found == 1 && token != NULL){
+                    // printf("%s\n", rule);
+                    // printf("%s\n", rule);
         			char * tempstr = (char*)calloc(strlen(firsts[isDone(copy)])+1, sizeof(char));
         			strcpy(tempstr, firsts[isDone(copy)]);
         			char * temp_tokens = strtok(tempstr, " ");
@@ -384,6 +389,7 @@ void getFollow(char * rule, char * Filename, char * original){
 		        		temp_tokens = strtok(NULL, " ");
 	        		}
 	        		if(!epsilonInFirst(copy)){
+                        // printf("%s\n", copy);
 	        			break;
 	        		}
 	        	}
@@ -393,17 +399,23 @@ void getFollow(char * rule, char * Filename, char * original){
         			char * temp_tokens = strtok(tempstr, " ");
         			while(temp_tokens!= NULL){
         				if (alreadyThere(temp_tokens, temp_seen, i ) == -1 && strcmp("eps", temp_tokens)!=0){
-        					strcat(follows[df_count], temp_tokens);
-		        			strcat(follows[df_count], " ");
+                            // printf("Inserting %s\t%s\n", temp_tokens, rule);
+                            strcat(follows[df_count], temp_tokens);
+		        			// printf("f %s\n", follows[df_count]);
+                            strcat(follows[df_count], " ");
 		        			strcpy(temp_seen[i++], temp_tokens);
 		        		}
 		        		temp_tokens = strtok(NULL, " ");
 	        		}
+                    // printf("%s\t%s\n", follows[df_count], rule);
+                    // printf("%s\n", copy);
 	        		if(!epsilonInFirst(copy)){
 	        			break;
 	        		}
+                    // printf("NANA\t%s\n", follows[df_count]);
 	        		if(followFound(left)!= -1){
-	        			free(tempstr);
+	        			// free(tempstr);
+                        // printf("%s\t%s\n", "IDHAR", left);
 	        			tempstr = (char*)calloc(strlen(follows[followFound(left)])+1, sizeof(char));
 	        			strcpy(tempstr, follows[followFound(left)]);
 	        			temp_tokens = strtok(tempstr, " ");
@@ -415,17 +427,24 @@ void getFollow(char * rule, char * Filename, char * original){
 			        		}
 			        		temp_tokens = strtok(NULL, " ");
 		        		}
+                        // printf("%s\n", rule);
+                        // printf("GOGO %s\n", follows[df_count]);
 	        		}
 	        		else{
-	        			// printf("%s\n", left);
 	        			if(strcmp(left, original) !=0 && strcmp(left, rule) !=0 && doubleDependence(rule, left, Filename) == 0){
-		        			getFollow(left, Filename, original);
-		        			free(tempstr);
+                            df_count++;
+                            getFollow(left, Filename, original);
+                            df_count--;
+                            df_count--;
 		        			tempstr = (char*)calloc(strlen(follows[followFound(left)])+1, sizeof(char));
 		        			strcpy(tempstr, follows[followFound(left)]);
+                            // printf("%s\t%s\n", follows[followFound(left)], rule);
 		        			temp_tokens = strtok(tempstr, " ");
+                            // printf("%s\n", follows[df_count]);
 		        			while(temp_tokens!= NULL){
+                                // printf("%s\n", follows[df_count]);
 	        					if (alreadyThere(temp_tokens, temp_seen, i ) == -1 && strcmp("$", temp_tokens)!=0){
+                                    // printf("%s\n", follows[df_count]);
 				        			strcat(follows[df_count], temp_tokens);
 				        			strcat(follows[df_count], " ");
 				        			strcpy(temp_seen[i++], temp_tokens);
@@ -434,8 +453,9 @@ void getFollow(char * rule, char * Filename, char * original){
 			        		}
 			        	}
 	        		}
+                    // printf("AF\t%s\t%s\n", follows[df_count], rule);
 	        	}
-	        	// printf("==%s\t%s\n", rule, token);
+	        	// printf("%s\n", follows[df_count]);
 	        }
         }//outwhile
         fclose(fp);
@@ -444,7 +464,7 @@ void getFollow(char * rule, char * Filename, char * original){
 	strcat(follows[df_count], "$");
 	strcat(follows[df_count], " ");
 	strcpy(done_follows[df_count++], rule);
-	//printf("%s\t%s\n", done_follows[df_count-1], follows[df_count-1]);
+	// printf("%s\t%s\n", done_follows[df_count-1], follows[df_count-1]);
 }
 
 void first(char  * Filename){
