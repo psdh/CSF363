@@ -1,3 +1,4 @@
 parser
+stage1exe
 *.out
 *.o
