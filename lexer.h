@@ -1,7 +1,9 @@
-// filename: lexer.h
-// Batch 47
-// 2013A7PS126P Gyanendra Mishra
-// 2013A7PS151P Prabhjyot Singh Sodhi
+/*
+    Batch No: 47
+    Gyanendra Mishra 2013A7PS126P
+    Prabhjyot Singh Sodhi 2013A7PS151P
+    Filename:lexer.h
+*/
 
 // lexer.h           : Contains function prototype declarations of functions in lexer.c
 
@@ -13,8 +15,6 @@
 
 FILE *getStream(FILE *fp, buffer B, buffersize k);
 
-// TODO<psdh> define tokenInfo (probably a struct that  will be used when storing in the symbol table)
-// Figure out where must tokenInfo be defined (which file that is)
 tokenInfo getNextToken(FILE *fp, buffer b, buffersize k);
 
 #endif

@@ -1,7 +1,9 @@
-// filename: parser.h
-// Batch 47
-// 2013A7PS126P Gyanendra Mishra
-// 2013A7PS151P Prabhjyot Singh Sodhi
+/*
+    Batch No: 47
+    Gyanendra Mishra 2013A7PS126P
+    Prabhjyot Singh Sodhi 2013A7PS151P
+    Filename:parser.h
+*/
 
 // parser.h        : Contains function prototype declarations of functions in parser.c
 
@@ -10,6 +12,7 @@
 #define PARSER_H_INCLUDED
 
 #include "parserDef.h"
+
 #include <stdio.h>
 
 // void createParseTable(grammar G, table T): This function takes as input the grammar G,
