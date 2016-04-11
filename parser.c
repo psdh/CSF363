@@ -1,7 +1,10 @@
-// filename: parser.c
-// Batch 47
-// 2013A7PS126P Gyanendra Mishra
-// 2013A7PS151P Prabhjyot Singh Sodhi
+/*
+    Batch No: 47
+    Gyanendra Mishra 2013A7PS126P
+    Prabhjyot Singh Sodhi 2013A7PS151P
+    Filename:parser.c
+*/
+
 
 #include "parserDef.h"
 #include "lexer.h"
@@ -11,6 +14,7 @@
 #define table_row 60
 int flag_eps;
 
+// returns firsts set of given token
 int* getFirsts(char * input){
 
     char* line;
@@ -23,7 +27,7 @@ int* getFirsts(char * input){
 
     int firsts[25];
 
-    FILE *fp = fopen("first", "r");
+    FILE *fp = fopen("firsts.txt", "r");
     if (fp == NULL){
         exit(EXIT_FAILURE);
     }
@@ -56,6 +60,7 @@ int* getFirsts(char * input){
     return firsts;
 }
 
+// returns firsts set of given set of tokens
 int* first(char * input){
     int firsts[1000];
     int* current;
@@ -95,6 +100,7 @@ int* first(char * input){
     return firsts;
 }
 
+// returns follow set of given token
 int* getFollows(char * input){
 
     char * line = NULL;
@@ -105,7 +111,7 @@ int* getFollows(char * input){
 
     int follows[25];
 
-    FILE *fp = fopen("follow", "r");
+    FILE *fp = fopen("follows.txt", "r");
     if (fp == NULL){
         exit(EXIT_FAILURE);
     }
@@ -169,6 +175,7 @@ int* follow(char * input){
     return firsts;
 }
 
+// return id for token (non-terminals)
 int getRowIndex(char* s)
 {
     if(strcmp(s, "program") == 0) { return 100; }
@@ -224,6 +231,7 @@ int getRowIndex(char* s)
     if(strcmp(s, "newVar") == 0) { return 150; }
 }
 
+// returns token name for given id
 char* getCorrespondingToken(int f){
     switch(f){
         case 1: return "TK_ASSIGNOP";
@@ -340,7 +348,7 @@ char* getCorrespondingToken(int f){
         default: return "NOTHING";
     }
 }
-
+// returns token id for terminals
 int getColumnIndex(char* s)
 {
     if(strcmp(s, "TK_AND") == 0) { return 46; }
@@ -400,6 +408,7 @@ int getColumnIndex(char* s)
     return -90;
 }
 
+// combines fn's for terminals and non-terminals
 int getIndex(char* tok)
 {
     int ret = getColumnIndex(tok);
@@ -410,8 +419,8 @@ int getIndex(char* tok)
     return ret;
 }
 
-// initializing parsing table to rule no 1000
-// 1000 indicates *no rule*
+// initializing parsing table to rule no -1
+// -1 indicates *no rule present*
 void initializeTable(table T)
 {
     int i = 0;
@@ -506,6 +515,7 @@ void createParseTable(FILE* G, table T)
     }
 }
 
+// does the actual parsing using the table and source file
 parseTree parseInputSourceCode(char *testcaseFile, table T)
 {
     // initialize file pointer
@@ -535,6 +545,8 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
     ptree->id = 100;
     ptree->firstKid = NULL;
     ptree->siblings = NULL;
+    ptree->lexeme = (char*) malloc(sizeof(char)*25);
+    strcpy(ptree->lexeme, "program");
 
     parseTree curr = ptree;
 
@@ -556,8 +568,6 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         token = getNextToken(fp , b, bufsize);
     }
 
-    // printf("\n\n%d\n\n", token.lineNo);
-    // parsing now!
     while(1)
     {
         state = 1;
@@ -570,8 +580,8 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         // if $ is popped
         if(popVal == -47 && token.id == 55)
         {
-            // printf("token here: %d", token.id);
-            printf("Parsing now complete!");
+            printf("\n\nParsing now complete!\n");
+            fclose(fp);
             return curr;
         }
 
@@ -583,6 +593,8 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 popVal = popped.data;
                 head = popped.next;
 
+                strcpy(curr->lexeme, "");
+                curr->lineNo = token.lineNo;
                 while (curr->siblings == NULL)
                     curr = curr->parent;
 
@@ -594,15 +606,53 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
             {
                 if(popVal == -47 && token.id == 55)
                 {
-                    // printf("token here: %d", token.id);
                     printf("\n\nParsing now complete!");
-                    return curr;
+                    fclose(fp);
+                    return ptree;
                 }
-
-                printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>",
+                else if(token.id == 55)
+                {
+                    printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
+                    fclose(fp);
+                    return ptree;
+                }
+                else {
+                    printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>\n",
                        getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(popVal));
-                // printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
-                fclose(fp);
+
+                    popped = pop(head);
+
+                    popVal = popped.data;
+                    head = popped.next;
+
+                    while (curr->siblings == NULL)
+                        curr = curr->parent;
+
+                    curr = curr->siblings;
+
+                    if (popVal > 100 && T[popVal % 100][token.id] != -1)
+                        continue;
+
+                    if (popVal != token.id)
+                    {
+                        token = getNextToken(fp, b, bufsize);
+                        while (token.id == 2)
+                            token = getNextToken(fp , b, bufsize);
+
+                        if (popVal != token.id)
+                        {
+                            while(token.id != 55)
+                                token = getNextToken(fp, b, bufsize);
+
+                            printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
+
+                            fclose(fp);
+                            return ptree;
+                        }
+
+                        continue;
+                    }
+                }
             }
             else
             {
@@ -610,6 +660,9 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
                 popVal = popped.data;
                 head = popped.next;
+
+                strcpy(curr->lexeme, token.name);
+                curr->lineNo = token.lineNo;
 
                 while (curr->siblings == NULL)
                     curr = curr->parent;
@@ -621,7 +674,6 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 token = getNextToken(fp, b, bufsize);
                 while (token.id == 2)
                     token = getNextToken(fp , b, bufsize);
-                // printf("\n\n%d\n\n", token.lineNo);
             }
         }
 
@@ -629,54 +681,94 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 
         if (ruleNum == -1)
         {
-            printf("rule not found");
-            // printf("popVal: %d, token.id: %d and name: %sn", popVal, token.id, token.name);
-            fclose(fp);
+            int* ans = getFirsts(getCorrespondingToken(popVal));
+            printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>\n",
+                       getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(*ans));
+
+            popped = pop(head);
+
+            popVal = popped.data;
+            head = popped.next;
+
+            while (curr->siblings == NULL)
+                curr = curr->parent;
+
+            curr = curr->siblings;
+
+            if (popVal > 100 && T[popVal % 100][token.id] != -1)
+                continue;
+
+            if (popVal != token.id)
+            {
+                token = getNextToken(fp, b, bufsize);
+                while (token.id == 2)
+                    token = getNextToken(fp , b, bufsize);
+
+                if (popVal != token.id)
+                {
+                    while(token.id != 55)
+                        token = getNextToken(fp, b, bufsize);
+
+                    printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
+
+                    fclose(fp);
+
+                    return ptree;
+                }
+
+                continue;
+            }
         }
 
         head = push_ints(head, getRuleRHSrev(ruleNum), curr);
 
         curr = curr->firstKid;
-
-        printf("\n\n\n");
-        printParseTree(ptree);
     }
 }
 
-void printParseTree(parseTree  curr)
+// helper fn for tree printing (does the acutal printing)
+void printParseTree_r(parseTree curr, FILE* f)
 {
-    // print for debugging!!
-
     if (curr == NULL)
         return;
 
 
     if(curr->firstKid != NULL)
     {
-        // printf("\ngoing to first kid with id: %d %d\n\n", curr->firstKid->id, curr->id);
-        printParseTree(curr->firstKid);
+        printParseTree_r(curr->firstKid, f);
     }
     else
-        printf("\n id: %d, name: %s parent id: %d", curr->id, getCorrespondingToken(curr->id), curr->parent->id);
+    {
+        char* value = (char*) malloc(sizeof(char)*20);
+        strcpy(value, "");
+        if (curr->id == 5 || curr->id == 6)
+            strcpy(value, curr->lexeme);
 
+        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+    }
     parseTree prev = curr;
     curr = curr->siblings;
 
     if(curr != NULL)
     {
-        // printf("\ngoing to siblings with id: %d %d\n\n", curr->id, prev->id);
-        return printParseTree(curr);
+        return printParseTree_r(curr, f);
     }
 }
 
-parseTree next(parseTree curr)
+// prints parse tree to given out file
+void printParseTree(parseTree  curr, char* outfile)
 {
-    if(curr->siblings == NULL)
-        return curr->parent;
-    else
-        return curr->siblings;
+    FILE* f = fopen(outfile, "w");
+
+    fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
+    printParseTree_r(curr, f);
+    fclose(f);
+
 }
 
+// returns RHS of given rule as an int array
 int* getRuleRHSrev(int rule)
 {
     int* ret;
@@ -707,6 +799,7 @@ int* getRuleRHSrev(int rule)
 
 // add stack methods
 
+// push to stack
 stack* push(stack* head, int val)
 {
     // Allocate new space
@@ -718,6 +811,7 @@ stack* push(stack* head, int val)
     return new;
 }
 
+// push multiple ints, updates tree ptr too
 stack* push_ints(stack* head, int* ints, parseTree curr)
 {
     int counter = 0;
@@ -728,6 +822,8 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
     new->siblings = NULL;
     new->parent = curr;
     new->firstKid = NULL;
+    new->lexeme = (char*) malloc(sizeof(char)*25);
+    memset(new->lexeme, '\0', 25);
     curr->firstKid = new;
 
     counter++;
@@ -743,6 +839,8 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
         temp->siblings = NULL;
         temp->firstKid = NULL;
         temp->parent = curr;
+        temp->lexeme = (char*) malloc(sizeof(char)*25);
+        memset(temp->lexeme, '\0', 25);
         prev->siblings = temp;
         prev = temp;
         counter++;
@@ -765,6 +863,7 @@ stack* push_ints(stack* head, int* ints, parseTree curr)
     return head;
 }
 
+// pop from stack
 stack pop(stack* head)
 {
     stack* temp;
@@ -782,42 +881,99 @@ stack pop(stack* head)
     return ret;
 }
 
-int main()
-{
-    printf("Now We will parse!!! :D");
-
-    FILE* fp;
-
-    fp = fopen("grammar", "r");
-
-    table doNow = (int **) malloc(table_row * sizeof(int *));
-
-    int i = 0;
-
-    for (i=0; i<table_row; i++)
-         doNow[i] = (int *) malloc(table_row * sizeof(int));
-
-    createParseTable(fp, doNow);
-
-    int j = 0;
-
-    // for (i = 0;i<table_row;i++)
-    // {
-    //     for(j=0;j<table_row;j++)
-    //         printf(" %d ", doNow[i][j]);
-
-    //     printf("\n");
-    // }
-
-    fclose(fp);
-
-    printf("\nCreated Parsing Table\n");
-
-
-    parseTree n;
-    char filename[] = "testcases/testcase3.txt";
-
-    n = parseInputSourceCode(filename, doNow);
-
-    return 0;
-}
+// array of grammar rules used for parsing
+char GRule[95][100] = {
+    "",
+    "otherFunctions mainFunction",
+    "TK_MAIN stmts TK_END",
+    "function otherFunctions",
+    "eps",
+    "TK_FUNID input_par output_par TK_SEM stmts TK_END",
+    "TK_INPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR",
+    "TK_OUTPUT TK_PARAMETER TK_LIST TK_SQL parameter_list TK_SQR",
+    "eps",
+    "dataType TK_ID remaining_list",
+    "primitiveDatatype",
+    "constructedDatatype",
+    "TK_INT",
+    "TK_REAL",
+    "TK_RECORD TK_RECORDID",
+    "TK_COMMA parameter_list",
+    "eps",
+    "typeDefinitions declarations otherStmts returnStmt",
+    "typeDefinition typeDefinitions",
+    "eps",
+    "TK_RECORD TK_RECORDID fieldDefinitions TK_ENDRECORD TK_SEM",
+    "fieldDefinition fieldDefinition moreFields",
+    "TK_TYPE primitiveDatatype TK_COLON TK_FIELDID TK_SEM",
+    "fieldDefinition moreFields",
+    "eps",
+    "declaration declarations",
+    "eps",
+    "TK_TYPE dataType TK_COLON TK_ID global_or_not TK_SEM",
+    "TK_COLON TK_GLOBAL",
+    "eps",
+    "stmt otherStmts",
+    "eps",
+    "assignmentStmt",
+    "iterativeStmt",
+    "conditionalStmt",
+    "ioStmt",
+    "funCallStmt",
+    "singleOrRecId TK_ASSIGNOP arithmeticExpression TK_SEM",
+    "TK_ID new24",
+    "TK_DOT TK_FIELDID",
+    "eps",
+    "outputParameters TK_CALL TK_FUNID TK_WITH TK_PARAMETERS inputParameters TK_SEM",
+    "TK_SQL idList TK_SQR TK_ASSIGNOP",
+    "eps",
+    "TK_SQL idList TK_SQR",
+    "TK_WHILE TK_OP booleanExpression TK_CL stmt otherStmts TK_ENDWHILE",
+    "TK_IF TK_OP booleanExpression TK_CL TK_THEN stmt otherStmts elsePart",
+    "TK_ELSE stmt otherStmts TK_ENDIF",
+    "TK_ENDIF",
+    "TK_READ TK_OP singleOrRecId TK_CL TK_SEM",
+    "TK_WRITE TK_OP allVar TK_CL TK_SEM",
+    "TK_ID newVar",
+    "TK_NUM",
+    "TK_RNUM",
+    "TK_DOT TK_FIELDID",
+    "eps",
+    "term expPrime",
+    "lowPrecedenceOperators term expPrime",
+    "eps",
+    "factor termPrime",
+    "highPrecedenceOperators factor termPrime",
+    "eps",
+    "TK_OP arithmeticExpression TK_CL",
+    "all",
+    "TK_MUL",
+    "TK_DIV",
+    "TK_PLUS",
+    "TK_MINUS",
+    "TK_NUM",
+    "TK_RNUM",
+    "TK_ID temp",
+    "TK_DOT TK_FIELDID",
+    "eps",
+    "TK_OP booleanExpression TK_CL logicalOp TK_OP booleanExpression TK_CL",
+    "var relationalOp var",
+    "TK_NOT TK_OP booleanExpression TK_CL",
+    "TK_ID",
+    "TK_NUM",
+    "TK_RNUM",
+    "TK_AND",
+    "TK_OR",
+    "TK_LT",
+    "TK_LE",
+    "TK_EQ",
+    "TK_GT",
+    "TK_GE",
+    "TK_NE",
+    "TK_RETURN optionalReturn TK_SEM",
+    "TK_SQL idList TK_SQR",
+    "eps",
+    "TK_ID more_ids",
+    "TK_COMMA idList",
+    "eps",
+};

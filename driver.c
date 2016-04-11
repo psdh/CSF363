@@ -1,116 +1,57 @@
 /*
-	Gyanendra Mishra 2013A7PS126P
-	Prabhjyot Singh Sodhi 2013A7PS151P
-	Filename:driver.c
+    Batch No: 47
+    Gyanendra Mishra 2013A7PS126P
+    Prabhjyot Singh Sodhi 2013A7PS151P
+    Filename:driver.c
 */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "lexer.c"
+#include "parser.h"
 #include "lexer.h"
-#include "lexerDef.h"
 
 void commentFreeCode(char const* Filename){
-	FILE * fp;
+    FILE * fp;
     char * line = NULL;
     size_t len = 0;
     ssize_t read;
 
     fp = fopen(Filename, "r");
     if(fp == NULL){
-    	printf("Invalid source file\n");
-    	exit(-1);
+        printf("Invalid source file\n");
+        exit(-1);
     }
     while((read = getline(&line, &len, fp)) != -1){
-    	int position_of_comment = -1;
-    	int i = 0;
-    	while(i!=read){
-    		if(line[i] == '%'){
-    			position_of_comment = i;
-    			break;
-    		}
-    		i++;
-    	}
+        if(line[0] == '\n'){
+            continue;
+        }
+        int position_of_comment = -1;
+        int i = 0;
+        while(i!=read){
+            if(line[i] == '%'){
+                position_of_comment = i;
+                break;
+            }
+            i++;
+        }
 
-    	if(position_of_comment == -1){
-    		printf("%s\n", line);
-    	}
-    	else if (position_of_comment != 0){
-    		line[position_of_comment] = '\0';
-    		printf("%s\n", line);
-    	}
+        if(position_of_comment == -1){
+            printf("%s\n", line);
+        }
+        else if (position_of_comment != 0){
+            line[position_of_comment] = '\0';
+            printf("%s\n", line);
+        }
     }
 }
-
-char * getCorrespondingToken(int f){
-    switch(f){
-        case 1: return "TK_ASSIGNOP";
-        case 2: return "TK_COMMENT";
-        case 3: return "TK_FIELDID";
-        case 4: return "TK_ID";
-        case 5: return "TK_NUM";
-        case 6: return "TK_RNUM";
-        case 7: return "TK_FUNID";
-        case 8: return "TK_RECORDID";
-        case 9: return "TK_WITH";
-        case 10: return "TK_PARAMETERS";
-        case 11: return "TK_END";
-        case 12: return "TK_WHILE";
-        case 13: return "TK_INT";
-        case 14: return "TK_REAL";
-        case 15: return "TK_TYPE";
-        case 16: return "TK_MAIN";
-        case 17: return "TK_GLOBAL";
-        case 18: return "TK_PARAMETER";
-        case 19: return "TK_LIST";
-        case 20: return "TK_SQL";
-        case 21: return "TK_SQR";
-        case 22: return "TK_INPUT";
-        case 23: return "TK_OUTPUT";
-        case 24: return "TK_INT";
-        case 25: return "TK_REAL";
-        case 26: return "TK_SEM";
-        case 27: return "TK_COLON";
-        case 28: return "TK_DOT";
-        case 29: return "TK_ENDWHILE";
-        case 30: return "TK_OP";
-        case 31: return "TK_CL";
-        case 32: return "TK_IF";
-        case 33: return "TK_THEN";
-        case 34: return "TK_ENDIF";
-        case 35: return "TK_READ";
-        case 36: return "TK_WRITE";
-        case 37: return "TK_RETURN";
-        case 38: return "TK_PLUS";
-        case 39: return "TK_MINUS";
-        case 40: return "TK_MUL";
-        case 41: return "TK_DIV";
-        case 42: return "TK_CALL";
-        case 43: return "TK_RECORD";
-        case 44: return "TK_ENDRECORD";
-        case 45: return "TK_ELSE";
-        case 46: return "TK_AND";
-        case 47: return "TK_OR";
-        case 48: return "TK_NOT";
-        case 49: return "TK_LT";
-        case 50: return "TK_LE";
-        case 51: return "TK_EQ";
-        case 52: return "TK_GT";
-        case 53: return "TK_GE";
-        case 54: return "TK_NE";
-        case 55: return "$";
-        case 56: return "TK_COMMA";
-    }
-}
-
 
 void printAllTokens(char const* Filename){
-	FILE * fp;
-	fp = fopen(Filename, "r");
-	buffersize k = 25;
-	lineNo=1;
-	state = 1;
+    FILE * fp;
+    fp = fopen(Filename, "r");
+    buffersize k = 25;
+    lineNo=1;
+    state = 1;
 
     buffer b;
     buffersize bufsize = 25;
@@ -118,53 +59,77 @@ void printAllTokens(char const* Filename){
     b = (buffer) malloc(sizeof(char)*bufsize);
 
     tokenInfo token = getNextToken(fp, b, k);
-	while(strcmp(token.name, "$")!=0){
-		printf("%s\t%s\t%d\n",getCorrespondingToken(token.id),token.name,token.lineNo);
-		state = 1;
-		token = getNextToken(fp, b, k);
-	}
+    printf("%25s%25s%25d\n", "Token Name", "Lexeme", "Line Number");
+
+    while(strcmp(token.name, "$")!=0){
+        printf("%25s%25s%25d\n",getCorrespondingToken(token.id),token.name,token.lineNo);
+        state = 1;
+        token = getNextToken(fp, b, k);
+    }
 }
 
 int main(int argc, char const *argv[])
 {
-	if (argc < 3){
-		printf("Insufficient arguments provided, run as follows ./compiler testcase1.txt outfile.txt");
-		return 0;
-	}
+    if (argc < 3){
+        printf("Insufficient arguments provided, run as follows ./compiler testcase1.txt outfile.txt");
+        return 0;
+    }
 
-	printf("---------------------------------------------------\n");
-	printf("Lexical and syntax analysis module implemented!\n");
-	printf("---------------------------------------------------\n");
-	while(1){
-		printf("---------------------------------------------------\n");
-		printf("Press a number to choose the corresponding option\n");
-		printf("Press 1 to see comment free code\n");
-		printf("Press 2 to see a list of tokens generated by the lexer");
-		printf("Press 3 for parsing and verifying syntactic correctness of code\n");
-		printf("Press 4 for creating the parse tree\n");
-		printf("Press 5 to exit\n");
-		printf("---------------------------------------------------\n");
-		int choice;
-		scanf("%d",&choice);
-		switch(choice){
-			case 1:
-				commentFreeCode(argv[1]);
-				break;
-			case 2:
-				printAllTokens(argv[1]);
-				break;
-			case 3:
-				//parse table
-				break;
-			case 4:
-				// parseTree();
-				break;
-			case 5:
-				printf("Thank You!");
-				exit(0);
-				break;
+    printf("---------------------------------------------------\n");
+    printf("First and Follow Sets automated check firstandfollow.c\n");
+    printf("Lexical and Syntax analysis module implemented!\n");
+    printf("---------------------------------------------------\n");
 
-		}
-	}
-	return 0;
+    while(1){
+        printf("\n---------------------------------------------------\n");
+        printf("Press a number to choose the corresponding option\n");
+        printf("Press 1 to see comment free code\n");
+        printf("Press 2 to see a list of tokens generated by the lexer\n");
+        printf("Press 3 for parsing and verifying syntactic correctness of code\n");
+        printf("Press 4 for creating the parse tree\n");
+        printf("Press 5 to exit\n");
+        printf("---------------------------------------------------\n");
+
+        char c;
+        int choice;
+        scanf(" %c",&c);
+        choice = c - '0';
+        if (choice == 1)
+            commentFreeCode(argv[1]);
+        else if(choice == 2)
+            printAllTokens(argv[1]);
+        else if(choice == 3  || choice == 4)
+        {
+            table t = (int **) malloc(table_row * sizeof(int *));
+            int i = 0;
+
+            for (i=0; i<table_row; i++)
+                 t[i] = (int *) malloc(table_row * sizeof(int));
+
+            FILE * fp;
+            fp = fopen("grammar.txt", "r");
+
+            createParseTable(fp, t);
+
+            fclose(fp);
+
+            parseTree answer = parseInputSourceCode(argv[1], t);
+            if(choice == 4)
+            {
+                printParseTree(answer, argv[2]);
+                printf("You can find your file at --> %s\n", argv[2]);
+            }
+        }
+        else if(choice == 5)
+        {
+            printf("\n\nThank You!\n");
+                exit(0);
+        }
+        else {
+            printf("Please enter valid input\n");
+        }
+    }
+
+
+    return 0;
 }
