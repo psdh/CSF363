@@ -736,6 +736,13 @@ void printParseTree_r(parseTree curr, FILE* f)
     if(curr->firstKid != NULL)
     {
         printParseTree_r(curr->firstKid, f);
+
+        char* value = (char*) malloc(sizeof(char)*20);
+        strcpy(value, "");
+
+        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
     }
     else
     {
