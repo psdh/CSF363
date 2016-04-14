@@ -1,0 +1,136 @@
+
+    lexemeCurrentNode          lineNo           token   valueIFNumber     parentNodeSymbol ifLeafNode(Yes/No)      NodeSymbol
+
+                _sumN               4        TK_FUNID                             function             yes        TK_FUNID
+                input               4        TK_INPUT                            input_par             yes        TK_INPUT
+            parameter               4    TK_PARAMETER                            input_par             yes    TK_PARAMETER
+                 list               4         TK_LIST                            input_par             yes         TK_LIST
+                    [               4          TK_SQL                            input_par             yes          TK_SQL
+                  int               4          TK_INT                    primitiveDatatype             yes          TK_INT
+               d5cc34               4           TK_ID                       parameter_list             yes           TK_ID
+                                    4             eps                       remaining_list             yes             eps
+                    ]               4          TK_SQR                            input_par             yes          TK_SQR
+               output               5       TK_OUTPUT                           output_par             yes       TK_OUTPUT
+            parameter               5    TK_PARAMETER                           output_par             yes    TK_PARAMETER
+                 list               5         TK_LIST                           output_par             yes         TK_LIST
+                    [               5          TK_SQL                           output_par             yes          TK_SQL
+                 real               5         TK_REAL                    primitiveDatatype             yes         TK_REAL
+                   d3               5           TK_ID                       parameter_list             yes           TK_ID
+                                    5             eps                       remaining_list             yes             eps
+                    ]               5          TK_SQR                           output_par             yes          TK_SQR
+                    ;               5          TK_SEM                             function             yes          TK_SEM
+                                    6             eps                      typeDefinitions             yes             eps
+                 type               6         TK_TYPE                          declaration             yes         TK_TYPE
+                  int               6          TK_INT                    primitiveDatatype             yes          TK_INT
+                    :               6        TK_COLON                          declaration             yes        TK_COLON
+               b5b567               6           TK_ID                          declaration             yes           TK_ID
+                                    6             eps                        global_or_not             yes             eps
+                    ;               6          TK_SEM                          declaration             yes          TK_SEM
+                                    7             eps                         declarations             yes             eps
+               b5b567               7           TK_ID                        singleOrRecId             yes           TK_ID
+                                    7             eps                                new24             yes             eps
+                 <---               7     TK_ASSIGNOP                       assignmentStmt             yes     TK_ASSIGNOP
+                    1               7          TK_NUM               1                  all             yes          TK_NUM
+                                    7             eps                            termPrime             yes             eps
+                                    7             eps                             expPrime             yes             eps
+                    ;               7          TK_SEM                       assignmentStmt             yes          TK_SEM
+                   d3               8           TK_ID                        singleOrRecId             yes           TK_ID
+                                    8             eps                                new24             yes             eps
+                 <---               8     TK_ASSIGNOP                       assignmentStmt             yes     TK_ASSIGNOP
+                 0.00               8         TK_RNUM            0.00                  all             yes         TK_RNUM
+                                    8             eps                            termPrime             yes             eps
+                                    8             eps                             expPrime             yes             eps
+                    ;               8          TK_SEM                       assignmentStmt             yes          TK_SEM
+                while               9        TK_WHILE                        iterativeStmt             yes        TK_WHILE
+                    (               9           TK_OP                        iterativeStmt             yes           TK_OP
+               b5b567               9           TK_ID                                  var             yes           TK_ID
+                   <=               9           TK_LE                         relationalOp             yes           TK_LE
+               d5cc34               9           TK_ID                                  var             yes           TK_ID
+                    )               9           TK_CL                        iterativeStmt             yes           TK_CL
+                 read              10         TK_READ                               ioStmt             yes         TK_READ
+                    (              10           TK_OP                               ioStmt             yes           TK_OP
+                 c3bd              10           TK_ID                        singleOrRecId             yes           TK_ID
+                                   10             eps                                new24             yes             eps
+                    )              10           TK_CL                               ioStmt             yes           TK_CL
+                    ;              10          TK_SEM                               ioStmt             yes          TK_SEM
+                   d3              11           TK_ID                        singleOrRecId             yes           TK_ID
+                                   11             eps                                new24             yes             eps
+                 <---              11     TK_ASSIGNOP                       assignmentStmt             yes     TK_ASSIGNOP
+                   d3              11           TK_ID                                  all             yes           TK_ID
+                                   11             eps                                 temp             yes             eps
+                                   11             eps                            termPrime             yes             eps
+                    +              11         TK_PLUS                 lowPrecedenceOperators             yes         TK_PLUS
+                 c3bd              11           TK_ID                                  all             yes           TK_ID
+                                   11             eps                                 temp             yes             eps
+                                   11             eps                            termPrime             yes             eps
+                                   11             eps                             expPrime             yes             eps
+                    ;              11          TK_SEM                       assignmentStmt             yes          TK_SEM
+               b5b567              12           TK_ID                        singleOrRecId             yes           TK_ID
+                                   12             eps                                new24             yes             eps
+                 <---              12     TK_ASSIGNOP                       assignmentStmt             yes     TK_ASSIGNOP
+               b5b567              12           TK_ID                                  all             yes           TK_ID
+                                   12             eps                                 temp             yes             eps
+                                   12             eps                            termPrime             yes             eps
+                    +              12         TK_PLUS                 lowPrecedenceOperators             yes         TK_PLUS
+                    1              12          TK_NUM               1                  all             yes          TK_NUM
+                                   12             eps                            termPrime             yes             eps
+                                   12             eps                             expPrime             yes             eps
+                    ;              12          TK_SEM                       assignmentStmt             yes          TK_SEM
+                                   13             eps                           otherStmts             yes             eps
+             endwhile              13     TK_ENDWHILE                        iterativeStmt             yes     TK_ENDWHILE
+                                   14             eps                           otherStmts             yes             eps
+               return              14       TK_RETURN                           returnStmt             yes       TK_RETURN
+                    [              14          TK_SQL                       optionalReturn             yes          TK_SQL
+                   d3              14           TK_ID                               idList             yes           TK_ID
+                                   14             eps                             more_ids             yes             eps
+                    ]              14          TK_SQR                       optionalReturn             yes          TK_SQR
+                    ;              14          TK_SEM                           returnStmt             yes          TK_SEM
+                  end              15          TK_END                             function             yes          TK_END
+                                   17             eps                       otherFunctions             yes             eps
+                _main              17         TK_MAIN                         mainFunction             yes         TK_MAIN
+                                   18             eps                      typeDefinitions             yes             eps
+                 type              18         TK_TYPE                          declaration             yes         TK_TYPE
+                  int              18          TK_INT                    primitiveDatatype             yes          TK_INT
+                    :              18        TK_COLON                          declaration             yes        TK_COLON
+                   b3              18           TK_ID                          declaration             yes           TK_ID
+                                   18             eps                        global_or_not             yes             eps
+                    ;              18          TK_SEM                          declaration             yes          TK_SEM
+                 type              19         TK_TYPE                          declaration             yes         TK_TYPE
+                 real              19         TK_REAL                    primitiveDatatype             yes         TK_REAL
+                    :              19        TK_COLON                          declaration             yes        TK_COLON
+               c4bd56              19           TK_ID                          declaration             yes           TK_ID
+                                   19             eps                        global_or_not             yes             eps
+                    ;              19          TK_SEM                          declaration             yes          TK_SEM
+                                   20             eps                         declarations             yes             eps
+                   b3              20           TK_ID                        singleOrRecId             yes           TK_ID
+                                   20             eps                                new24             yes             eps
+                 <---              20     TK_ASSIGNOP                       assignmentStmt             yes     TK_ASSIGNOP
+                    7              20          TK_NUM               7                  all             yes          TK_NUM
+                                   20             eps                            termPrime             yes             eps
+                                   20             eps                             expPrime             yes             eps
+                    ;              20          TK_SEM                       assignmentStmt             yes          TK_SEM
+                    [              21          TK_SQL                     outputParameters             yes          TK_SQL
+               c4bd56              21           TK_ID                               idList             yes           TK_ID
+                                   21             eps                             more_ids             yes             eps
+                    ]              21          TK_SQR                     outputParameters             yes          TK_SQR
+                 <---              21     TK_ASSIGNOP                     outputParameters             yes     TK_ASSIGNOP
+                 call              21         TK_CALL                          funCallStmt             yes         TK_CALL
+                _sumN              21        TK_FUNID                          funCallStmt             yes        TK_FUNID
+                 with              21         TK_WITH                          funCallStmt             yes         TK_WITH
+           parameters              21   TK_PARAMETERS                          funCallStmt             yes   TK_PARAMETERS
+                    [              21          TK_SQL                      inputParameters             yes          TK_SQL
+                   b3              21           TK_ID                               idList             yes           TK_ID
+                                   21             eps                             more_ids             yes             eps
+                    ]              21          TK_SQR                      inputParameters             yes          TK_SQR
+                    ;              21          TK_SEM                          funCallStmt             yes          TK_SEM
+                write              22        TK_WRITE                               ioStmt             yes        TK_WRITE
+                    (              22           TK_OP                               ioStmt             yes           TK_OP
+               c4bd56              22           TK_ID                               allVar             yes           TK_ID
+                                   22             eps                               newVar             yes             eps
+                    )              22           TK_CL                               ioStmt             yes           TK_CL
+                    ;              22          TK_SEM                               ioStmt             yes          TK_SEM
+                                   23             eps                           otherStmts             yes             eps
+               return              23       TK_RETURN                           returnStmt             yes       TK_RETURN
+                                   23             eps                       optionalReturn             yes             eps
+                    ;              23          TK_SEM                           returnStmt             yes          TK_SEM
+                  end              24          TK_END                         mainFunction             yes          TK_END
