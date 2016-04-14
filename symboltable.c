@@ -35,4 +35,8 @@ int hash(hashtable ht, char *key){
 		hashval = hashval<<8;
 		hashval += key[i];
 	}
+
+	return hashval % ht->size;
+
 }
+
