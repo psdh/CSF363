@@ -52,7 +52,7 @@ typedef struct {
 
 hashtable *create( int size );
 int hash( hashtable *ht, char *key );
-entry *newpair( char *key, char *type, char * scope, int width, int offset, int lineNo, int id, char *value);
+entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, char *value);
 void insert(hashtable *ht, char *key, char *type, char * scope, int width, int offset, int lineNo, int id, char *value);
 entry get(hashtable *ht, char *key, char * scope);
 
