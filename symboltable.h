@@ -14,11 +14,8 @@
 #include <stdio.h>
 
 
-void createSymbolTable();
+hashtable createSymbolTable(parseTree PT, hashtable ht);
 
-symbolTable parseAST();
+void printSymbolTable(hashtable ht);
 
-void printSymbolTable();
-
-void intializeTable();
 #endif
