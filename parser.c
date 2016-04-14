@@ -345,7 +345,12 @@ char* getCorrespondingToken(int f){
         case 148: return "more_ids";
         case 149: return "new24";
         case 150: return "newVar";
-        default: return "NOTHING";
+        default:
+                {
+                    char buf[12];
+                    sprintf(buf, "%dNothing", f);
+                    return buf;
+                }
     }
 }
 // returns token id for terminals
