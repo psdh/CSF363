@@ -169,6 +169,46 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 
 }
 
+void popuplateHashTable(parseTree PT, hashtable ht, char * scope){
+
+
+	if (cur-> id == 7){
+		strcpy(scope, value);
+	}
+
+    if (curr == NULL)
+        return;
+
+    if(curr->firstKid != NULL)
+    {
+        printParseTree_r(curr->firstKid, f);
+        char* value = (char*) malloc(sizeof(char)*20);
+        strcpy(value, "");
+
+
+    }
+    else
+    {
+        char* value = (char*) malloc(sizeof(char)*20);
+        strcpy(value, "");
+        if (curr->id == 5 || curr->id == 6)
+            strcpy(value, curr->lexeme);
+
+        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+    }
+    parseTree prev = curr;
+    curr = curr->siblings;
+
+    if(curr != NULL)
+    {
+        return printParseTree_r(curr, f);
+    }
+
+}
+
 hashtable createSymbolTable(parseTree PT){
 	hashtable ht* = create(100);
+	popuplateHashTable(parseTree,ht, 'global');
 }
