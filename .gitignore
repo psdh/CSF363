@@ -1,3 +1,6 @@
+ast
+output*
+out*
 parser
 *.out
 *.o
