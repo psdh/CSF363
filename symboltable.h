@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 
-hashtable createSymbolTable(parseTree PT, hashtable ht);
+hashtable createSymbolTable(hashtable ht);
 
 void printSymbolTable(hashtable ht);
 

@@ -168,3 +168,7 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 	}
 
 }
+
+hashtable createSymbolTable(parseTree PT){
+	hashtable ht* = create(100);
+}
