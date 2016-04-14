@@ -71,6 +71,33 @@ void ast_r(parseTree parsetree)
         }
     }
 
+    // linearizing the functions branch
+    if (ast->id == 103 && ast->parent->id == 102)
+    {
+        parseTree it = ast->siblings;
+        parseTree prev = ast;
+        parseTree parent = ast->parent;
+
+        while(it->id != 57)
+        {
+            // at "otherfunctions"
+            if (it->id == 102)
+            {
+                prev->siblings = it->firstKid;
+                free(it);
+                it = prev->siblings;
+                it->parent = parent;
+                continue;
+            }
+            prev = it;
+            it = it->siblings;
+            it->parent = parent;
+        }
+
+        prev->siblings = NULL;
+        free(it);
+    }
+
 
     // if the tree has reached here => siblings pointer is not null
     // parsing all siblings to remove ";", "input", "output", "parameters" and the likes
