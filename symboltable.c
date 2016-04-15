@@ -13,6 +13,8 @@
 #include "symboltable.h"
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <stdio.h>
 
 hashtable *create(int size){
 
@@ -33,7 +35,7 @@ hashtable *create(int size){
 
 int hash(hashtable ht, char *key){
 
-	unsigned long int hashval;
+	unsigned long int hashval = 0;
 	int i = 0;
 
 	while(hashval < ULONG_MAX && i < strlen(key)){
@@ -45,16 +47,30 @@ int hash(hashtable ht, char *key){
 
 }
 
-entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, char *value){
+entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry * new;
 
 	new = malloc(sizeof(entry));
 	new->key = strdup(key);
 	new->type = strdup(type);
 	new->scope = strdup(scope);
-	new->value = strdup(value);
 	new->lineNo = lineNo;
 	new->id = getColumnIndex(type);
+
+	if (isInputParameter == 1){
+		scope->isInputParameter = 1;
+	}
+	else{
+		scope->isInputParameter = -1;
+	}
+
+	if (isOutputParameter == 1){
+		scope->isOutputParameter = 1;
+	}
+	else{
+		scope->isOutputParameter = -1;
+	}
+
 
 	if(strcmp(type,'int') == 0 || strcmp(type, 'real') == 0){
 		new->width = 4;
@@ -82,7 +98,7 @@ entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, in
 	return entry;
 }
 
-void insert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int id, char *value){
+void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int id, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	int bin = 0;
 	entry *newpair = NULL;
 	entry *next = NULL;
@@ -101,13 +117,27 @@ void insert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 
 		free(next->key);
 		free(next->type);
-		free(next->value);
 
 		new->key = strdup(key);
 		new->type = strdup(type);
-		new->value = strdup(value);
 		new->lineNo = lineNo;
 		new->id = getColumnIndex(type);
+
+		if (isInputParameter == 1){
+			scope->isInputParameter = 1;
+		}
+		else{
+			scope->isInputParameter = -1;
+		}
+
+		if (isOutputParameter == 1){
+			scope->isOutputParameter = 1;
+		}
+		else{
+			scope->isOutputParameter = -1;
+		}
+
+		scope->ParameterNumber = ParameterNumber;
 
 		if(strcmp(type,'int') == 0 || strcmp(type, 'real') == 0){
 			new->width = 4;
@@ -133,7 +163,7 @@ void insert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 		}
 
 	} else {
-		newpair = newentry(key, type, scope, offset, lineNo, id, value);
+		newpair = newentry(key, type, scope, offset, lineNo, id, isInputParameter, isOutputParameter, ParameterNumber);
 
 		if( next == ht->table[ bin ] ) {
 			newpair->next = next;
@@ -156,7 +186,7 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 	bin = hash( ht, key );
 
 	temp = ht->table[ bin ];
-	while( temp != NULL && temp->key != NULL && (strcmp( key, temp->key ) > 0  || strcmp(scope, temp->key) > 0)) {
+	while( temp != NULL && temp->key != NULL && (strcmp( key, temp->key ) > 0  || strcmp(scope, temp->scope) > 0)) {
 		temp = temp->next;
 	}
 
@@ -168,6 +198,52 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 	}
 
 }
+
+entry *getInputParameter(hashtable *ht, char *key ,char *scope, int ParameterNumber){
+
+	int bin = 0;
+	entry *temp;
+
+	bin = hash(ht, key);
+
+	temp = ht->table[bin];
+
+	while (temp != NULL && temp->key !=NULL && (strcmp(key, temp->key) > 0 || strcmp(scope, temp->scope) || scope->isInputParameter != 1 || scope->ParameterNumber != ParameterNumber ) ){
+		temp= temp->next;
+	}
+
+	if( temp == NULL || temp->key == NULL || (strcmp( key, temp->key ) != 0  || strcmp(scope, temp->scope) !=0 || scope->isInputParameter != 1 || scope->ParameterNumber != ParameterNumber ) ) {
+		return NULL;
+
+	} else {
+		return temp;
+	}
+
+}
+
+entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNumber){
+
+	int bin = 0;
+	entry *temp;
+
+	bin = hash(ht, key);
+
+	temp = ht->table[bin];
+
+	while (temp != NULL && temp->key !=NULL && (strcmp(key, temp->key) > 0 || strcmp(scope, temp->scope) || scope->isOutputParameter != 1 || scope->ParameterNumber != ParameterNumber ) ){
+		temp= temp->next;
+	}
+
+	if( temp == NULL || temp->key == NULL || (strcmp( key, temp->key ) != 0  || strcmp(scope, temp->scope) !=0 || scope->isOutputParameter != 1 || scope->ParameterNumber != ParameterNumber ) ) {
+		return NULL;
+
+	} else {
+		return temp;
+	}
+
+}
+
+
 
 void popuplateHashTable(parseTree PT, hashtable ht, char * scope){
 

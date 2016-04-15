@@ -30,9 +30,10 @@ typedef struct {
     // pointer
     entry *next;
     // record ka declaration hai kya ye
+    // let them all be -1
     int isInputParamater;
-    int isOutParamter;
-    int inputParPlace;
+    int isOutputParameter;
+    int ParameterNumber;
     int isRecordDeclaration;
     int isRecordInstance;
     record_dec *record;
@@ -41,7 +42,6 @@ typedef struct {
 type struct {
     char *type;
     char *name;
-    char *value;
     record_dec *next;
 }record_dec;
 
@@ -52,8 +52,8 @@ typedef struct {
 
 hashtable *create( int size );
 int hash( hashtable *ht, char *key );
-entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, char *value);
-void insert(hashtable *ht, char *key, char *type, char * scope, int width, int offset, int lineNo, int id, char *value);
+entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, isInputParamater, isOutputParameter, ParameterNumber);
+void insert(hashtable *ht, char *key, char *type, char * scope, int width, int offset, int lineNo, int id,isInputParamater, isOutputParameter, ParameterNumber);
 entry get(hashtable *ht, char *key, char * scope);
 
 #endif
