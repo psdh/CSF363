@@ -10,6 +10,8 @@
 #define SYMBOL_H_INCLUDED
 
 #include "symboltabledef.h"
+#include "parser.h"
+#include "lexer.h"
 
 #include <stdio.h>
 

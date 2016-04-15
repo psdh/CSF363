@@ -13,6 +13,17 @@
 
 #define table_row 60
 
+struct entry;
+struct record_dec;
+
+
+typedef struct {
+    char *type;
+    char *name;
+    struct record_dec *next;
+}record_dec;
+
+
 typedef struct {
     char * key;
     //int
@@ -28,10 +39,10 @@ typedef struct {
     // id corresponding to key
     int id;
     // pointer
-    entry *next;
+    struct entry *next;
     // record ka declaration hai kya ye
     // let them all be -1
-    int isInputParamater;
+    int isInputParameter;
     int isOutputParameter;
     int ParameterNumber;
     int isRecordDeclaration;
@@ -39,11 +50,6 @@ typedef struct {
     record_dec *record;
 }entry;
 
-type struct {
-    char *type;
-    char *name;
-    record_dec *next;
-}record_dec;
 
 typedef struct {
     int size;
@@ -52,8 +58,8 @@ typedef struct {
 
 hashtable *create( int size );
 int hash( hashtable *ht, char *key );
-entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, isInputParamater, isOutputParameter, ParameterNumber);
-void insert(hashtable *ht, char *key, char *type, char * scope, int width, int offset, int lineNo, int id,isInputParamater, isOutputParameter, ParameterNumber);
-entry get(hashtable *ht, char *key, char * scope);
+entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, int  isInputParameter, int isOutputParameter, int ParameterNumber);
+void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int id, int isInputParameter, int isOutputParameter, int ParameterNumber);
+entry *get(hashtable *ht, char *key, char * scope);
 
 #endif
