@@ -18,12 +18,14 @@
 
 hashtable *create(int size){
 
-	hashtable * ht = NULL;
+	hashtable *ht = NULL;
 	int i;
 
 	if (size < 1 ) return NULL;
 
 	ht = malloc(sizeof (hashtable));
+
+	ht->size = size;
 
 	ht->table = malloc(sizeof(entry*)*size);
 
@@ -41,6 +43,7 @@ int hash(hashtable *ht, char *key){
 
 	while(hashval < ULONG_MAX && i < strlen(key)){
 		hashval  =  key[i] + 71 * hashval;
+		i++;
 	}
 
 	return hashval % ht->size;
@@ -50,7 +53,7 @@ int hash(hashtable *ht, char *key){
 entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry *new;
 
-	new = malloc(sizeof(entry));
+	new = (entry*) malloc(sizeof(entry));
 	new->key = strdup(key);
 	new->type = strdup(type);
 	new->scope = strdup(scope);
@@ -71,13 +74,13 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 		new->isOutputParameter = -1;
 	}
 
-
-	if(strcmp(type,'int') == 0 || strcmp(type, 'real') == 0){
+	if(strcmp(type,"int") == 0 || strcmp(type, "real") == 0)
+	{
 		new->width = 4;
 		new->offset  = offset + new->width;
 	}
 
-	if(strcmp(type, 'record') == 0)
+	if(strcmp(type, "record") == 0)
 	{
 		new->isRecordDeclaration = 1;
 		new->record = malloc(sizeof(record_dec));
@@ -94,25 +97,43 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 		new->isRecordInstance = 0;
 	}
 
+	// printf("hereerf\n");
 	return new;
 }
 
 void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
+
+	// printf("Here\n");
 	int bin = 0;
+
 	entry *newpair = NULL;
 	entry *next = NULL;
 	entry *last = NULL;
 
-	bin = hash( ht, key );
+	bin = hash(ht, key);
 
-	next = ht->table[ bin ];
+	// printf("Here\n");
+	// printf("printing tpye in upsert: %ssd\n", type);
 
-	while( next != NULL && next->key != NULL && strcmp( key, next->key ) > 0 || strcmp(scope, next->scope) > 0 ) {
+	// printf("%d\n", bin);
+
+	next = ht->table[bin];
+
+
+	while(next != NULL && (strcmp(key, next->key) > 0 || strcmp(scope, next->scope) > 0 ))
+	{
+		printf("%s\n", next->key);
 		last = next;
 		next = next->next;
 	}
 
-	if( next != NULL && next->key != NULL && strcmp( key, next->key ) == 0 && strcmp(scope, next->scope) == 0) {
+	// printf("Here\n");
+
+
+	if(next != NULL && next->key != NULL && (strcmp(key, next->key) == 0 && strcmp(scope, next->scope) == 0))
+	{
+		// printf("Here\n");
+
 
 		free(next->key);
 		free(next->type);
@@ -138,12 +159,12 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 
 		next->ParameterNumber = ParameterNumber;
 
-		if(strcmp(type,'int') == 0 || strcmp(type, 'real') == 0){
+		if(strcmp(type, "int") == 0 || strcmp(type, "real") == 0){
 			next->width = 4;
 			next->offset  = offset + next->width;
 		}
 
-		if(strcmp(type, 'record')){
+		if(strcmp(type, "record")){
 			next->isRecordDeclaration = 1;
 			next->record = malloc(sizeof(record_dec));
 		}
@@ -151,7 +172,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 			next->isRecordDeclaration = 0;
 		}
 
-		if( type[0] == '#'){
+		if(type[0] == '#'){
 			next->isRecordInstance = 1;
 			entry * temp = get(ht, type, 'global');
 			next->offset = offset + temp->width;
@@ -161,12 +182,18 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 			next->isRecordInstance = 0;
 		}
 
-	} else {
+	}
+	else
+	{
+		// printf("HereThereeverywhere	\n");
+		// printf("printing tpye in upsert: %s\n", type);
 		newpair = newentry(key, type, scope, offset, lineNo, isInputParameter, isOutputParameter, ParameterNumber);
 
-		if( next == ht->table[ bin ] ) {
+		// printf("HereThereeverywhere	\n");
+
+		if( next == ht->table[bin] ) {
 			newpair->next = next;
-			ht->table[ bin ] = newpair;
+			ht->table[bin] = newpair;
 
 		} else if ( next == NULL ) {
 			last->next = newpair;
@@ -243,11 +270,9 @@ entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNu
 }
 
 
-char* getType(parseTree curr)
+char* getType(parseTree curr, char* ans)
 {
-	char ans[20];
-
-	printf("fn gettype %d\n", curr->id);
+	// printf("fn gettype %d\n", curr->id);
 	if(curr->firstKid->id == 13)
 		strcpy(ans, "int");
 	else
@@ -268,8 +293,12 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 
 	while(curr != NULL)
 	{
+		char ans[20];
 
-		upsert(ht, curr->siblings->lexeme, getType(curr), scope, 10, curr->siblings->lineNo, input, output, counter);
+		// printf("gettype: %s\n", getType(curr, ans));
+		upsert(ht, curr->siblings->lexeme, getType(curr, ans), scope, 10, curr->siblings->lineNo, input, output, counter);
+
+		// printf("Here\n");
 
 		curr = curr->siblings->siblings;
 
