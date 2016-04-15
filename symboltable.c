@@ -97,13 +97,11 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 		new->isRecordInstance = 0;
 	}
 
-	// printf("hereerf\n");
 	return new;
 }
 
 void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 
-	// printf("Here\n");
 	int bin = 0;
 
 	entry *newpair = NULL;
@@ -111,11 +109,6 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 	entry *last = NULL;
 
 	bin = hash(ht, key);
-
-	// printf("Here\n");
-	// printf("printing tpye in upsert: %ssd\n", type);
-
-	// printf("%d\n", bin);
 
 	next = ht->table[bin];
 
@@ -127,13 +120,8 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 		next = next->next;
 	}
 
-	// printf("Here\n");
-
-
 	if(next != NULL && next->key != NULL && (strcmp(key, next->key) == 0 && strcmp(scope, next->scope) == 0))
 	{
-		// printf("Here\n");
-
 
 		free(next->key);
 		free(next->type);
@@ -141,7 +129,6 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 		next->key = strdup(key);
 		next->type = strdup(type);
 		next->lineNo = lineNo;
-		// next->id = getColumnIndex(type);
 
 		if (isInputParameter == 1){
 			next->isInputParameter = 1;
@@ -185,11 +172,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 	}
 	else
 	{
-		// printf("HereThereeverywhere	\n");
-		// printf("printing tpye in upsert: %s\n", type);
 		newpair = newentry(key, type, scope, offset, lineNo, isInputParameter, isOutputParameter, ParameterNumber);
-
-		// printf("HereThereeverywhere	\n");
 
 		if( next == ht->table[bin] ) {
 			newpair->next = next;
@@ -272,7 +255,6 @@ entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNu
 
 char* getType(parseTree curr, char* ans)
 {
-	// printf("fn gettype %d\n", curr->id);
 	if(curr->firstKid->id == 13)
 		strcpy(ans, "int");
 	else
@@ -280,6 +262,7 @@ char* getType(parseTree curr, char* ans)
 			strcpy(ans, "real");
 		else
 			if(curr->firstKid->siblings->id == 8)
+				// TODO report error for record not existing
 				strcpy(ans, curr->firstKid->siblings->lexeme);
 
 	return ans;
@@ -295,10 +278,7 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 	{
 		char ans[20];
 
-		// printf("gettype: %s\n", getType(curr, ans));
 		upsert(ht, curr->siblings->lexeme, getType(curr, ans), scope, 10, curr->siblings->lineNo, input, output, counter);
-
-		// printf("Here\n");
 
 		curr = curr->siblings->siblings;
 
@@ -306,6 +286,37 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 	}
 }
 
+void add_definitions(parseTree curr, hashtable *ht)
+{
+	while(curr != NULL)
+	{
+		printf("definitions %d\n", curr->id);
+		// add_record(curr->firstKid);
+		curr = curr->siblings;
+	}
+}
+
+void add_declarations(parseTree curr, hashtable *ht, char* scope)
+{
+
+
+	while(curr != NULL)
+	{
+		printf("here%d\n", curr->id);
+		parseTree datatype = curr->firstKid;
+		parseTree id = datatype->siblings;
+		parseTree gon = id->siblings;
+
+		char ans[20];
+		if (gon != NULL)
+			upsert(ht, id->lexeme, getType(datatype, ans), "global", 10, id->lineNo, 0, 0, -1);
+		else
+			upsert(ht, id->lexeme, getType(datatype, ans), scope, 10, id->lineNo, 0, 0, -1);
+
+		curr = curr->siblings;
+	}
+
+}
 
 void add_function(parseTree curr, hashtable *ht)
 {
@@ -323,6 +334,18 @@ void add_function(parseTree curr, hashtable *ht)
 
 	add_list(output->firstKid->firstKid, ht, scope, 0, 1);
 
+	parseTree stmts = output->siblings;
+	printf("%d\n", stmts->id);
+	printf("%d\n", stmts->firstKid->id);
+
+	// if no typedefinitions
+	if (stmts->firstKid->firstKid != NULL)
+		add_definitions(stmts->firstKid->firstKid, ht);
+
+	parseTree dec = stmts->firstKid->siblings->firstKid;
+	// add declarations now
+	if (dec != NULL)
+		add_declarations(dec, ht, scope);
 	// add_stmts()
 }
 
@@ -331,7 +354,15 @@ void add_main_function(parseTree main, hashtable *ht)
 {
 	char scope[20] = "_main";
 
-	printf("main's kid's id: %d\n", main->id);
+	parseTree stmts = main;
+
+	if (stmts->firstKid->firstKid != NULL)
+		add_definitions(stmts->firstKid->firstKid, ht);
+
+	parseTree dec = stmts->firstKid->siblings->firstKid;
+	// add declarations now
+	if (dec != NULL)
+		add_declarations(dec, ht, scope);
 }
 
 

@@ -182,6 +182,34 @@ void ast_r(parseTree parsetree)
         free(it);
     }
 
+    // linearizing the declarations branch
+    if (ast->id == 118 && ast->parent->id == 117)
+    {
+        parseTree it = ast->siblings;
+        parseTree prev = ast;
+        parseTree parent = ast->parent;
+
+        while(it->id != 57)
+        {
+            // at "otherfunctions"
+            if (it->id == 117)
+            {
+                prev->siblings = it->firstKid;
+                free(it);
+                it = prev->siblings;
+                it->parent = parent;
+                continue;
+            }
+            prev = it;
+            it = it->siblings;
+            it->parent = parent;
+        }
+
+        prev->siblings = NULL;
+        free(it);
+    }
+
+
     // if the tree has reached here => siblings pointer is not null
     // parsing all siblings to remove ";", "input", "output", "parameters" and the likes
     // TODO<psdh> mention all that is being removed here!
@@ -210,6 +238,7 @@ void ast_r(parseTree parsetree)
                 case 22:
                 case 23:
                 case 26:
+                case 27:
                 case 28:
                 case 30:
                 case 31:
