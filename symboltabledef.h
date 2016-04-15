@@ -14,7 +14,6 @@
 #define table_row 60
 
 typedef struct {
-    //x
     char * key;
     //int
     char *type;
@@ -28,11 +27,12 @@ typedef struct {
     int lineNo;
     // id corresponding to key
     int id;
-    // 123123
-    char * value;
     // pointer
     entry *next;
     // record ka declaration hai kya ye
+    int isInputParamater;
+    int isOutParamter;
+    int inputParPlace;
     int isRecordDeclaration;
     int isRecordInstance;
     record_dec *record;
