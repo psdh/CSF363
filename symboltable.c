@@ -35,12 +35,11 @@ hashtable *create(int size){
 
 int hash(hashtable ht, char *key){
 
-	unsigned long int hashval = 0;
+	unsigned long int hashval = 6669;
 	int i = 0;
 
 	while(hashval < ULONG_MAX && i < strlen(key)){
-		hashval = hashval<<8;
-		hashval += key[i];
+		hashval  =  key[i] + 71 * hashval;
 	}
 
 	return hashval % ht->size;
