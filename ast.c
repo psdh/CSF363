@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "parser.h"
+#include "symboltable.h"
 
 void ast_r(parseTree);
 
@@ -18,7 +19,6 @@ parseTree ast(parseTree parsetree)
     parseTree ast = parsetree;
 
     ast_r(ast);
-
 
     return parsetree;
 }
@@ -129,7 +129,7 @@ void ast_r(parseTree parsetree)
 
 
     // linearizing the "parameter_list", "remaining_list" branch
-    if (ast->parent->id == 106 && ast->id == 4 && ast->siblings->id == 107)
+    if (ast->parent->id == 106 && ast->id == 107 && ast->siblings->id == 4)
     {
         parseTree it = ast->siblings;
         parseTree prev = ast;
@@ -202,6 +202,7 @@ void ast_r(parseTree parsetree)
                 case 10:
                 case 11:
                 case 15:
+                case 16:
                 case 18:
                 case 19:
                 case 20:
@@ -282,4 +283,5 @@ int main(int argc, char const *argv[])
 
     printf("AST creation done bro!!");
 
+    createSymbolTable(answer);
 }

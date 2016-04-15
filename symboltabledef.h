@@ -25,7 +25,7 @@ typedef struct {
 
 
 typedef struct {
-    char * key;
+    char *key;
     //int
     char *type;
     //_main
@@ -36,8 +36,6 @@ typedef struct {
     int offset;
     // lineNo
     int lineNo;
-    // id corresponding to key
-    int id;
     // pointer
     struct entry *next;
     // record ka declaration hai kya ye
@@ -58,8 +56,8 @@ typedef struct {
 
 hashtable *create( int size );
 int hash( hashtable *ht, char *key );
-entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, int  isInputParameter, int isOutputParameter, int ParameterNumber);
-void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int id, int isInputParameter, int isOutputParameter, int ParameterNumber);
+entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber);
+void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber);
 entry *get(hashtable *ht, char *key, char * scope);
 
 #endif

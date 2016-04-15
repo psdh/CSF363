@@ -47,15 +47,15 @@ int hash(hashtable *ht, char *key){
 
 }
 
-entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int id, int isInputParameter, int isOutputParameter, int ParameterNumber){
-	entry * new;
+entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
+	entry *new;
 
 	new = malloc(sizeof(entry));
 	new->key = strdup(key);
 	new->type = strdup(type);
 	new->scope = strdup(scope);
 	new->lineNo = lineNo;
-	new->id = getColumnIndex(type);
+	// new->id = getColumnIndex(type);
 
 	if (isInputParameter == 1){
 		new->isInputParameter = 1;
@@ -77,15 +77,17 @@ entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, in
 		new->offset  = offset + new->width;
 	}
 
-	if(strcmp(type, 'record')){
+	if(strcmp(type, 'record') == 0)
+	{
 		new->isRecordDeclaration = 1;
 		new->record = malloc(sizeof(record_dec));
 	}
-	else{
+	else
+	{
 		new->isRecordDeclaration = 0;
 	}
 
-	if( type[0] == '#'){
+	if(type[0] == '#'){
 		new->isRecordInstance = 1;
 	}
 	else{
@@ -95,7 +97,7 @@ entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, in
 	return new;
 }
 
-void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int id, int isInputParameter, int isOutputParameter, int ParameterNumber){
+void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	int bin = 0;
 	entry *newpair = NULL;
 	entry *next = NULL;
@@ -118,7 +120,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 		next->key = strdup(key);
 		next->type = strdup(type);
 		next->lineNo = lineNo;
-		next->id = getColumnIndex(type);
+		// next->id = getColumnIndex(type);
 
 		if (isInputParameter == 1){
 			next->isInputParameter = 1;
@@ -160,7 +162,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 		}
 
 	} else {
-		newpair = newentry(key, type, scope, offset, lineNo, id, isInputParameter, isOutputParameter, ParameterNumber);
+		newpair = newentry(key, type, scope, offset, lineNo, isInputParameter, isOutputParameter, ParameterNumber);
 
 		if( next == ht->table[ bin ] ) {
 			newpair->next = next;
@@ -180,10 +182,10 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 	int bin = 0;
 	entry *temp;
 
-	bin = hash( ht, key );
+	bin = hash(ht, key);
 
 	temp = ht->table[ bin ];
-	while( temp != NULL && temp->key != NULL && (strcmp( key, temp->key ) > 0  || strcmp(scope, temp->scope) > 0)) {
+	while( temp != NULL && temp->key != NULL && (strcmp(key, temp->key) > 0  || strcmp(scope, temp->scope) > 0)) {
 		temp = temp->next;
 	}
 
@@ -196,7 +198,7 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 
 }
 
-entry *getInputParameter(hashtable *ht, char *key ,char *scope, int ParameterNumber){
+entry *getInputParameter(hashtable *ht, char *key, char *scope, int ParameterNumber){
 
 	int bin = 0;
 	entry *temp;
@@ -241,21 +243,84 @@ entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNu
 }
 
 
+char* getType(parseTree curr)
+{
+	char ans[20];
 
-void popuplateHashTable(parseTree curr, hashtable * ht, char *scope){
+	printf("fn gettype %d\n", curr->id);
+	if(curr->firstKid->id == 13)
+		strcpy(ans, "int");
+	else
+		if(curr->firstKid->id == 14)
+			strcpy(ans, "real");
+		else
+			if(curr->firstKid->siblings->id == 8)
+				strcpy(ans, curr->firstKid->siblings->lexeme);
+
+	return ans;
+}
 
 
-	if (curr-> id == 7){
-		strcpy(scope, curr->lexeme);
-		parseTree inputParameters;
-		inputParameters = curr->siblings;
-		parseTree outputParameters = curr->siblings->siblings;
-		parseTree stmts = curr->siblings->siblings->siblings;
+void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
+{
+	printf("%d\n", curr->id);
+	int counter = 0;
 
+	while(curr != NULL)
+	{
+
+		upsert(ht, curr->siblings->lexeme, getType(curr), scope, 10, curr->siblings->lineNo, input, output, counter);
+
+		curr = curr->siblings->siblings;
+
+		counter++;
+	}
+}
+
+
+void add_function(parseTree curr, hashtable *ht)
+{
+	char scope[200];
+	strcpy(scope, curr->lexeme);
+
+	printf("%d\n", curr->id);
+
+	parseTree input = curr->siblings;
+
+	// to bypass parameter list
+	add_list(input->firstKid->firstKid, ht, scope, 1, 0);
+
+	parseTree output = input->siblings;
+
+	add_list(output->firstKid->firstKid, ht, scope, 0, 1);
+
+	// add_stmts()
+}
+
+
+void add_main_function(parseTree main, hashtable *ht)
+{
+	char scope[20] = "_main";
+
+	printf("main's kid's id: %d\n", main->id);
+}
+
+
+void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
+{
+	printf("Head's id: %d\n", head->id);
+
+	parseTree othfun = head->firstKid->firstKid;
+
+	// to populate the symbol table from info in the all functions
+	while(othfun != NULL)
+	{
+		add_function(othfun->firstKid, ht);
+		othfun = othfun->siblings;
 	}
 
-
-
+	parseTree mf = head->firstKid->siblings;
+	add_main_function(mf->firstKid, ht);
 }
 
 hashtable createSymbolTable(parseTree pt)
