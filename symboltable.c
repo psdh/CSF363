@@ -244,11 +244,11 @@ entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNu
 
 
 
-void popuplateHashTable(parseTree PT, hashtable ht, char * scope){
+void popuplateHashTable(parseTree curr, hashtable ht, char * scope){
 
 
-	if (cur-> id == 7){
-		strcpy(scope, value);
+	if (curr-> id == 7){
+		strcpy(scope, cur->lexeme);
 	}
 
     if (curr == NULL)
