@@ -248,8 +248,14 @@ void popuplateHashTable(parseTree curr, hashtable ht, char * scope){
 
 
 	if (curr-> id == 7){
-		strcpy(scope, cur->lexeme);
+		strcpy(scope, curr->lexeme);
+		parseTree inputParameters;
+		inputParameters = curr->siblings;
+		parseTree outputParameters = curr->siblings->siblings;
+		parseTree stmts = curr->siblings->siblings->siblings;
+
 	}
+
 
     if (curr == NULL)
         return;
