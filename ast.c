@@ -65,6 +65,7 @@ void ast_r(parseTree parsetree)
             parseTree parent = ast->parent;
 
             parent->firstKid = ast->firstKid;
+            ast->firstKid->parent = parent;
             free(ast);
 
             return ast_r(parent->firstKid);
@@ -127,7 +128,7 @@ void ast_r(parseTree parsetree)
     }
 
 
-    // linearizing the "paramerter_list", "remaining_list" branch
+    // linearizing the "parameter_list", "remaining_list" branch
     if (ast->parent->id == 106 && ast->id == 4 && ast->siblings->id == 107)
     {
         parseTree it = ast->siblings;
@@ -138,6 +139,33 @@ void ast_r(parseTree parsetree)
         {
             // at "remaining_list" or at "parameter_list"
             if (it->id == 106 || it->id == 110)
+            {
+                prev->siblings = it->firstKid;
+                free(it);
+                it = prev->siblings;
+                it->parent = parent;
+                continue;
+            }
+            prev = it;
+            it = it->siblings;
+            it->parent = parent;
+        }
+
+        prev->siblings = NULL;
+        free(it);
+    }
+
+    // linearizing the "typeDefinition" branch
+    if (ast->parent->id == 112 && ast->id == 113)
+    {
+        parseTree it = ast->siblings;
+        parseTree prev = ast;
+        parseTree parent = ast->parent;
+
+        while(it->id != 57)
+        {
+            // at "typeDefinitions"
+            if (it->id == 112)
             {
                 prev->siblings = it->firstKid;
                 free(it);
