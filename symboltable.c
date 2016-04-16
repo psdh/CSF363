@@ -271,7 +271,8 @@ char* getType(parseTree curr, char* ans)
 
 void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 {
-	printf("%d\n", curr->id);
+	printf("list case %d\n", curr->id);
+
 	int counter = 0;
 
 	while(curr != NULL)
