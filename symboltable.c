@@ -10,6 +10,8 @@
     #define __USE_XOPEN2K8 1
 #endif
 
+int offset = 0;
+
 #include "symboltable.h"
 #include <stdlib.h>
 #include <string.h>
@@ -50,7 +52,7 @@ int hash(hashtable *ht, char *key){
 
 }
 
-entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
+entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry *new;
 
 	new = (entry*) malloc(sizeof(entry));
@@ -64,20 +66,21 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 		new->isInputParameter = 1;
 	}
 	else{
-		new->isInputParameter = -1;
+		new->isInputParameter = 0;
 	}
 
 	if (isOutputParameter == 1){
 		new->isOutputParameter = 1;
 	}
 	else{
-		new->isOutputParameter = -1;
+		new->isOutputParameter = 0;
 	}
 
 	if(strcmp(type,"int") == 0 || strcmp(type, "real") == 0)
 	{
 		new->width = 4;
 		new->offset  = offset + new->width;
+		offset = offset + new->width;
 	}
 
 	if(strcmp(type, "record") == 0)
@@ -92,6 +95,12 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 
 	if(type[0] == '#'){
 		new->isRecordInstance = 1;
+		entry * temp = get(ht, type, "global");
+		if (temp != NULL){
+			new->width = temp->width;
+			new->offset = offset + temp->width;
+			offset = offset + new->width;
+		}
 	}
 	else{
 		new->isRecordInstance = 0;
@@ -100,7 +109,7 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 	return new;
 }
 
-void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
+void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 
 	int bin = 0;
 
@@ -134,14 +143,14 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 			next->isInputParameter = 1;
 		}
 		else{
-			next->isInputParameter = -1;
+			next->isInputParameter = 0;
 		}
 
 		if (isOutputParameter == 1){
 			next->isOutputParameter = 1;
 		}
 		else{
-			next->isOutputParameter = -1;
+			next->isOutputParameter = 0;
 		}
 
 		next->ParameterNumber = ParameterNumber;
@@ -149,6 +158,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 		if(strcmp(type, "int") == 0 || strcmp(type, "real") == 0){
 			next->width = 4;
 			next->offset  = offset + next->width;
+			offset = offset + next->width;
 		}
 
 		if(strcmp(type, "record")){
@@ -161,9 +171,12 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 
 		if(type[0] == '#'){
 			next->isRecordInstance = 1;
-			entry * temp = get(ht, type, 'global');
-			next->offset = offset + temp->width;
-			next->width = temp->width;
+			entry * temp = get(ht, type, "global");
+			if(temp != NULL){
+				next->offset = offset + temp->width;
+				next->width = temp->width;
+				offset = offset + next->width;
+			}
 		}
 		else{
 			next->isRecordInstance = 0;
@@ -172,7 +185,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 	}
 	else
 	{
-		newpair = newentry(key, type, scope, offset, lineNo, isInputParameter, isOutputParameter, ParameterNumber);
+		newpair = newentry(ht, key, type, scope, lineNo, isInputParameter, isOutputParameter, ParameterNumber);
 
 		if( next == ht->table[bin] ) {
 			newpair->next = next;
@@ -253,7 +266,7 @@ entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNu
 }
 
 
-char* getType(parseTree curr, char* ans)
+char* getType(hashtable * ht, parseTree curr, char* ans)
 {
 	if(curr->firstKid->id == 13)
 		strcpy(ans, "int");
@@ -261,9 +274,16 @@ char* getType(parseTree curr, char* ans)
 		if(curr->firstKid->id == 14)
 			strcpy(ans, "real");
 		else
-			if(curr->firstKid->siblings->id == 8)
-				// TODO report error for record not existing
-				strcpy(ans, curr->firstKid->siblings->lexeme);
+			if(curr->firstKid->siblings->id == 8){
+				entry * temp = get(ht, curr->firstKid->siblings->lexeme, "global");
+				if (temp == NULL){
+					printf( "\nBro yahan error hai, record %s toh declareich nahi hua\n", curr->firstKid->siblings->lexeme);
+					exit(-1);
+				}
+				else{
+					strcpy(ans, curr->firstKid->siblings->lexeme);
+				}
+			}
 
 	return ans;
 }
@@ -279,7 +299,7 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 	{
 		char ans[20];
 
-		upsert(ht, curr->siblings->lexeme, getType(curr, ans), scope, 10, curr->siblings->lineNo, input, output, counter);
+		upsert(ht, curr->siblings->lexeme, getType(ht, curr, ans), scope, curr->siblings->lineNo, input, output, counter);
 
 		curr = curr->siblings->siblings;
 
@@ -288,10 +308,10 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 }
 
 
-void add_fielddef(parseTree curr, char * scope, record_dec *record){
+void add_fielddef(hashtable *ht, parseTree curr, char * scope, record_dec *record){
 	char type[20];
 	parseTree datatype = curr->firstKid;
-	getType(datatype, type);
+	getType(ht, datatype, type);
 	char *id = datatype->siblings->lexeme;
 	record->type = (char*) malloc(20*sizeof(char));
 	strcpy(record->type, type);
@@ -300,7 +320,7 @@ void add_fielddef(parseTree curr, char * scope, record_dec *record){
 }
 
 
-void add_moreFileds(parseTree curr, record_dec *record, char *scope)
+void add_moreFileds(hashtable *ht, parseTree curr, record_dec *record, char *scope, int * width)
 {
 	parseTree fieldDef = curr->firstKid;
 
@@ -309,7 +329,8 @@ void add_moreFileds(parseTree curr, record_dec *record, char *scope)
 	}
 	else
 	{
-		add_fielddef(fieldDef, scope, record);
+		add_fielddef(ht, fieldDef, scope, record);
+		*width = * width + 4;
 		record->next = NULL;
 		printf("\t%s\t%s\n", record->type, record->name);
 
@@ -317,9 +338,7 @@ void add_moreFileds(parseTree curr, record_dec *record, char *scope)
 
 		if(moreFields->firstKid != NULL){
 			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
-			add_moreFileds(moreFields, next, scope);
-
-			// printing record type here doesnt work why
+			add_moreFileds(ht, moreFields, next, scope, width);
 			printf("\t%s\t%s\n", record->type, record->name);
 		}
 	}
@@ -330,7 +349,7 @@ void add_record(parseTree curr, hashtable *ht){
 	parseTree recid = curr->siblings;
 	char * scope = curr->siblings->lexeme;
 
-	upsert(ht, scope, "record", "global", 10, curr->siblings->lineNo, 0, 0, -1);
+	upsert(ht, scope, "record", "global", curr->siblings->lineNo, 0, 0, -1);
 
 	entry *entry_1 = get(ht, scope, "global");
 	record_dec *record = (record_dec *) malloc(sizeof(record_dec));
@@ -338,13 +357,16 @@ void add_record(parseTree curr, hashtable *ht){
 	parseTree fieldDef1 = curr->siblings->siblings->firstKid;
 	parseTree fieldDef2 = fieldDef1->siblings;
 
-	add_fielddef(fieldDef1, scope, record);
+	add_fielddef(ht, fieldDef1, scope, record);
 
 	printf("\t%s\t%s\n", record->type, record->name);
 
 	record->next = (record_dec *) malloc(sizeof(record_dec));
 
-	add_fielddef(fieldDef2, scope, record->next);
+	add_fielddef(ht, fieldDef2, scope, record->next);
+
+	int width;
+	width = 8;
 
 	record_dec * next = record->next;
 	printf("\t%s\t%s\n", next->type, next->name);
@@ -359,11 +381,14 @@ void add_record(parseTree curr, hashtable *ht){
 		next->next = (record_dec *) malloc(sizeof(record_dec));
 		printf("%s\n", "No  There are more things");
 		parseTree moreFields = fieldDef2->siblings;
-		add_moreFileds(moreFields, next, scope);
+		add_moreFileds(ht, moreFields, next, scope, &width);
 
 	}
 
+	entry_1->width = width;
 	entry_1->record = record;
+	entry_1->offset = offset + width;
+	offset = offset + width;
 }
 
 void add_definitions(parseTree curr, hashtable *ht)
@@ -379,19 +404,19 @@ void add_definitions(parseTree curr, hashtable *ht)
 void add_declarations(parseTree curr, hashtable *ht, char* scope)
 {
 
-
 	while(curr != NULL)
 	{
-		// printf("here%d\n", curr->id);
 		parseTree datatype = curr->firstKid;
 		parseTree id = datatype->siblings;
 		parseTree gon = id->siblings;
 
 		char ans[20];
-		if (gon != NULL)
-			upsert(ht, id->lexeme, getType(datatype, ans), "global", 10, id->lineNo, 0, 0, -1);
-		else
-			upsert(ht, id->lexeme, getType(datatype, ans), scope, 10, id->lineNo, 0, 0, -1);
+		if (gon->firstKid != NULL){
+			upsert(ht, id->lexeme, getType(ht, datatype, ans), "global", id->lineNo, 0, 0, -1);
+		}
+		else{
+			upsert(ht, id->lexeme, getType(ht, datatype, ans), scope, id->lineNo, 0, 0, -1);
+		}
 
 		curr = curr->siblings;
 	}
@@ -426,6 +451,8 @@ void add_function(parseTree curr, hashtable *ht)
 	// add declarations now
 	if (dec != NULL)
 		add_declarations(dec, ht, scope);
+	else
+		printf("\n%s\n", "NULL HAI ji");
 	// add_stmts()
 }
 
@@ -441,18 +468,20 @@ void add_main_function(parseTree main, hashtable *ht)
 
 	parseTree dec = stmts->firstKid->siblings->firstKid;
 	// add declarations now
-	if (dec != NULL)
+	if (dec != NULL){
+		printf("%s\n", "NIGGA KUCH TOH HAI");
 		add_declarations(dec, ht, scope);
+	}
+	else
+		printf("%s\n", "NULL HAI Ji");
 }
 
 
 void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 {
-	// printf("Head's id: %d\n", head->id);
 
 	parseTree othfun = head->firstKid->firstKid;
 
-	// to populate the symbol table from info in the all functions
 	while(othfun != NULL)
 	{
 		add_function(othfun->firstKid, ht);
@@ -461,6 +490,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 
 	parseTree mf = head->firstKid->siblings;
 	add_main_function(mf->firstKid, ht);
+	printf("%d\n", offset);
 }
 
 hashtable createSymbolTable(parseTree pt)
@@ -468,4 +498,30 @@ hashtable createSymbolTable(parseTree pt)
 	hashtable *ht = create(100);
 	char scope[] = "global";
 	popuplateHashTable(pt, ht, scope);
+
+	printf("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\t%s\t%s\n\n", "key", "type", "scope", "width", "offset", "line", "input", "output", "param", "instance", "declaration");
+
+	entry *temp = get(ht, "b7", "_readMarks");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "b3c45", "_readMarks");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "#marks", "global");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "d4", "_main");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "b5", "_main");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "d5cb34567", "_main");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "b5c6", "_main");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+
+
 }

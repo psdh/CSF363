@@ -56,8 +56,8 @@ typedef struct {
 
 hashtable *create( int size );
 int hash( hashtable *ht, char *key );
-entry *newentry( char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber);
-void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber);
+entry *newentry(hashtable *ht, char *key, char *type, char * scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber);
+void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber);
 entry *get(hashtable *ht, char *key, char * scope);
 
 #endif
