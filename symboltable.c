@@ -335,7 +335,6 @@ void add_record(parseTree curr, hashtable *ht){
 	entry *entry_1 = get(ht, scope, "global");
 	record_dec *record = (record_dec *) malloc(sizeof(record_dec));
 
-
 	parseTree fieldDef1 = curr->siblings->siblings->firstKid;
 	parseTree fieldDef2 = fieldDef1->siblings;
 
@@ -350,11 +349,10 @@ void add_record(parseTree curr, hashtable *ht){
 	record_dec * next = record->next;
 	printf("\t%s\t%s\n", next->type, next->name);
 
-	if (fieldDef2->siblings == NULL)
+	// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
+	if (fieldDef2->siblings->firstKid == NULL)
 	{
-
 		printf("%s\n", "Only two parameters");
-
 	}
 	else{
 
