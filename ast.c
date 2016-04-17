@@ -242,6 +242,7 @@ void ast_r(parseTree parsetree)
                 case 28:
                 case 30:
                 case 31:
+                case 44:
                 case 56:
                         {
                             if (prev == NULL)

@@ -83,7 +83,7 @@ entry *newentry(char *key, char *type, char *scope, int offset, int lineNo, int 
 	if(strcmp(type, "record") == 0)
 	{
 		new->isRecordDeclaration = 1;
-		new->record = malloc(sizeof(record_dec));
+		new->record = NULL;
 	}
 	else
 	{
@@ -115,7 +115,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 
 	while(next != NULL && (strcmp(key, next->key) > 0 || strcmp(scope, next->scope) > 0 ))
 	{
-		printf("%s\n", next->key);
+		// printf("%s\n", next->key);
 		last = next;
 		next = next->next;
 	}
@@ -153,7 +153,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int offset, int 
 
 		if(strcmp(type, "record")){
 			next->isRecordDeclaration = 1;
-			next->record = malloc(sizeof(record_dec));
+			next->record = NULL;
 		}
 		else{
 			next->isRecordDeclaration = 0;
@@ -271,7 +271,7 @@ char* getType(parseTree curr, char* ans)
 
 void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 {
-	printf("list case %d\n", curr->id);
+	// printf("list case %d\n", curr->id);
 
 	int counter = 0;
 
@@ -287,12 +287,88 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 	}
 }
 
+
+void add_fielddef(parseTree curr, char * scope, record_dec *record){
+	char type[20];
+	parseTree datatype = curr->firstKid;
+	getType(datatype, type);
+	char * id= datatype->siblings->lexeme;
+	record->type = type;
+	record->name = id;
+	record->next = NULL;
+}
+
+void add_moreFileds(parseTree curr, record_dec * record, char * scope){
+
+	parseTree fieldDef = curr->firstKid;
+
+	if(fieldDef == NULL){
+		printf("%s\n", "No more field defs");
+	}
+	else {
+		add_fielddef(fieldDef, scope, record);
+		record->next = NULL;
+		printf("\t%s\t%s\n", record->type, record->name);
+
+
+		parseTree moreFields = fieldDef-> siblings;
+
+		if(moreFields->firstKid != NULL){
+			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
+			add_moreFileds(moreFields, next, scope);
+			// printing record type here doesnt work why
+		}
+	}
+}
+
+
+void add_record(parseTree curr, hashtable *ht){
+	parseTree recid = curr->siblings;
+	char * scope = curr->siblings->lexeme;
+
+	upsert(ht, scope, "record", "global", 10, curr->siblings->lineNo, 0, 0, -1);
+
+	entry *entry_1 = get(ht, scope, "global");
+	record_dec *record = (record_dec *) malloc(sizeof(record_dec));
+
+
+	parseTree fieldDef1 = curr->siblings->siblings->firstKid;
+	parseTree fieldDef2 = fieldDef1->siblings;
+
+	add_fielddef(fieldDef1, scope, record);
+
+	printf("\t%s\t%s\n", record->type, record->name);
+
+	record->next = (record_dec *) malloc(sizeof(record_dec));
+
+	add_fielddef(fieldDef2, scope, record->next);
+
+	record_dec * next = record->next;
+	printf("\t%s\t%s\n", next->type, next->name);
+
+	if (fieldDef2->siblings == NULL){
+
+		printf("%s\n", "Only two parameters");
+
+	}
+	else{
+
+		next->next = (record_dec *) malloc(sizeof(record_dec));
+		printf("%s\n", "No  There are more things");
+		parseTree moreFields = fieldDef2->siblings;
+		add_moreFileds(moreFields, next, scope);
+
+	}
+
+	entry_1->record = record;
+}
+
 void add_definitions(parseTree curr, hashtable *ht)
 {
 	while(curr != NULL)
 	{
 		printf("definitions %d\n", curr->id);
-		// add_record(curr->firstKid);
+		add_record(curr->firstKid, ht);
 		curr = curr->siblings;
 	}
 }
@@ -303,7 +379,7 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 
 	while(curr != NULL)
 	{
-		printf("here%d\n", curr->id);
+		// printf("here%d\n", curr->id);
 		parseTree datatype = curr->firstKid;
 		parseTree id = datatype->siblings;
 		parseTree gon = id->siblings;
@@ -324,7 +400,7 @@ void add_function(parseTree curr, hashtable *ht)
 	char scope[200];
 	strcpy(scope, curr->lexeme);
 
-	printf("%d\n", curr->id);
+	// printf("%d\n", curr->id);
 
 	parseTree input = curr->siblings;
 
@@ -336,8 +412,8 @@ void add_function(parseTree curr, hashtable *ht)
 	add_list(output->firstKid->firstKid, ht, scope, 0, 1);
 
 	parseTree stmts = output->siblings;
-	printf("%d\n", stmts->id);
-	printf("%d\n", stmts->firstKid->id);
+	// printf("%d\n", stmts->id);
+	// printf("%d\n", stmts->firstKid->id);
 
 	// if no typedefinitions
 	if (stmts->firstKid->firstKid != NULL)
@@ -369,7 +445,7 @@ void add_main_function(parseTree main, hashtable *ht)
 
 void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 {
-	printf("Head's id: %d\n", head->id);
+	// printf("Head's id: %d\n", head->id);
 
 	parseTree othfun = head->firstKid->firstKid;
 

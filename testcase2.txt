@@ -22,6 +22,7 @@ _main
 		type real : maths;
 		type real: physics;
 		type real: chemistry;
+		type real: nigga;
 	endrecord;
 	% each field above represents the marks obtained in corresponding subject
 
