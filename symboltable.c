@@ -292,31 +292,35 @@ void add_fielddef(parseTree curr, char * scope, record_dec *record){
 	char type[20];
 	parseTree datatype = curr->firstKid;
 	getType(datatype, type);
-	char * id= datatype->siblings->lexeme;
-	record->type = type;
+	char *id = datatype->siblings->lexeme;
+	record->type = (char*) malloc(20*sizeof(char));
+	strcpy(record->type, type);
 	record->name = id;
 	record->next = NULL;
 }
 
-void add_moreFileds(parseTree curr, record_dec * record, char * scope){
 
+void add_moreFileds(parseTree curr, record_dec *record, char *scope)
+{
 	parseTree fieldDef = curr->firstKid;
 
 	if(fieldDef == NULL){
 		printf("%s\n", "No more field defs");
 	}
-	else {
+	else
+	{
 		add_fielddef(fieldDef, scope, record);
 		record->next = NULL;
 		printf("\t%s\t%s\n", record->type, record->name);
-
 
 		parseTree moreFields = fieldDef-> siblings;
 
 		if(moreFields->firstKid != NULL){
 			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
 			add_moreFileds(moreFields, next, scope);
+
 			// printing record type here doesnt work why
+			printf("\t%s\t%s\n", record->type, record->name);
 		}
 	}
 }
@@ -346,7 +350,8 @@ void add_record(parseTree curr, hashtable *ht){
 	record_dec * next = record->next;
 	printf("\t%s\t%s\n", next->type, next->name);
 
-	if (fieldDef2->siblings == NULL){
+	if (fieldDef2->siblings == NULL)
+	{
 
 		printf("%s\n", "Only two parameters");
 
