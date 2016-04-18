@@ -11,11 +11,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include "parser.h"
+#include "typechecker.h"
+#include "symboltable.h"
+#include "symboltabledef.h"
 
-void handle_stmts(parseTree stmts, char* scope);
 
+void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
 
-void semanticAnalyzer(parseTree ast)
+void semanticAnalyzer(parseTree ast, hashtable *ht)
 {
     // TODO<psdh> this analysis should include stuff like
     //  identifier should not be declared multiple times in the same scope
@@ -51,17 +54,17 @@ void semanticAnalyzer(parseTree ast)
 
         char scope[20];
         strcpy(scope, othfun->firstKid->lexeme);
-        handle_stmts(stmts, scope);
+        handle_stmts(stmts, ht, scope);
 
         othfun = othfun->siblings;
     }
 
     // handle main function now!
-    handle_stmts(mf_stmts, "_main");
+    handle_stmts(mf_stmts, ht, "_main");
 }
 
 
-void handle_stmts(parseTree stmts, char* scope)
+void handle_stmts(parseTree stmts, hashtable *ht, char* scope)
 {
     parseTree stmt_it;
     stmt_it = stmts->firstKid->siblings->siblings->firstKid;
@@ -92,7 +95,8 @@ void handle_stmts(parseTree stmts, char* scope)
 
         // printf("%d  \n", type);
 
-        check_stmt(stmt_it, type);
+        check_stmt(stmt_it, ht, type, scope);
+
         stmt_it = stmt_it->siblings;
     }
 

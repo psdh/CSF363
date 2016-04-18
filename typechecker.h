@@ -9,8 +9,8 @@
 #define TYPECHECKER_H_INCLUDED
 
 #include "symboltable.h"
+#include "parser.h"
 
-void typecheck(parseTree pt, hashtable st);
-
+void check_stmt(parseTree pt, hashtable *   st, int statementtype, char* scope);
 
 #endif

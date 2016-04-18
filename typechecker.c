@@ -9,12 +9,15 @@
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
+#include "parser.h"
+#include "symboltable.h"
 
 
-void typecheck(parseTree pt, hashtable st, int statementtype) {
-    if (type == 10) // io
-    else if (type == 1) // assignment statement
-    else if(type == 2) // iterative statement
-    else  if (type == 3) // conditional statement
-    else if (type == 4) // functional call statement
+void check_stmt(parseTree pt, hashtable *st, int statementtype, char* scope)
+{
+    // if (type == 10) // io
+    // else if (type == 1) // assignment statement
+    // else if(type == 2) // iterative statement
+    // else  if (type == 3) // conditional statement
+    // else if (type == 4) // functional call statement
 }

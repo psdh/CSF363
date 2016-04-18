@@ -314,6 +314,7 @@ int main(int argc, char const *argv[])
 
     printf("AST creation done bro!!");
 
+    hashtable* ht = createSymbolTable(answer);
+
     semanticAnalyzer(answer);
-    // createSymbolTable(answer);
 }
