@@ -104,14 +104,14 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if(strcmp(type,"int") == 0)
 	{
+		printf("%s\t%d\n", key, offset);
 		new->width = 4;
 		new->offset  = offset;
 		offset = offset + new->width;
 	}
 
 	if(strcmp(type,"real") == 0)
-	{
-		new->width = 8;
+	{	new->width = 8;
 		new->offset  = offset;
 		offset = offset + new->width;
 	}
@@ -193,8 +193,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 		next->ParameterNumber = ParameterNumber;
 
 		if(strcmp(type,"int") == 0)
-		{
-			next->width = 4;
+		{	next->width = 4;
 			next->offset  = offset;
 			offset = offset + next->width;
 		}
@@ -347,7 +346,7 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 			if(curr->firstKid->siblings->id == 8){
 				entry * temp = get(ht, curr->firstKid->siblings->lexeme, "global");
 				if (temp == NULL){
-					printf( "\nBro yahan error hai, record %s toh declareich nahi hua\n", curr->firstKid->siblings->lexeme);
+					printf( "\nBro yahan error hai, record %s toh declareich nahi hua %d\n", curr->firstKid->siblings->lexeme, curr->firstKid->siblings->lineNo);
 					strcpy(ans, curr->firstKid->siblings->lexeme);
 				}
 				else{
@@ -375,7 +374,7 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 			temp = get(ht, curr->siblings->lexeme, getType(ht, curr, ans));
 
 			if (temp == NULL){
-				upsert(ht, curr->siblings->lexeme, getType(ht, curr, ans), scope, curr->siblings->lineNo, input, output, counter);
+				upsert(ht, curr->siblings->lexeme, ans, scope, curr->siblings->lineNo, input, output, counter);
 			}
 			else{
 				printf("Error: Variable %s being re declared in the same scope\n", curr->siblings->lexeme);
@@ -630,7 +629,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 }
 
 hashtable * createSymbolTable(parseTree pt)
-{
+{	offset = 0;
 	hashtable *ht = create(100);
 	char scope[] = "global";
 	popuplateHashTable(pt, ht, scope);
