@@ -316,5 +316,5 @@ int main(int argc, char const *argv[])
 
     hashtable* ht = createSymbolTable(answer);
 
-    semanticAnalyzer(answer);
+    semanticAnalyzer(answer, ht);
 }
