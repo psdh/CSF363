@@ -5,13 +5,13 @@
     Filename:symboltable.c
 */
 
-//@ToDo change size of real to 8
-//@Todo har ek ka definition ka statement dekhna hai pehle
-//@Todo Save Function Names
+//@ToDo change size of real to 8 --> Done
+//@Todo har ek ka definition ka statement dekhna hai pehle --> Done
+//@Todo Save Function Names --> done
 //@Todo point 1 semantic analyzer --> taken care off
 //@Todo point 9 semantic anaylzer --> taken care off
 //@Todo point 3 semantic analyzer --> taken care off
-//@Todo non exit error handling
+//@Todo non exit error handling --> Done
 //@Todo point 13 semantic analyzer --> in type checking
 //@Todo point 7 semantic analyzer --> in type checking
 
@@ -626,11 +626,12 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	printf("%d\n", offset);
 }
 
-hashtable createSymbolTable(parseTree pt)
+hashtable * createSymbolTable(parseTree pt)
 {
 	hashtable *ht = create(100);
 	char scope[] = "global";
 	popuplateHashTable(pt, ht, scope);
+
 
 	printf("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\t%s\t%s\n\n", "key", "type", "scope", "width", "offset", "line", "input", "output", "param", "instance", "declaration");
 
@@ -654,5 +655,8 @@ hashtable createSymbolTable(parseTree pt)
 
 	temp = get(ht, "b5c6", "_main");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+
+	return ht;
 
 }
