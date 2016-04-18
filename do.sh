@@ -1,4 +1,3 @@
-make
 gcc -w -g -c symboltable.c -o symboltable.o
 gcc -w -g -c typechecker.c -o typechecker.o
 gcc -w -g -c semantic.c -o semantic.o

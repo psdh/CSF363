@@ -5,12 +5,13 @@
     Filename: typechecker.h
 */
 
-#ifndef TYPECHECKER_H_INCLUDED
-#define TYPECHECKER_H_INCLUDED
+#ifndef SEMANTIC_H_INCLUDED
+#define SEMANTIC_H_INCLUDED
 
 #include "symboltable.h"
 #include "parser.h"
+#include "typechecker.h"
 
-void check_stmt(parseTree pt, hashtable *st, int type, char* scope);
+void check_stmt(parseTree pt, hashtable *st, int statementtype, char *scope);
 
 #endif

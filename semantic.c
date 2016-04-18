@@ -11,9 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "parser.h"
-#include "typechecker.h"
-#include "symboltable.h"
-#include "symboltabledef.h"
+#include "semantic.h"
 
 
 void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
