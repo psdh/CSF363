@@ -92,8 +92,35 @@ void handle_stmts(parseTree stmts, char* scope)
 
         // printf("%d  \n", type);
 
-        // check_em_type(stmt_it, type);
+        check_stmt(stmt_it, type);
         stmt_it = stmt_it->siblings;
     }
 
+}
+
+
+// Depth first traversal
+traverse_all(parseTree curr)
+{
+    if (curr == NULL)
+        return;
+
+
+    if(curr->firstKid != NULL)
+    {
+        traverse_all(curr->firstKid);
+       // do  you thing again!
+    }
+    else
+    {
+        // do your thing
+    }
+
+    parseTree prev = curr;
+    curr = curr->siblings;
+
+    if(curr != NULL)
+    {
+        return traverse_all(curr);
+    }
 }
