@@ -1,2 +1,2 @@
-gcc -w parser.o lexer.o -c symboltable.c -o symboltable.o
-gcc -g -w parser.o  symboltable.o lexer.o ast.c -o ast
+gcc -w -g parser.o lexer.o -c semantic.c -o semantic.o
+gcc -g -w parser.o semantic.o lexer.o ast.c -o ast

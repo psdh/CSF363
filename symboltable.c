@@ -251,7 +251,8 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 	}
 }
 
-entry *get( hashtable *ht, char *key, char*scope ) {
+entry *get (hashtable *ht, char *key, char*scope)
+{
 	int bin = 0;
 	entry *temp;
 
@@ -271,6 +272,7 @@ entry *get( hashtable *ht, char *key, char*scope ) {
 
 }
 
+
 int existsNonGlobally(hashtable *ht, char *varname){
 	// enumerate scopes get karte raho break karke return kardo
 	int i;
@@ -287,7 +289,9 @@ int existsNonGlobally(hashtable *ht, char *varname){
 
 //@Heur input parameter ka numbers should be stored somewhere
 
-entry *getInputParameter(hashtable *ht, char *key, char *scope, int ParameterNumber){
+
+entry *getInputParameter(hashtable *ht, char *key, char *scope, int ParameterNumber)
+{
 
 	int bin = 0;
 	entry *temp;
@@ -491,7 +495,6 @@ void add_definitions(parseTree curr, hashtable *ht)
 
 void add_declarations(parseTree curr, hashtable *ht, char* scope)
 {
-
 	while(curr != NULL)
 	{
 		parseTree datatype = curr->firstKid;

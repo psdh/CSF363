@@ -12,12 +12,88 @@
 #include <stdlib.h>
 #include "parser.h"
 
+void handle_stmts(parseTree stmts, char* scope);
+
+
 void semanticAnalyzer(parseTree ast)
 {
     // TODO<psdh> this analysis should include stuff like
-    // identifier should not be declared multiple times in the same scope
+    //  identifier should not be declared multiple times in the same scope
     // Function overloading is not allowed.
-    // identifier not declared same as global scope
-    //
-    do_symboltable_analysis();
+    // global identifer declasred else where
+    // Preferable do this when including stuff in the symbol table stage
+
+    // do_symboltable_analysis();
+
+    // From here, we are trying to traverse functions statements and identify semantic errors
+
+
+    // stuff to be handled in stmt's:
+    // An identifier must be declared before its use.
+    // The types and  the number of parameters returned by a function must be the same as that of the parameters used in invoking the function.
+    // The parameters being returned by a function must be assigned a value. If a parameter does not get a value assigned within the function definition, it should be reported as an error.
+    // The function that does not return any value, must be invoked appropriately.
+    // Function input parameters passed while invoking it should be of the same type as those used in the function definition. Number of input parameters must be same as that of those used in the function definition.
+    // An if statement must have the expression of boolean type.
+    // The function cannot be invoked recursively.
+
+
+    // All of the above might just be irrelevant now :(
+
+    parseTree othfun = ast->firstKid->firstKid;
+    parseTree mf_stmts = ast->firstKid->siblings->firstKid;
+
+    // handle stmts for all functions except main
+    while (othfun != NULL)
+    {
+        printf("Found function: %s \n", othfun->firstKid->lexeme);
+        parseTree stmts = othfun->firstKid->siblings->siblings->siblings;
+
+        char scope[20];
+        strcpy(scope, othfun->firstKid->lexeme);
+        handle_stmts(stmts, scope);
+
+        othfun = othfun->siblings;
+    }
+
+    // handle main function now!
+    handle_stmts(mf_stmts, "_main");
+}
+
+
+void handle_stmts(parseTree stmts, char* scope)
+{
+    parseTree stmt_it;
+    stmt_it = stmts->firstKid->siblings->siblings->firstKid;
+
+    if(stmt_it != NULL && stmt_it->id != 121)
+    {
+        printf("galat hai boss");
+        return;
+    }
+
+    while (stmt_it != NULL)
+    {
+        int type;
+        // printf("%d  ", stmt_it->firstKid->id);
+
+        if (stmt_it->firstKid->id == 35 || stmt_it->firstKid->id == 36) // io statement
+            type = 10;
+        else if (stmt_it->firstKid->id == 123) // assignment statement
+            type = 1;
+        else if(stmt_it->firstKid->id == 12) // iterative statement: (while) might have to recursively call the  handle_stmts functions while handling iterative statments
+            type = 2;
+        else  if (stmt_it->firstKid->id == 32) // conditional statement
+            type = 3;
+        else if (stmt_it->firstKid->id == 125) // functional call statement
+            type = 4;
+        else
+            printf("unknown type of stmt :( %d\n", stmt_it->firstKid->id);
+
+        // printf("%d  \n", type);
+
+        // check_em_type(stmt_it, type);
+        stmt_it = stmt_it->siblings;
+    }
+
 }
