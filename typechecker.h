@@ -11,6 +11,6 @@
 #include "symboltable.h"
 #include "parser.h"
 
-void check_stmt(parseTree pt, hashtable *   st, int statementtype, char* scope);
+void check_stmt(parseTree pt, hashtable *st, int type, char* scope);
 
 #endif
