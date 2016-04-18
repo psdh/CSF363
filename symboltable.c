@@ -274,13 +274,14 @@ entry *get (hashtable *ht, char *key, char*scope)
 
 int existsNonGlobally(hashtable *ht, char *varname){
 	// enumerate scopes get karte raho break karke return kardo
-	int i;
+	int i = 0;
 	entry * temp;
 	while(i!= fun_count){
 		temp = get(ht, varname, functions[i]);
 		if (temp!=NULL){
 			return i;
 		}
+		i++;
 	}
 	return -1;
 }
@@ -502,6 +503,7 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 
 		char ans[20];
 		if (gon->firstKid != NULL){
+			printf("%s\n", "WE COOl");
 			if(existsNonGlobally(ht, id->lexeme) == -1)
 				upsert(ht, id->lexeme, getType(ht, datatype, ans), "global", id->lineNo, 0, 0, -1);
 			else {
@@ -518,9 +520,9 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 			entry * temp = get(ht, id->lexeme, "global");
 			//check if globally declared
 			if(temp == NULL){
-
 				temp = get(ht, id->lexeme, getType(ht, datatype, ans));
 				//check if declared in the same socpe
+				printf("-----------\n%s\t%s\t%s\t%d\n--------", id->lexeme, getType(ht, datatype, ans), scope, id->lineNo);
 				if (temp == NULL){
 					upsert(ht, id->lexeme, getType(ht, datatype, ans), scope, id->lineNo, 0, 0, -1);
 				}
@@ -637,16 +639,19 @@ hashtable * createSymbolTable(parseTree pt)
 
 	printf("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\t%s\t%s\n\n", "key", "type", "scope", "width", "offset", "line", "input", "output", "param", "instance", "declaration");
 
-	entry *temp = get(ht, "b7", "_readMarks");
+	entry *temp = get(ht, "c3", "_computeFunctionValue");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
 
-	temp = get(ht, "b3c45", "_readMarks");
+	temp = get(ht, "c4", "_computeFunctionValue");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
 
-	temp = get(ht, "#marks", "global");
+	temp = get(ht, "c5", "_computeFunctionValue");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
 
-	temp = get(ht, "d4", "_main");
+	temp = get(ht, "c6", "_computeFunctionValue");
+	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+	temp = get(ht, "d4cbcd5677", "_computeFunctionValue");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
 
 	temp = get(ht, "b5", "_main");
@@ -655,7 +660,8 @@ hashtable * createSymbolTable(parseTree pt)
 	temp = get(ht, "d5cb34567", "_main");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
 
-	temp = get(ht, "b5c6", "_main");
+
+	temp = get(ht, "c3", "_main");
 	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
 
 

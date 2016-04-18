@@ -16,10 +16,15 @@ void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
 
 }
 
+void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
+    printf("\n%d\n", curr->firstKid->id);
+}
+
+
 void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
 {
     if (type == 1) // iterative statement
-        check_iterative_stmt(curr, st, scope);
+        check_assignment_stmt(curr, st, scope);
     // else if (type == 1) // assignment statement
     // else if(type == 10) // iostatment
     // else  if (type == 3) // conditional statement
