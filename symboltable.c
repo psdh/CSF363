@@ -504,7 +504,7 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 				upsert(ht, id->lexeme, getType(ht, datatype, ans), "global", id->lineNo, 0, 0, -1);
 			else {
 				int pos = existsNonGlobally(ht, id->lexeme);
-				printf("Global variable %s declared non globally in function %s\n", id->lexeme, functions[pos]);
+				printf("Global variable %s declared non globally earlier in function %s\n", id->lexeme, functions[pos]);
 				// entry * temp = get(ht, id->lexeme, functions[pos]);
 				// strcpy(temp->scope, "global");
 				// //@heur if scope changes then will have to change offset throughut, cant do this
