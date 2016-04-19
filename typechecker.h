@@ -11,6 +11,7 @@
 #include "symboltable.h"
 #include "parser.h"
 #include "semantic.h"
+#include "typecheckerdef.h"
 
 void check_stmt(parseTree pt, hashtable *st, int type, char* scope);
 

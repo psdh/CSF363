@@ -12,16 +12,59 @@
 #include "typechecker.h"
 
 
-void handle_boolean_exp(parseTree stmt, hashtable *ht, char* scope)
+void handle_boolean_exp(parseTree stmt, hashtable *ht, char* scope, list_var **head)
 {
     char *to_check_here;
     to_check_here = (char*) malloc(20*sizeof(char));
 
 
-    traverse_all_boolean(stmt, ht, scope, to_check_here);
+    traverse_all_boolean(stmt, ht, scope, to_check_here, head);
 }
 
-void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *check)
+void add_to_list_var(list_var **head, char* name)
+{
+    if (head != NULL)
+    {
+        list_var *it = *head;
+        list_var *prev = NULL;
+
+        while(it != NULL)
+        {
+            // found variable already
+            if (strcmp(it->name, name) == 0)
+                return;
+
+            prev = it;
+            it = it->next;
+        }
+        if (prev == NULL)
+        {
+            list_var * new = (list_var *) malloc(sizeof(list_var));
+            new->next = NULL;
+            new->name = (char*) malloc(20*sizeof(char));
+            strcpy(new->name, name);
+            *head = new;
+        }
+        else
+        {
+            list_var * new = (list_var *) malloc(sizeof(list_var));
+            new->next = NULL;
+            new->name = (char*) malloc(20*sizeof(char));
+            strcpy(new->name, name);
+            prev->next = new;
+        }
+    }
+    else
+    {
+        list_var * new = (list_var *) malloc(sizeof(list_var));
+        new->next = NULL;
+        new->name = (char*) malloc(20*sizeof(char));
+        strcpy(new->name, name);
+        *head = new;
+    }
+}
+
+void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *check, list_var **head)
 {
     if (curr == NULL)
         return;
@@ -29,7 +72,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
 
     if(curr->firstKid != NULL)
     {
-        traverse_all_boolean(curr->firstKid, ht, scope, check);
+        traverse_all_boolean(curr->firstKid, ht, scope, check, head);
        // do  you thing again!
     }
     else
@@ -51,6 +94,10 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
                     {
                         printf("Variable<%s> is not of expected type: <%s>\n", curr->lexeme, check);
                     }
+                    else
+                    {
+                        add_to_list_var(head, curr->lexeme);
+                    }
                 }
                 else
                 {
@@ -65,6 +112,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
                         // answer = "real";
                         strcpy(check, "real");
                     }
+                    add_to_list_var(head, curr->lexeme);
                 }
             }
             else
@@ -92,7 +140,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
 
     if(curr != NULL)
     {
-        return traverse_all_boolean(curr, ht, scope, check);
+        return traverse_all_boolean(curr, ht, scope, check, head);
     }
 }
 
@@ -173,6 +221,52 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
 }
 
 
+int var_in_list_var(list_var **head, char* name)
+{
+    if (head == NULL || *head == NULL)
+    {
+        printf("HEAD NULL SUPER ERROR :(\n");
+        return 0;
+    }
+
+    list_var *iter;
+    iter = *head;
+
+    while(iter != NULL)
+    {
+        if (strcmp(iter->name, name) == 0)
+            return 1;
+
+        iter = iter->next;
+    }
+
+    return 0;
+}
+
+
+int check_var_changed(parseTree curr, list_var **head)
+{
+    parseTree iter = curr;
+
+    while(iter != NULL)
+    {
+        if (iter->firstKid->id == 123) // check for assignment statements
+        {
+            parseTree tk_id = iter->firstKid->firstKid;
+
+            // boolean expressions don't allow record type stuff
+            if (tk_id->siblings->firstKid == NULL)
+            {
+                if (var_in_list_var(head, tk_id->lexeme) == 1)
+                    return 1;
+            }
+        }
+        iter = iter->siblings;
+    }
+    return 0;
+}
+
+
 // things to check here
 // 1) expression in if statment is boolean, Done => by the parser
 // 2) call handle_stmts recursively on this, for otherstmts, Done
@@ -180,15 +274,21 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
 {
     curr = curr->firstKid;
 
+    list_var **head;
+    list_var *lis =  NULL;
+    head = &lis;
+
     while (curr != NULL)
     {
         // boolean expression
         if (curr->id == 141)
         {
-            handle_boolean_exp(curr->firstKid, st, scope);
+            handle_boolean_exp(curr->firstKid, st, scope, head);
         }
         else if (curr->id == 120)
         {
+
+
             // call handle_oth_stmts here
             handle_oth_stmts(curr->firstKid, st, scope);
         }
@@ -530,16 +630,28 @@ void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
 {
     curr = curr->firstKid;
 
+    list_var **head;
+    list_var *lis =  NULL;
+    head = &lis;
+
     while (curr != NULL)
     {
         // boolean expression
         if (curr->id == 141)
         {
             // TODO check what variabes have been declared and everything here
-            handle_boolean_exp(curr->firstKid, st, scope);
+            handle_boolean_exp(curr->firstKid, st, scope, head);
         }
         else if (curr->id == 120)
         {
+            // by this time, list_var would have been populated!
+            int any_var_changed = check_var_changed(curr->firstKid, head);
+            printf("thissssssssssssssssssssssssssssssssssssssssssssssssssssssssssi is flag: %d\n", any_var_changed);
+            if (any_var_changed == 0)
+            {
+                printf("Error: None of variables involved in the iterations are redefined\n");
+            }
+
             // call handle_oth_stmts here
             handle_oth_stmts(curr->firstKid, st, scope);
         }
