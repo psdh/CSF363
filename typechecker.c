@@ -45,10 +45,38 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
     }
 }
 
+int recordIsDivMulable(hashtable *st, char * record, char * inpType){
+    entry *temp = get(st, record, "global");
+    record_dec * rec = temp->record;
+    char * type = (char*) malloc(sizeof(char)*30);
+    int first = 1;
+    while(rec != NULL)
+    {   if (first){
+            first = 0;
+            strcpy(type, rec->type);
+        }
+        else if(strcmp(type, rec->type) != 0){
+            return 1;
+        }
+        rec = rec->next;
+    }
+    if (strcmp(inpType, type) == 0)
+        return 1;
+    else
+        return 0;
+}
+
+
 void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
     // a wild 5 was encountered but type expcted was different
     // @ToDo take care of variable
     parseTree all = factor->firstKid;
+    int highPrec = 0;
+
+    if(factor->siblings != NULL && factor->siblings->id == 137){
+        highPrec =  1;
+    }
+
     if(all->id == 5){
         if(strcmp(type, "int") != 0){
             printf("Error: %s expected got %s\n", type, "int");
@@ -80,16 +108,63 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                 }
                 // exists globally
                 else {
-                    if(strcmp(type, var->type) != 0){
+                    // ek record hai lhs mein and rhs mein you can have variable or record
+                    if(strcmp(type, "int") != 0 && strcmp(type, "real") != 0){
+                        //rhs mein variable, operator should be divide or something
+                        if( strcmp("int", var->type) == 0 || strcmp("real", var->type) == 0){
+                            if (recordIsDivMulable(st, type, var->type) == 1){
+                                if( highPrec != 1){
+                                    printf("Error: cant add/subtract scalar from record\n");
+                                }
+                            }
+                            else {
+                                printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types", type, var->type);
+                            }
+                        }
+                        // rhs mein record hai
+                        else if (strcmp(type, var->type) != 0){
+                            printf("Error: expected record of type %s got of type %s\n", type, var->type);
+                        }
+                        else if (strcmp(type, var->type) == 0){
+                            if(highPrec == 1){
+                                printf("Error: Cant divide record by record\n");
+                            }
+                        }
+                    }
+                    else if(strcmp(type, var->type) != 0){
                         printf("Error: %s expected got %s in %s\n", type, var->type, all->lexeme);
                     }
                 }
             }
             // exists in scope
             else {
-                if(strcmp(type, var->type) != 0){
+
+                if(strcmp(type, "int") != 0 && strcmp(type, "real") != 0){
+                    //rhs mein variable, operator should be divide or something
+                    if( strcmp("int", var->type) == 0 || strcmp("real", var->type) == 0){
+                        if (recordIsDivMulable(st, type, var->type) == 1){
+                            if( highPrec != 1){
+                                printf("Error: cant add/subtract scalar from record\n");
+                            }
+                        }
+                        else {
+                            printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types\n", type, var->type);
+                        }
+                    }
+                    // rhs mein record hai
+                    else if (strcmp(type, var->type) != 0){
+                        printf("Error: expected record of type %s got of type %s\n", type, var->type);
+                    }
+                    else if (strcmp(type, var->type) == 0){
+                        if(highPrec == 1){
+                            printf("Error: Cant divide record by record\n");
+                        }
+                    }
+                }
+                else if(strcmp(type, var->type) != 0){
                     printf("Error: %s expected got %s in %s\n", type, var->type, all->lexeme);
                 }
+
             }
         }
         // record type
