@@ -425,6 +425,7 @@ void add_moreFileds(hashtable *ht, parseTree curr, record_dec *record, char *sco
 		if(moreFields->firstKid != NULL){
 			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
 			add_moreFileds(ht, moreFields, next, scope, width);
+			record->next = next;
 			printf("\t%s\t%s\n", record->type, record->name);
 		}
 	}
@@ -457,6 +458,8 @@ void add_record(parseTree curr, hashtable *ht){
 		width = 8;
 
 		record_dec * next = record->next;
+		next->next = (record_dec*) malloc(sizeof(record_dec));
+
 		printf("\t%s\t%s\n", next->type, next->name);
 
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
