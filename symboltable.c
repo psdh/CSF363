@@ -466,11 +466,6 @@ void add_record(parseTree curr, hashtable *ht){
 		int width;
 		width = 8;
 
-		// record_dec * next = record->next;
-		// next->next = (record_dec*) malloc(sizeof(record_dec));
-
-		// printf("\t%s\t%s\n", next->type, next->name);
-
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
 		if (fieldDef2->siblings->firstKid == NULL)
 		{
