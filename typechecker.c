@@ -47,6 +47,7 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
 
 void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
     // a wild 5 was encountered but type expcted was different
+    // @ToDo take care of variable
     parseTree all = factor->firstKid;
     if(all->id == 5){
         if(strcmp(type, "int") != 0){
@@ -60,33 +61,38 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
         }
     }
     else {
+        printf("%s\n", "CALM AS POSSIBLE");
         parseTree temp = all->siblings;
         // Normal variable (not record)
-        if(temp == NULL){
-            entry *var = get(st, all->firstKid->lexeme, scope);
+        if(temp == NULL || temp->firstKid == NULL){
+            printf("!!!!!!!!!%s!!!!!!!\n", all->lexeme);
+            // records are dvisible by scalar :(
+            entry *var = get(st, all->lexeme, scope);
+            printf("%s\n", var->type);
             if (var == NULL){
-                printf("Error: Variable %s not in current scope %s, checking global\n", all->firstKid->lexeme, scope);
+                printf("Error: Variable %s not in current scope %s, checking global\n", all->lexeme, scope);
                 var = get(st, all->firstKid->lexeme, "global");
                 // doesnt exist globally
                 if (var == NULL){
-                    printf("Error: Variable %s not even declared globally\n", all->firstKid->lexeme);
+                    printf("Error: Variable %s not even declared globally\n", all->lexeme);
                 }
                 // exists globally
                 else {
                     if(strcmp(type, var->type) != 0){
-                        printf("Error: %s expected got %s in %s\n", type, var->type, all->firstKid->lexeme);
+                        printf("Error: %s expected got %s in %s\n", type, var->type, all->lexeme);
                     }
                 }
             }
             // exists in scope
             else {
                 if(strcmp(type, var->type) != 0){
-                    printf("Error: %s expected got %s in %s\n", type, var->type, all->firstKid->lexeme);
+                    printf("Error: %s expected got %s in %s\n", type, var->type, all->lexeme);
                 }
             }
         }
         // record type
         else {
+
             entry * record = get(st, all->firstKid->lexeme, scope);
             if (record == NULL){
                  printf("Error: Record Variable %s not in current scope %s, checking global\n", all->firstKid->lexeme, scope);
@@ -110,6 +116,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                  }
             }
             else {
+                printf("%s\n", record->type);
                 record = get(st, record->type, "global");
                 record_dec * rec = record-> record;
                 while(rec!= NULL && strcmp(rec->name, temp->firstKid->lexeme) != 0){
@@ -132,31 +139,74 @@ void check_termprime(parseTree termprime, hashtable *st, char*scope, char* type)
     parseTree hpo = termprime->firstKid;
     parseTree factor = hpo->siblings;
     parseTree tpp = factor->siblings;
-    check_factor(factor, st, scope, type);
+
+    if (factor->firstKid->id == 123){
+        printf("%s\n", "AAAA");
+        check_arith(factor->firstKid, st, scope, type);
+    }
+    else {
+        check_factor(factor, st, scope, type);
+    }
+
     if(tpp != NULL && tpp->firstKid!=NULL){
         check_termprime(tpp, st, scope, type);
     }
 }
 
+void check_expprime(parseTree expprime, hashtable *st, char * scope, char * type){
+    parseTree term = expprime->firstKid->siblings;
+    parseTree expp = term->siblings;
+    if(expp->firstKid!=NULL){}
+        check_expprime(expp, st, scope, type);
+
+    parseTree factor = term->firstKid;
+    parseTree termprime = factor->siblings;
+
+    printf("%d\n", factor->firstKid->id);
+
+    if (factor->firstKid->id == 123){
+        check_arith(factor->firstKid, st, scope, type);
+    }
+    else {
+        check_factor(factor, st, scope, type);
+    }
+
+    if(termprime!= NULL && termprime->firstKid != NULL){
+        printf("%s\n", "termprime hai exprime mein");
+        check_termprime(termprime, st, scope, type);
+    }
+
+
+}
+
 
 void check_arith(parseTree expr, hashtable *st, char * scope, char * type){
     parseTree  term = expr->firstKid;
+    parseTree expprime = term->siblings;
     parseTree factor = term->firstKid;
     parseTree termprime = factor->siblings;
+    printf("%d\n", factor->firstKid->id);
     if (factor->firstKid->id == 123){
         check_arith(factor->firstKid, st, scope, type);
     }
     // not another arithmetic expression
     else {
-        printf("%s\n", "na na nanana");
+        printf("in check_arith checking factor %s %s %s\n", scope, type, factor->firstKid->lexeme);
         check_factor(factor, st, scope, type);
-        printf("%s\n", "na na nanana");
+        printf("%s\n", "after check_arith checking factor");
     }
-    // termprime hai
+
     if(termprime!= NULL && termprime->firstKid != NULL){
-        printf("%s\n", "na nanana");
+        printf("%s\n", "term prime hai arithmetic mein");
         check_termprime(termprime, st, scope, type);
     }
+
+
+    if(expprime != NULL && expprime->firstKid != NULL){
+        check_expprime(expprime, st, scope, type);
+    }
+
+    printf("%s\n", "FFFF");
 }
 
 
@@ -229,7 +279,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
 
     }
 
-    printf("%s\n", "Moving On");
+    printf("%s\n", type);
 
     parseTree arithmeticex = sorrec->siblings;
     if (arithmeticex == NULL){
@@ -238,6 +288,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
     else {
         check_arith(arithmeticex, st, scope, type);
     }
+    printf("%s\n", "next");
 
 }
 
