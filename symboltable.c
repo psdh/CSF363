@@ -620,6 +620,11 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 {
 
 	parseTree othfun = head->firstKid->firstKid;
+	parseTree mf = head->firstKid->siblings;
+
+	upsert(ht, "_main", "function", "global", -100, 0, 0, -1);
+	strcpy(functions[fun_count++], "_main");
+	add_main_function(mf->firstKid, ht);
 
 	while(othfun != NULL)
 	{
@@ -641,11 +646,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 		othfun = othfun->siblings;
 	}
 
-	parseTree mf = head->firstKid->siblings;
 	//mainLineNo needed
-	upsert(ht, "_main", "function", "global", -100, 0, 0, -1);
-	strcpy(functions[fun_count++], "_main");
-	add_main_function(mf->firstKid, ht);
 	printf("%d\n", offset);
 }
 
