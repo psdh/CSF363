@@ -143,7 +143,9 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
         printf("%s\n", "CALM AS POSSIBLE");
         parseTree temp = all->siblings;
         // Normal variable (not record)
+        // @ToDo Scalar natak
         if(temp == NULL || temp->firstKid == NULL){
+            printf("%d\n", all->id);
             printf("!!!!!!!!!%s!!!!!!!\n", all->lexeme);
             // records are dvisible by scalar :(
             entry *var = get(st, all->lexeme, scope);
@@ -219,7 +221,7 @@ void check_termprime(parseTree termprime, hashtable *st, char*scope, char* type)
     parseTree factor = hpo->siblings;
     parseTree tpp = factor->siblings;
 
-    if (factor->firstKid->id == 123){
+    if (factor->firstKid->id == 132){
         printf("%s\n", "AAAA");
         check_arith(factor->firstKid, st, scope, type);
     }
@@ -235,7 +237,8 @@ void check_termprime(parseTree termprime, hashtable *st, char*scope, char* type)
 void check_expprime(parseTree expprime, hashtable *st, char * scope, char * type){
     parseTree term = expprime->firstKid->siblings;
     parseTree expp = term->siblings;
-    if(expp->firstKid!=NULL){}
+
+    if(expp->firstKid!=NULL)
         check_expprime(expp, st, scope, type);
 
     parseTree factor = term->firstKid;
@@ -243,7 +246,7 @@ void check_expprime(parseTree expprime, hashtable *st, char * scope, char * type
 
     printf("%d\n", factor->firstKid->id);
 
-    if (factor->firstKid->id == 123){
+    if (factor->firstKid->id == 132){
         check_arith(factor->firstKid, st, scope, type);
     }
     else {
@@ -265,7 +268,7 @@ void check_arith(parseTree expr, hashtable *st, char * scope, char * type){
     parseTree factor = term->firstKid;
     parseTree termprime = factor->siblings;
     printf("%d\n", factor->firstKid->id);
-    if (factor->firstKid->id == 123){
+    if (factor->firstKid->id == 132){
         check_arith(factor->firstKid, st, scope, type);
     }
     // not another arithmetic expression
@@ -282,6 +285,7 @@ void check_arith(parseTree expr, hashtable *st, char * scope, char * type){
 
 
     if(expprime != NULL && expprime->firstKid != NULL){
+        printf("Expprime: %d\n", expprime->id);
         check_expprime(expprime, st, scope, type);
     }
 
