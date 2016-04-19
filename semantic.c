@@ -15,6 +15,7 @@
 
 
 void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
+void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope);
 
 void semanticAnalyzer(parseTree ast, hashtable *ht)
 {
@@ -66,7 +67,11 @@ void handle_stmts(parseTree stmts, hashtable *ht, char* scope)
 {
     parseTree stmt_it;
     stmt_it = stmts->firstKid->siblings->siblings->firstKid;
+    handle_oth_stmts(stmt_it, ht, scope);
+}
 
+void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
+{
     if(stmt_it != NULL && stmt_it->id != 121)
     {
         printf("galat hai boss");

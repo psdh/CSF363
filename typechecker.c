@@ -10,20 +10,38 @@
 #include <limits.h>
 #include <stdio.h>
 #include "typechecker.h"
+#include "semantic.h"
 
 // things to check here
-// 1) expression in if statment is boolean, done => by the parser
-// 2)
-// 3) call handle_stmts recursively on this, for otherstmts
+// 1) expression in if statment is boolean, Done => by the parser
+// 2) call handle_stmts recursively on this, for otherstmts, Done
 void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
 {
     curr = curr->firstKid;
 
     while (curr != NULL)
     {
-        printf("%d\n", curr->id);
+        // printf("%d\n", curr->id);
 
-        curr = curr->siblings;
+        if (curr->id == 120)
+        {
+            // call handle_oth_stmts here
+            printf("found otherstmts\n");
+
+            handle_oth_stmts(curr->firstKid, st, scope);
+
+            // parseTree kid = curr->firstKid;
+            // while(kid != NULL)
+            // {
+            //     printf("found stmt: %d\n", curr->id);
+            //     kid = kid->siblings;
+            // }
+        }
+
+        if (curr->id == 129)
+            curr = curr->firstKid;
+        else
+            curr = curr->siblings;
     }
 }
 

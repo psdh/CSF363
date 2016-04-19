@@ -265,7 +265,17 @@ void ast_r(parseTree parsetree)
 
 
             // linearizing statements in the if branch
+            // TODO<psdh> do this for conditional and elsepart statements too
             if (level->id == 33)
+            {
+                parseTree othst = level->siblings->siblings;
+                level->siblings->siblings = othst->firstKid;
+                othst->firstKid = level->siblings;
+                level->siblings = othst;
+                othst->firstKid->parent = othst;
+            }
+            // done for else part of statements
+            if (level->id == 45)
             {
                 parseTree othst = level->siblings->siblings;
                 level->siblings->siblings = othst->firstKid;
