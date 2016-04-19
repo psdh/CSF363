@@ -12,6 +12,7 @@
 #include "parser.h"
 #include "typechecker.h"
 
-void check_stmt(parseTree pt, hashtable *st, int statementtype, char *scope);
+void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope);
+void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
 
 #endif

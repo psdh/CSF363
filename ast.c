@@ -29,7 +29,6 @@ void ast_r(parseTree parsetree)
 
     parseTree ast = parsetree;
 
-
     // leaf node
     // useful, when contains values like numbers, names of variables etc
     // not useful when points to "eps"
@@ -126,7 +125,6 @@ void ast_r(parseTree parsetree)
         prev->siblings = NULL;
         free(it);
     }
-
 
     // linearizing the "parameter_list", "remaining_list" branch
     if (ast->parent->id == 106 && ast->id == 107 && ast->siblings->id == 4)
@@ -263,6 +261,27 @@ void ast_r(parseTree parsetree)
                             continue;
                         }
 
+            }
+
+
+            // linearizing statements in the if branch
+            // TODO<psdh> do this for conditional and elsepart statements too
+            if (level->id == 33)
+            {
+                parseTree othst = level->siblings->siblings;
+                level->siblings->siblings = othst->firstKid;
+                othst->firstKid = level->siblings;
+                level->siblings = othst;
+                othst->firstKid->parent = othst;
+            }
+            // done for else part of statements
+            if (level->id == 45)
+            {
+                parseTree othst = level->siblings->siblings;
+                level->siblings->siblings = othst->firstKid;
+                othst->firstKid = level->siblings;
+                level->siblings = othst;
+                othst->firstKid->parent = othst;
             }
 
             prev = level;
