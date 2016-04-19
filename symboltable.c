@@ -398,33 +398,39 @@ void add_fielddef(hashtable *ht, parseTree curr, char * scope, record_dec *recor
 	char type[20];
 	parseTree datatype = curr->firstKid;
 	getType(ht, datatype, type);
+
 	char *id = datatype->siblings->lexeme;
-	record->type = (char*) malloc(20*sizeof(char));
+
+	record->type = (char*) malloc(20 * sizeof(char));
 	strcpy(record->type, type);
-	record->name = id;
+
+	record->name = (char*) malloc(20 * sizeof(char));
+	strcpy(record->name, id);
 	record->next = NULL;
 }
 
 
-void add_moreFileds(hashtable *ht, parseTree curr, record_dec *record, char *scope, int * width)
+void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *scope, int * width)
 {
 	parseTree fieldDef = curr->firstKid;
 
-	if(fieldDef == NULL){
+	if(fieldDef == NULL)
 		printf("%s\n", "No more field defs");
-	}
 	else
 	{
 		add_fielddef(ht, fieldDef, scope, record);
-		*width = * width + 4;
-		record->next = NULL;
+
+		*width = *width + 4;
+
 		printf("\t%s\t%s\n", record->type, record->name);
 
-		parseTree moreFields = fieldDef-> siblings;
+		parseTree moreFields = fieldDef->siblings;
 
-		if(moreFields->firstKid != NULL){
+		if(moreFields->firstKid != NULL)
+		{
 			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
-			add_moreFileds(ht, moreFields, next, scope, width);
+			add_more_fields(ht, moreFields, next, scope, width);
+			record->next = next;
 			printf("\t%s\t%s\n", record->type, record->name);
 		}
 	}
@@ -433,50 +439,62 @@ void add_moreFileds(hashtable *ht, parseTree curr, record_dec *record, char *sco
 
 void add_record(parseTree curr, hashtable *ht){
 	parseTree recid = curr->siblings;
-	char * scope = curr->siblings->lexeme;
+	char *scope = curr->siblings->lexeme;
 
 	entry *entry_1 = get(ht, scope, "global");
-	if( entry_1 == NULL){
+
+	if(entry_1 == NULL)
+	{
 		upsert(ht, scope, "record", "global", curr->siblings->lineNo, 0, 0, -1);
 
 		entry_1 = get(ht, scope, "global");
-		record_dec *record = (record_dec *) malloc(sizeof(record_dec));
+
+		record_dec *recordF = (record_dec *) malloc(sizeof(record_dec));
 
 		parseTree fieldDef1 = curr->siblings->siblings->firstKid;
 		parseTree fieldDef2 = fieldDef1->siblings;
 
-		add_fielddef(ht, fieldDef1, scope, record);
+		add_fielddef(ht, fieldDef1, scope, recordF);
 
-		printf("\t%s\t%s\n", record->type, record->name);
+		printf("First fieldname: \t%s\t%s\n", recordF->type, recordF->name);
 
-		record->next = (record_dec *) malloc(sizeof(record_dec));
+		record_dec *recordS = (record_dec *) malloc(sizeof(record_dec));
+		recordF->next = recordS;
 
-		add_fielddef(ht, fieldDef2, scope, record->next);
+		add_fielddef(ht, fieldDef2, scope, recordS);
 
 		int width;
 		width = 8;
 
-		record_dec * next = record->next;
-		printf("\t%s\t%s\n", next->type, next->name);
+		// record_dec * next = record->next;
+		// next->next = (record_dec*) malloc(sizeof(record_dec));
+
+		// printf("\t%s\t%s\n", next->type, next->name);
 
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
 		if (fieldDef2->siblings->firstKid == NULL)
 		{
 			printf("%s\n", "Only two parameters");
 		}
-		else{
-
-			next->next = (record_dec *) malloc(sizeof(record_dec));
+		else
+		{
+			record_dec *nrecord;
+			nrecord = (record_dec *) malloc(sizeof(record_dec));
+			recordS->next = nrecord;
 			printf("%s\n", "No  There are more things");
 			parseTree moreFields = fieldDef2->siblings;
-			add_moreFileds(ht, moreFields, next, scope, &width);
-
+			add_more_fields(ht, moreFields, nrecord, scope, &width);
 		}
-
 		entry_1->width = width;
-		entry_1->record = record;
+		entry_1->record = recordF;
 		entry_1->offset = offset;
 		offset = offset + width;
+
+		printf("There should be atleast 2 things\n");
+		printf("%s\n", entry_1->record->name);
+		printf("%s\n", entry_1->record->next->name);
+		printf("%s\n", entry_1->record->next->next->next->name);
+
 	}
 	else{
 		printf("Error: Record %s being declared again\n", scope);
@@ -636,7 +654,5 @@ hashtable * createSymbolTable(parseTree pt)
 	char scope[] = "global";
 	popuplateHashTable(pt, ht, scope);
 
-
 	return ht;
-
 }

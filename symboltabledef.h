@@ -17,12 +17,13 @@ struct entry;
 struct record_dec;
 
 
-typedef struct {
+struct record_dec {
     char *type;
     char *name;
     struct record_dec *next;
-}record_dec;
+};
 
+typedef struct record_dec record_dec;
 
 typedef struct {
     char *key;
