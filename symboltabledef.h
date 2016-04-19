@@ -43,6 +43,7 @@ typedef struct {
     // let them all be -1
     int isInputParameter;
     int isOutputParameter;
+    int assigned;
     int ParameterNumber;
     int isRecordDeclaration;
     int isRecordInstance;

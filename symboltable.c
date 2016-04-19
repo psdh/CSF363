@@ -101,9 +101,11 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 	if (isOutputParameter == 1){
 		new->isOutputParameter = 1;
 		new->ParameterNumber = ParameterNumber;
+		new->assigned = -1;
 	}
 	else{
 		new->isOutputParameter = 0;
+		new->assigned = 0;
 	}
 
 
@@ -183,6 +185,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 
 		if (isInputParameter == 1){
 			next->isInputParameter = 1;
+			next->ParameterNumber = ParameterNumber;
 		}
 		else{
 			next->isInputParameter = 0;
@@ -190,9 +193,12 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 
 		if (isOutputParameter == 1){
 			next->isOutputParameter = 1;
+			next->ParameterNumber = ParameterNumber;
+			next->assigned = -1;
 		}
 		else{
 			next->isOutputParameter = 0;
+			next->assigned = 0;
 		}
 
 		next->ParameterNumber = ParameterNumber;
@@ -295,49 +301,37 @@ int existsNonGlobally(hashtable *ht, char *varname){
 //@Heur input parameter ka numbers should be stored somewhere
 
 
-entry *getInputParameter(hashtable *ht, char *key, char *scope, int ParameterNumber)
+entry *getInputParameter(hashtable *ht, char *function, int ParameterNumber)
 {
 
 	int bin = 0;
 	entry *temp;
-
-	bin = hash(ht, key);
-
-	temp = ht->table[bin];
-
-	while (temp != NULL && temp->key !=NULL && (strcmp(key, temp->key) > 0 || strcmp(scope, temp->scope) || temp->isInputParameter != 1 || temp->ParameterNumber != ParameterNumber ) ){
-		temp= temp->next;
+	for (bin =0 ; bin < 100; bin ++){
+		temp = ht->table[ bin ];
+		while( temp != NULL && temp->key != NULL) {
+			if(strcmp(function, temp->scope) == 0 && temp->isInputParameter == 1 && temp->ParameterNumber == ParameterNumber){
+				return temp;
+			}
+			temp = temp->next;
+		}
 	}
-
-	if( temp == NULL || temp->key == NULL || (strcmp( key, temp->key ) != 0  || strcmp(scope, temp->scope) !=0 || temp->isInputParameter != 1 || temp->ParameterNumber != ParameterNumber ) ) {
-		return NULL;
-
-	} else {
-		return temp;
-	}
-
+	return NULL;
 }
 
-entry *getOutputParameter(hashtable *ht, char *key ,char *scope, int ParameterNumber){
-
+entry *getOutputParameter(hashtable *ht, char *function, int ParameterNumber)
+{
 	int bin = 0;
 	entry *temp;
-
-	bin = hash(ht, key);
-
-	temp = ht->table[bin];
-
-	while (temp != NULL && temp->key !=NULL && (strcmp(key, temp->key) > 0 || strcmp(scope, temp->scope) || temp->isOutputParameter != 1 || temp->ParameterNumber != ParameterNumber ) ){
-		temp= temp->next;
+	for (bin =0 ; bin < 100; bin ++){
+		temp = ht->table[ bin ];
+		while( temp != NULL && temp->key != NULL) {
+			if(strcmp(function, temp->scope) == 0 && temp->isOutputParameter == 1 && temp->ParameterNumber == ParameterNumber){
+				return temp;
+			}
+			temp = temp->next;
+		}
 	}
-
-	if( temp == NULL || temp->key == NULL || (strcmp( key, temp->key ) != 0  || strcmp(scope, temp->scope) !=0 || temp->isOutputParameter != 1 || temp->ParameterNumber != ParameterNumber ) ) {
-		return NULL;
-
-	} else {
-		return temp;
-	}
-
+	return NULL;
 }
 
 
@@ -366,7 +360,7 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 
 void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 {
-	// printf("list case %d\n", curr->id);
+	printf("list case %d\n", curr->id);
 
 	int counter = 0;
 
@@ -622,7 +616,8 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	parseTree othfun = head->firstKid->firstKid;
 	parseTree mf = head->firstKid->siblings;
 
-	upsert(ht, "_main", "function", "global", -100, 0, 0, -1);
+	// @Todo add line no of _main
+	upsert(ht, "_main", "function", "global", 1000, 0, 0, -1);
 	strcpy(functions[fun_count++], "_main");
 	add_main_function(mf->firstKid, ht);
 

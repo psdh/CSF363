@@ -60,6 +60,7 @@ void semanticAnalyzer(parseTree ast, hashtable *ht)
 
     // handle main function now!
     handle_stmts(mf_stmts, ht, "_main");
+    check_for_unassigned_outputs(ht);
 }
 
 
@@ -68,6 +69,21 @@ void handle_stmts(parseTree stmts, hashtable *ht, char* scope)
     parseTree stmt_it;
     stmt_it = stmts->firstKid->siblings->siblings->firstKid;
     handle_oth_stmts(stmt_it, ht, scope);
+}
+
+void check_for_unassigned_outputs(hashtable *ht){
+    int bin = 0;
+    entry *temp;
+    for (bin =0 ; bin < 100; bin ++){
+        temp = ht->table[ bin ];
+        while( temp != NULL && temp->key != NULL) {
+            if(temp->isOutputParameter == 1 && temp->assigned == -1){
+                printf("Error: Variable %s of %s is unassigned\n", temp->key, temp->scope);
+            }
+            temp = temp->next;
+        }
+    }
+    return NULL;
 }
 
 void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
@@ -102,6 +118,7 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
 
         stmt_it = stmt_it->siblings;
     }
+
 
 }
 

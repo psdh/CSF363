@@ -240,6 +240,8 @@ void ast_r(parseTree parsetree)
                 case 28:
                 case 30:
                 case 31:
+                // added 42 for TK_CALL
+                case 42:
                 case 44:
                 case 56:
                         {
@@ -345,7 +347,10 @@ int main(int argc, char const *argv[])
 
     hashtable* ht = createSymbolTable(answer);
     printf("%s\n", "Symbol Table Created\n\n\n\n\n");
+
     printSymbolTable(ht, 100);
+
+    printf("%s\n", "-----");
 
     semanticAnalyzer(answer, ht);
 }

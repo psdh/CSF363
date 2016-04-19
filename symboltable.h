@@ -19,4 +19,8 @@ hashtable *createSymbolTable(parseTree PT);
 
 void printSymbolTable(hashtable *ht, int size);
 
+entry *getInputParameter(hashtable *ht, char *function, int ParameterNumber);
+entry *getOutputParameter(hashtable *ht, char *function, int ParameterNumber);
+
+
 #endif
