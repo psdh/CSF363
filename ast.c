@@ -345,5 +345,7 @@ int main(int argc, char const *argv[])
 
     hashtable* ht = createSymbolTable(answer);
     printf("%s\n", "Symbol Table Created\n\n\n\n\n");
-    semanticAnalyzer(answer, ht);
+    printSymbolTable(ht, 100);
+
+    // semanticAnalyzer(answer, ht);
 }
