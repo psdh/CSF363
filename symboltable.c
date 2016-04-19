@@ -637,34 +637,6 @@ hashtable * createSymbolTable(parseTree pt)
 	popuplateHashTable(pt, ht, scope);
 
 
-	printf("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\t%s\t%s\t%s\t%s\n\n", "key", "type", "scope", "width", "offset", "line", "input", "output", "param", "instance", "declaration");
-
-	entry *temp = get(ht, "c3", "_computeFunctionValue");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-	temp = get(ht, "c4", "_computeFunctionValue");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-	temp = get(ht, "c5", "_computeFunctionValue");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-	temp = get(ht, "c6", "_computeFunctionValue");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-	temp = get(ht, "d4cbcd5677", "_computeFunctionValue");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-	temp = get(ht, "b5", "_main");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-	temp = get(ht, "d5cb34567", "_main");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-
-	temp = get(ht, "c3", "_main");
-	printf("%s\t%s\t%s\t%d\t%d\t%d\t\t%d\t%d\t%d\t%d\t%d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter,temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
-
-
 	return ht;
 
 }
