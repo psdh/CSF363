@@ -200,8 +200,330 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
     }
 }
 
+int recordIsDivMulable(hashtable *st, char * record, char * inpType){
+    entry *temp = get(st, record, "global");
+    record_dec * rec = temp->record;
+    char * type = (char*) malloc(sizeof(char)*30);
+    int first = 1;
+    while(rec != NULL)
+    {   if (first){
+            first = 0;
+            strcpy(type, rec->type);
+        }
+        else if(strcmp(type, rec->type) != 0){
+            return 1;
+        }
+        rec = rec->next;
+    }
+    if (strcmp(inpType, type) == 0)
+        return 1;
+    else
+        return 0;
+}
+
+
+void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
+    // a wild 5 was encountered but type expcted was different
+    // @ToDo take care of variable
+    parseTree all = factor->firstKid;
+    int highPrec = 0;
+
+    if(factor->siblings != NULL && factor->siblings->id == 137){
+        highPrec =  1;
+    }
+
+    if(all->id == 5){
+        if(strcmp(type, "int") != 0){
+            printf("Error: %s expected got %s\n", type, "int");
+        }
+    }
+    // a wild 5.55 was encountered but type expected was different
+    else if(all->id == 6){
+        if(strcmp(type, "real") != 0){
+            printf("Error: %s expected got %s\n", type, "real");
+        }
+    }
+    else {
+        printf("%s\n", "CALM AS POSSIBLE");
+        parseTree temp = all->siblings;
+        // Normal variable (not record)
+        // @ToDo Scalar natak
+        if(temp == NULL || temp->firstKid == NULL){
+            printf("%d\n", all->id);
+            printf("!!!!!!!!!%s!!!!!!!\n", all->lexeme);
+            // records are dvisible by scalar :(
+            entry *var = get(st, all->lexeme, scope);
+            printf("%s\n", var->type);
+            if (var == NULL){
+                printf("Error: Variable %s not in current scope %s, checking global\n", all->lexeme, scope);
+                var = get(st, all->firstKid->lexeme, "global");
+                // doesnt exist globally
+                if (var == NULL){
+                    printf("Error: Variable %s not even declared globally\n", all->lexeme);
+                }
+                // exists globally
+                else {
+                    // ek record hai lhs mein and rhs mein you can have variable or record
+                    if(strcmp(type, "int") != 0 && strcmp(type, "real") != 0){
+                        //rhs mein variable, operator should be divide or something
+                        if( strcmp("int", var->type) == 0 || strcmp("real", var->type) == 0){
+                            if (recordIsDivMulable(st, type, var->type) == 1){
+                                if( highPrec != 1){
+                                    printf("Error: cant add/subtract scalar from record\n");
+                                }
+                            }
+                            else {
+                                printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types", type, var->type);
+                            }
+                        }
+                        // rhs mein record hai
+                        else if (strcmp(type, var->type) != 0){
+                            printf("Error: expected record of type %s got of type %s\n", type, var->type);
+                        }
+                        else if (strcmp(type, var->type) == 0){
+                            if(highPrec == 1){
+                                printf("Error: Cant divide record by record\n");
+                            }
+                        }
+                    }
+                    else if(strcmp(type, var->type) != 0){
+                        printf("Error: %s expected got %s in %s\n", type, var->type, all->lexeme);
+                    }
+                }
+            }
+            // exists in scope
+            else {
+
+                if(strcmp(type, "int") != 0 && strcmp(type, "real") != 0){
+                    //rhs mein variable, operator should be divide or something
+                    if( strcmp("int", var->type) == 0 || strcmp("real", var->type) == 0){
+                        if (recordIsDivMulable(st, type, var->type) == 1){
+                            if( highPrec != 1){
+                                printf("Error: cant add/subtract scalar from record\n");
+                            }
+                        }
+                        else {
+                            printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types\n", type, var->type);
+                        }
+                    }
+                    // rhs mein record hai
+                    else if (strcmp(type, var->type) != 0){
+                        printf("Error: expected record of type %s got of type %s\n", type, var->type);
+                    }
+                    else if (strcmp(type, var->type) == 0){
+                        if(highPrec == 1){
+                            printf("Error: Cant divide record by record\n");
+                        }
+                    }
+                }
+                else if(strcmp(type, var->type) != 0){
+                    printf("Error: %s expected got %s in %s\n", type, var->type, all->lexeme);
+                }
+
+            }
+        }
+        // record type
+        else {
+
+            entry * record = get(st, all->firstKid->lexeme, scope);
+            if (record == NULL){
+                 printf("Error: Record Variable %s not in current scope %s, checking global\n", all->firstKid->lexeme, scope);
+                 record = get(st, all->firstKid->lexeme, "global");
+                 if (record == NULL){
+                    printf("Error: Record Variable %s not even declared globally\n", all->firstKid->lexeme);
+                 }
+                 else {
+                    // record declaration found, we go through linkedlsit to find type
+                    record = get(st, record->type, "global");
+                    record_dec * rec = record-> record;
+                    while(rec!= NULL && strcmp(rec->name, temp->firstKid->lexeme) != 0){
+                        rec = rec->next;
+                    }
+                    if(rec == NULL){
+                        printf("Error: Record %s has no field %s\n",record->key, temp->firstKid->lexeme);
+                    }
+                    else if (strcmp(rec->type, type)){
+                        printf("Error: %s expected got %s in %s.%s\n", type, rec->type, all->firstKid->lexeme,rec->name);
+                    }
+                 }
+            }
+            else {
+                printf("%s\n", record->type);
+                record = get(st, record->type, "global");
+                record_dec * rec = record-> record;
+                while(rec!= NULL && strcmp(rec->name, temp->firstKid->lexeme) != 0){
+                    rec = rec->next;
+                }
+                if(rec == NULL){
+                    printf("Error: Record%s has no field %s\n",record->key, temp->firstKid->lexeme);
+                }
+                else if (strcmp(rec->type, type)){
+                    printf("Error: %s expected got %s in %s.%s\n", type, rec->type, all->firstKid->lexeme,rec->name);
+                }
+            }
+
+        }
+    }
+}
+
+
+void check_termprime(parseTree termprime, hashtable *st, char*scope, char* type){
+    parseTree hpo = termprime->firstKid;
+    parseTree factor = hpo->siblings;
+    parseTree tpp = factor->siblings;
+
+    if (factor->firstKid->id == 132){
+        printf("%s\n", "AAAA");
+        check_arith(factor->firstKid, st, scope, type);
+    }
+    else {
+        check_factor(factor, st, scope, type);
+    }
+
+    if(tpp != NULL && tpp->firstKid!=NULL){
+        check_termprime(tpp, st, scope, type);
+    }
+}
+
+void check_expprime(parseTree expprime, hashtable *st, char * scope, char * type){
+    parseTree term = expprime->firstKid->siblings;
+    parseTree expp = term->siblings;
+
+    if(expp->firstKid!=NULL)
+        check_expprime(expp, st, scope, type);
+
+    parseTree factor = term->firstKid;
+    parseTree termprime = factor->siblings;
+
+    printf("%d\n", factor->firstKid->id);
+
+    if (factor->firstKid->id == 132){
+        check_arith(factor->firstKid, st, scope, type);
+    }
+    else {
+        check_factor(factor, st, scope, type);
+    }
+
+    if(termprime!= NULL && termprime->firstKid != NULL){
+        printf("%s\n", "termprime hai exprime mein");
+        check_termprime(termprime, st, scope, type);
+    }
+
+
+}
+
+
+void check_arith(parseTree expr, hashtable *st, char * scope, char * type){
+    parseTree  term = expr->firstKid;
+    parseTree expprime = term->siblings;
+    parseTree factor = term->firstKid;
+    parseTree termprime = factor->siblings;
+    printf("%d\n", factor->firstKid->id);
+    if (factor->firstKid->id == 132){
+        check_arith(factor->firstKid, st, scope, type);
+    }
+    // not another arithmetic expression
+    else {
+        printf("in check_arith checking factor %s %s %s\n", scope, type, factor->firstKid->lexeme);
+        check_factor(factor, st, scope, type);
+        printf("%s\n", "after check_arith checking factor");
+    }
+
+    if(termprime!= NULL && termprime->firstKid != NULL){
+        printf("%s\n", "term prime hai arithmetic mein");
+        check_termprime(termprime, st, scope, type);
+    }
+
+
+    if(expprime != NULL && expprime->firstKid != NULL){
+        printf("Expprime: %d\n", expprime->id);
+        check_expprime(expprime, st, scope, type);
+    }
+
+    printf("%s\n", "FFFF");
+}
+
+
 void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
-    printf("\n%d\n", curr->firstKid->id);
+
+    parseTree sorrec = curr->firstKid;
+
+    char *type = (char*)  malloc(sizeof(char)*20);
+
+    // non record variable
+    if(sorrec->firstKid->siblings->firstKid == NULL){
+        printf("Hum yahan\t%s\n", sorrec->firstKid->lexeme);
+
+        entry * var = get(st, sorrec->firstKid->lexeme, scope);
+        // not in current scope maybe declared globally
+        if(var == NULL){
+            printf("Variable %s not in scope %s, Checking globally\n", sorrec->firstKid->lexeme, scope);
+            entry * var = get(st, sorrec->firstKid->lexeme, "global");
+            if(var == NULL){
+                printf("Error: variable %s is not declared\n", sorrec->firstKid->lexeme);
+            }
+            else{
+                strcpy(type, var->type);
+            }
+        }
+        else {
+            strcpy(type, var->type);
+        }
+    }
+    // bhai ye toh record hai
+    else {
+        printf("%s\n", sorrec->firstKid->lexeme);
+        entry * record = get(st, sorrec->firstKid->lexeme, scope);
+        if (record == NULL){
+             printf("Variable %s not in current scope %s, checking global\n", sorrec->firstKid->lexeme, scope);
+             record = get(st, sorrec->firstKid->lexeme, "global");
+             if (record == NULL){
+                printf("Error: Record Variable %s not even declared globally\n", sorrec->firstKid->lexeme);
+             }
+             else {
+                // record declaration found, we go through linkedlsit to find type
+                record = get(st, record->type, "global");
+                record_dec * rec = record-> record;
+                while(strcmp(rec!= NULL &&  rec->name, sorrec->firstKid->siblings->firstKid->lexeme) != 0){
+                    rec = rec->next;
+                }
+                if(rec != NULL){
+                    strcpy(type, rec->type);
+                }
+                else {
+                    printf("Error: Record %s has no field %s\n", record->key, sorrec->firstKid->siblings->firstKid->lexeme);
+                }
+             }
+        }
+        else {
+            printf("%s\t%s\n", "CHAIN OF FOOLS", record->type);
+            record = get(st, record->type, "global");
+            record_dec * rec = record-> record;
+            while(rec!= NULL && strcmp(rec->name, sorrec->firstKid->siblings->firstKid->lexeme) != 0){
+                printf("%s\n", rec->name);
+                rec = rec->next;
+            }
+            if(rec != NULL){
+                printf("%s\n", rec->name);
+                strcpy(type, rec->type);
+            }
+            else
+                printf("Error: Record %s has no field %s\n", record->key, sorrec->firstKid->siblings->firstKid->lexeme);
+        }
+
+    }
+
+    printf("%s\n", type);
+
+    parseTree arithmeticex = sorrec->siblings;
+    if (arithmeticex == NULL){
+        printf("%s\n", "Wrong assignment statement here");
+    }
+    else {
+        check_arith(arithmeticex, st, scope, type);
+    }
+    printf("%s\n", "next");
+
 }
 
 void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
@@ -252,8 +574,5 @@ void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
         check_iterative_stmt(curr, st, scope);
     else if (type == 10) // IO statement
         check_io_stmt(curr, st, scope);
-    // else if (type == 1) // assignment statement
-    // else if(type == 10) // iostatment
-    // else  if (type == 3) // conditional statement
-    // else if (type == 4) // functional call statement
+
 }

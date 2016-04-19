@@ -14,7 +14,8 @@
 //@Todo non exit error handling --> Done
 //@Todo point 13 semantic analyzer --> in type checking
 //@Todo point 7 semantic analyzer --> in type checking
-
+//@Todo symbol tabe -->record first
+//@Todo symbol table printing
 
 #ifndef __USE_XOPEN2K8
     #define __USE_XOPEN2K8 1
@@ -80,7 +81,7 @@ int hash(hashtable *ht, char *key){
 
 entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry *new;
-
+	printf("%s\n", "GOT CALLED MAN");
 	new = (entry*) malloc(sizeof(entry));
 	new->key = strdup(key);
 	new->type = strdup(type);
@@ -88,8 +89,10 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 	new->lineNo = lineNo;
 	// new->id = getColumnIndex(type);
 
+	new->ParameterNumber =  -1;
 	if (isInputParameter == 1){
 		new->isInputParameter = 1;
+		new->ParameterNumber = ParameterNumber;
 	}
 	else{
 		new->isInputParameter = 0;
@@ -97,10 +100,12 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if (isOutputParameter == 1){
 		new->isOutputParameter = 1;
+		new->ParameterNumber = ParameterNumber;
 	}
 	else{
 		new->isOutputParameter = 0;
 	}
+
 
 	if(strcmp(type,"int") == 0)
 	{
@@ -250,7 +255,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 	}
 }
 
-entry *get (hashtable *ht, char *key, char*scope)
+entry *get(hashtable *ht, char *key, char*scope)
 {
 	int bin = 0;
 	entry *temp;
@@ -375,6 +380,7 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 			temp = get(ht, curr->siblings->lexeme, getType(ht, curr, ans));
 
 			if (temp == NULL){
+				printf("Input %s \t %d\t %d\n", curr->siblings->lexeme, input, output);
 				upsert(ht, curr->siblings->lexeme, ans, scope, curr->siblings->lineNo, input, output, counter);
 			}
 			else{
@@ -465,11 +471,6 @@ void add_record(parseTree curr, hashtable *ht){
 
 		int width;
 		width = 8;
-
-		// record_dec * next = record->next;
-		// next->next = (record_dec*) malloc(sizeof(record_dec));
-
-		// printf("\t%s\t%s\n", next->type, next->name);
 
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
 		if (fieldDef2->siblings->firstKid == NULL)
@@ -619,6 +620,11 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 {
 
 	parseTree othfun = head->firstKid->firstKid;
+	parseTree mf = head->firstKid->siblings;
+
+	upsert(ht, "_main", "function", "global", -100, 0, 0, -1);
+	strcpy(functions[fun_count++], "_main");
+	add_main_function(mf->firstKid, ht);
 
 	while(othfun != NULL)
 	{
@@ -640,11 +646,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 		othfun = othfun->siblings;
 	}
 
-	parseTree mf = head->firstKid->siblings;
 	//mainLineNo needed
-	upsert(ht, "_main", "function", "global", -100, 0, 0, -1);
-	strcpy(functions[fun_count++], "_main");
-	add_main_function(mf->firstKid, ht);
 	printf("%d\n", offset);
 }
 
@@ -656,4 +658,17 @@ hashtable * createSymbolTable(parseTree pt)
 	popuplateHashTable(pt, ht, scope);
 
 	return ht;
+}
+
+void printSymbolTable( hashtable *ht, int size){
+	int bin = 0;
+	entry *temp;
+	for (bin =0 ; bin < size; bin ++){
+		temp = ht->table[ bin ];
+		while( temp != NULL && temp->key != NULL && strcmp(temp->scope,"") !=0) {
+			printf("%s\n", "--------------");
+			printf("Key: %s\nType: %s\nScope: %s\nWidth: %d\nOffset: %d\nLineNo: %d\nInput:%d\nOutput: %d\nParameterNumber: %d\nInstance: %d\nDeclaration: %d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter, temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+			temp = temp->next;
+		}
+	}
 }
