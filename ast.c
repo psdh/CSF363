@@ -243,6 +243,16 @@ void ast_r(parseTree parsetree)
                 case 44:
                 case 56:
                         {
+                            // linearizing "stmt otherstmts in iterativestmts"
+                            if (level->id == 31 && level->siblings != NULL && level->siblings->id == 121)
+                            {
+                                parseTree othst = level->siblings->siblings;
+                                level->siblings->siblings = othst->firstKid;
+                                othst->firstKid = level->siblings;
+                                level->siblings = othst;
+                                othst->firstKid->parent = othst;
+                            }
+
                             if (prev == NULL)
                             {
                                 parseTree parent = level->parent;

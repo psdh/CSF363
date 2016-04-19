@@ -114,8 +114,6 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
         else if (curr->id == 120)
         {
             // call handle_oth_stmts here
-            printf("found otherstmts\n");
-
             handle_oth_stmts(curr->firstKid, st, scope);
         }
 
@@ -130,6 +128,27 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
     printf("\n%d\n", curr->firstKid->id);
 }
 
+void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
+{
+    curr = curr->firstKid;
+
+    while (curr != NULL)
+    {
+        // boolean expression
+        if (curr->id == 141)
+        {
+            // TODO check what variabes have been declared and everything here
+            handle_boolean_exp(curr->firstKid, st, scope);
+        }
+        else if (curr->id == 120)
+        {
+            // call handle_oth_stmts here
+            handle_oth_stmts(curr->firstKid, st, scope);
+        }
+
+        curr = curr->siblings;
+    }
+}
 
 void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
 {
@@ -137,6 +156,8 @@ void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
         check_assignment_stmt(curr, st, scope);
     if (type == 3) // iterative statement
         check_conditional_stmt(curr, st, scope);
+    if (type == 2)
+        check_iterative_stmt(curr, st, scope);
     // else if (type == 1) // assignment statement
     // else if(type == 10) // iostatment
     // else  if (type == 3) // conditional statement

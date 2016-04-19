@@ -648,6 +648,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	printf("%d\n", offset);
 }
 
+// TODO remove offset increment for input paramters of functions
 hashtable * createSymbolTable(parseTree pt)
 {	offset = 0;
 	hashtable *ht = create(100);
