@@ -649,8 +649,6 @@ void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
 
 void check_io_stmt(parseTree curr, hashtable *st, char* scope)
 {
-    printf("io: %d\n", curr->firstKid->id);
-
     // read statement
     if (curr->firstKid->id == 35)
     {

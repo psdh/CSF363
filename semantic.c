@@ -48,7 +48,6 @@ void semanticAnalyzer(parseTree ast, hashtable *ht)
     // handle stmts for all functions except main
     while (othfun != NULL)
     {
-        printf("Found function: %s \n", othfun->firstKid->lexeme);
         parseTree stmts = othfun->firstKid->siblings->siblings->siblings;
 
         char scope[20];
