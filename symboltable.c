@@ -111,16 +111,28 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if(strcmp(type,"int") == 0)
 	{
-		printf("%s\t%d\n", key, offset);
 		new->width = 4;
-		new->offset  = offset;
-		offset = offset + new->width;
+
+		if((isInputParameter == 1 || isOutputParameter == 1) == 0){
+			new->offset  = offset;
+			offset = offset + new->width;
+		}
+		else
+			new->offset = -1;
+
 	}
 
 	if(strcmp(type,"real") == 0)
-	{	new->width = 8;
-		new->offset  = offset;
-		offset = offset + new->width;
+	{
+		new->width = 8;
+
+		if((isInputParameter == 1 || isOutputParameter == 1) == 0){
+			new->offset  = offset;
+			offset = offset + new->width;
+		}
+		else
+			new->offset = -1;
+
 	}
 
 	if(strcmp(type, "record") == 0)
@@ -138,8 +150,15 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 		entry * temp = get(ht, type, "global");
 		if (temp != NULL){
 			new->width = temp->width;
-			new->offset = offset;
-			offset = offset + new->width;
+
+			if((isInputParameter == 1 || isOutputParameter == 1) == 0){
+				new->offset  = offset;
+				offset = offset + new->width;
+			}
+			else
+				new->offset = -1;
+
+
 		}
 		else{
 			new->width = -1;
@@ -495,8 +514,13 @@ void add_record(parseTree curr, hashtable *ht){
 		}
 		entry_1->width = width;
 		entry_1->record = recordF;
-		entry_1->offset = offset;
+		entry_1->offset = -1;
+		offset = offset;
+
+/*		entry_1->offset = offset;
 		offset = offset + width;
+*/
+
 
 		printf("There should be atleast 2 things\n");
 		printf("%s\n", entry_1->record->name);

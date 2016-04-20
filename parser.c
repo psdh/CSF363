@@ -13,6 +13,7 @@
 
 #define table_row 60
 int flag_eps;
+nodecount = 0;
 
 // returns firsts set of given token
 int* getFirsts(char * input){
@@ -348,7 +349,7 @@ char* getCorrespondingToken(int f){
         default:
                 {
                     char buf[12];
-                    sprintf(buf, "%dNothing", f);
+                    sprintf(buf, "Nothing", f);
                     return buf;
                 }
     }
@@ -732,7 +733,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 }
 
 // helper fn for tree printing (does the acutal printing)
-void printParseTree_r(parseTree curr, FILE* f, int * size)
+int printParseTree_r(parseTree curr, FILE* f, int * size, int print)
 {
     if (curr == NULL)
         return;
@@ -740,19 +741,18 @@ void printParseTree_r(parseTree curr, FILE* f, int * size)
 
     if(curr->firstKid != NULL)
     {
-        printParseTree_r(curr->firstKid, f, size);
+
+        printParseTree_r(curr->firstKid, f, size, print);
 
         char* value = (char*) malloc(sizeof(char)*20);
         strcpy(value, "");
 
-        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
-                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
-                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
-
-
+        if(print != -1)
+	        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+	                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+	                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
 
         *size  = *size + 1;
-
 
     }
     else
@@ -762,10 +762,15 @@ void printParseTree_r(parseTree curr, FILE* f, int * size)
         if (curr->id == 5 || curr->id == 6)
             strcpy(value, curr->lexeme);
 
-        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
-                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
-                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+        if(print != -1)
+	        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+	                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+	                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+
+
         *size  = *size + 1;
+
+
 
     }
     parseTree prev = curr;
@@ -773,8 +778,9 @@ void printParseTree_r(parseTree curr, FILE* f, int * size)
 
     if(curr != NULL)
     {
-        return printParseTree_r(curr, f, size);
+        printParseTree_r(curr, f, size, print);
     }
+
 }
 
 // prints parse tree to given out file
@@ -782,7 +788,7 @@ void printParseTree(parseTree  curr, char* outfile)
 {
     FILE* f = fopen(outfile, "w");
     int size = 0;
-    printParseTree_r(curr, f, &size);
+    printParseTree_r(curr, f, &size, 1);
     fclose(f);
 
 }

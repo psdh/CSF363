@@ -7,3 +7,4 @@
 rm *.o
 rm stage1exe
 rm firstandfollow
+rm ast
