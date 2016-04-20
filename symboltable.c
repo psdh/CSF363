@@ -420,7 +420,10 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 	{
 		add_fielddef(ht, fieldDef, scope, record);
 
-		*width = *width + 4;
+		if(strcmp(record->type, "int") == 0)
+			*width = *width + 4;
+		else
+			*width = *width + 8;
 
 		printf("\t%s\t%s\n", record->type, record->name);
 
@@ -463,8 +466,18 @@ void add_record(parseTree curr, hashtable *ht){
 
 		add_fielddef(ht, fieldDef2, scope, recordS);
 
-		int width;
-		width = 8;
+		int width = 0;
+
+		if(strcmp(recordF->type, "int") == 0)
+			width+=4;
+		else
+			width+=8;
+
+		if(strcmp(recordS->type, "int") == 0)
+			width+=4;
+		else
+			width+=8;
+
 
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
 		if (fieldDef2->siblings->firstKid == NULL)

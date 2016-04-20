@@ -26,6 +26,6 @@ void printParseTree(parseTree  PT, char *outfile);
 
 void intializeTable(table T);
 
-void printParseTree_r(parseTree curr, FILE* f);
+void printParseTree_r(parseTree curr, FILE* f, int * size);
 
 #endif

@@ -12,7 +12,12 @@
 
 void compile(parseTree pt, hashtable * ht){};
 
-void printSize(){};
+void printSize(int pt_size, int ast_size){
+    printf("%s\n", "\n");
+    printf("Parse Tree\tNumber of Nodes:%d\tAllocated Memory:%d\n",pt_size, sizeof(parseTree)* pt_size);
+    printf("AST\tNumber of Nodes:%d\tAllocated Memory:%d\n", ast_size, sizeof(parseTree)* ast_size);
+
+};
 
 void commentFreeCode(char const* Filename){
     FILE * fp;
@@ -121,10 +126,12 @@ int main(int argc, char const *argv[])
 
             parseTree answer = parseInputSourceCode(argv[1], t);
 
+            int ast_size  = 0;
+            int pt_size = 0;
 
             if (choice == 2){
                 fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
-                printParseTree_r(answer, stdout);
+                printParseTree_r(answer, stdout, &pt_size);
             }
 
             if (choice  == 3 || choice == 4 || choice == 5 || choice == 6 || choice == 7){
@@ -132,11 +139,11 @@ int main(int argc, char const *argv[])
 
                 if (choice == 3){
                     fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
-                    printParseTree_r(answer, stdout);
+                    printParseTree_r(answer, stdout, &ast_size);
                 }
 
                 if (choice == 4){
-                    printSize();
+                    printSize(pt_size, ast_size);
                 }
 
                 if (choice == 5 || choice == 6 || choice == 7){
