@@ -86,11 +86,14 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
             if (found == NULL)
                 found = get(ht, curr->lexeme, "global");
 
+
             if (found != NULL)
             {
+
+
                 if (strlen(check) > 0)
-                {
-                    if (!(strcmp(found->type, "int") == 0 && strcmp(check, "TK_NUM") == 0) && !(strcmp(found->type, "real") == 0 && strcmp(check, "TK_RNUM")))
+                {   // made change here changed tk_num to int in strcmp(chec, "int") talk to sodhi @Todo
+                    if (!(strcmp(found->type, "int") == 0 && strcmp(check, "int") == 0) && !(strcmp(found->type, "real") == 0 && strcmp(check, "real") == 0))
                     {
                         printf("Variable<%s> is not of expected type: <%s>\n", curr->lexeme, check);
                     }
@@ -545,10 +548,11 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
         entry * var = get(st, sorrec->firstKid->lexeme, scope);
         // not in current scope maybe declared globally
         if(var == NULL){
-            printf("Variable %s not in scope %s, Checking globally\n", sorrec->firstKid->lexeme, scope);
+            // printf("Variable %s not in scope %s, Checking globally\n", sorrec->firstKid->lexeme, scope);
             entry * var = get(st, sorrec->firstKid->lexeme, "global");
             if(var == NULL){
                 printf("Error: variable %s is not declared\n", sorrec->firstKid->lexeme);
+                return;
             }
             else{
                 strcpy(type, var->type);
@@ -565,7 +569,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
         entry * record = get(st, sorrec->firstKid->lexeme, scope);
         entry * var = get(st, sorrec->firstKid->lexeme, scope);
         if (record == NULL){
-             printf("Variable %s not in current scope %s, checking global\n", sorrec->firstKid->lexeme, scope);
+             // printf("Variable %s not in current scope %s, checking global\n", sorrec->firstKid->lexeme, scope);
              record = get(st, sorrec->firstKid->lexeme, "global");
              var = get(st, sorrec->firstKid->lexeme, "global");
              if (record == NULL){
