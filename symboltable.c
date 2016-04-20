@@ -81,7 +81,6 @@ int hash(hashtable *ht, char *key){
 
 entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry *new;
-	printf("%s\n", "GOT CALLED MAN");
 	new = (entry*) malloc(sizeof(entry));
 	new->key = strdup(key);
 	new->type = strdup(type);
@@ -365,7 +364,7 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 			if(curr->firstKid->siblings->id == 8){
 				entry * temp = get(ht, curr->firstKid->siblings->lexeme, "global");
 				if (temp == NULL){
-					printf( "\nBro yahan error hai, record %s toh declareich nahi hua %d\n", curr->firstKid->siblings->lexeme, curr->firstKid->siblings->lineNo);
+					printf( "\nUndeclared record type %s being used %d\n", curr->firstKid->siblings->lexeme, curr->firstKid->siblings->lineNo);
 					strcpy(ans, curr->firstKid->siblings->lexeme);
 				}
 				else{
@@ -379,7 +378,6 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 
 void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 {
-	printf("list case %d\n", curr->id);
 
 	int counter = 0;
 
@@ -393,7 +391,6 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 			temp = get(ht, curr->siblings->lexeme, getType(ht, curr, ans));
 
 			if (temp == NULL){
-				printf("Input %s \t %d\t %d\n", curr->siblings->lexeme, input, output);
 				upsert(ht, curr->siblings->lexeme, ans, scope, curr->siblings->lineNo, input, output, counter);
 			}
 			else{
@@ -434,7 +431,7 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 	parseTree fieldDef = curr->firstKid;
 
 	if(fieldDef == NULL)
-		printf("%s\n", "No more field defs");
+		printf("\n");
 	else
 	{
 		add_fielddef(ht, fieldDef, scope, record);
@@ -444,7 +441,7 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 		else
 			*width = *width + 8;
 
-		printf("\t%s\t%s\n", record->type, record->name);
+		// printf("\t%s\t%s\n", record->type, record->name);
 
 		parseTree moreFields = fieldDef->siblings;
 
@@ -453,7 +450,7 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
 			add_more_fields(ht, moreFields, next, scope, width);
 			record->next = next;
-			printf("\t%s\t%s\n", record->type, record->name);
+			// printf("\t%s\t%s\n", record->type, record->name);
 		}
 	}
 }
@@ -478,7 +475,7 @@ void add_record(parseTree curr, hashtable *ht){
 
 		add_fielddef(ht, fieldDef1, scope, recordF);
 
-		printf("First fieldname: \t%s\t%s\n", recordF->type, recordF->name);
+		// printf("First fieldname: \t%s\t%s\n", recordF->type, recordF->name);
 
 		record_dec *recordS = (record_dec *) malloc(sizeof(record_dec));
 		recordF->next = recordS;
@@ -501,14 +498,15 @@ void add_record(parseTree curr, hashtable *ht){
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
 		if (fieldDef2->siblings->firstKid == NULL)
 		{
-			printf("%s\n", "Only two parameters");
+			printf("");
+			// printf("%s\n", "Only two parameters");
 		}
 		else
 		{
 			record_dec *nrecord;
 			nrecord = (record_dec *) malloc(sizeof(record_dec));
 			recordS->next = nrecord;
-			printf("%s\n", "No  There are more things");
+			// printf("%s\n", "No  There are more things");
 			parseTree moreFields = fieldDef2->siblings;
 			add_more_fields(ht, moreFields, nrecord, scope, &width);
 		}
@@ -522,10 +520,10 @@ void add_record(parseTree curr, hashtable *ht){
 */
 
 
-		printf("There should be atleast 2 things\n");
-		printf("%s\n", entry_1->record->name);
-		printf("%s\n", entry_1->record->next->name);
-		printf("%s\n", entry_1->record->next->next->next->name);
+		// printf("There should be atleast 2 things\n");
+		// printf("%s\n", entry_1->record->name);
+		// printf("%s\n", entry_1->record->next->name);
+		// printf("%s\n", entry_1->record->next->next->next->name);
 
 	}
 	else{
@@ -537,7 +535,7 @@ void add_definitions(parseTree curr, hashtable *ht)
 {
 	while(curr != NULL)
 	{
-		printf("definitions %d\n", curr->id);
+		// printf("definitions %d\n", curr->id);
 		add_record(curr->firstKid, ht);
 		curr = curr->siblings;
 	}
@@ -553,12 +551,12 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 
 		char ans[20];
 		if (gon->firstKid != NULL){
-			printf("%s\n", "WE COOl");
+			// printf("%s\n", "WE COOl");
 			if(existsNonGlobally(ht, id->lexeme) == -1)
 				upsert(ht, id->lexeme, getType(ht, datatype, ans), "global", id->lineNo, 0, 0, -1);
 			else {
 				int pos = existsNonGlobally(ht, id->lexeme);
-				printf("Global variable %s declared non globally earlier in function %s\n", id->lexeme, functions[pos]);
+				printf("Error: Global variable %s declared non globally earlier in function %s\n", id->lexeme, functions[pos]);
 				// entry * temp = get(ht, id->lexeme, functions[pos]);
 				// strcpy(temp->scope, "global");
 				// //@heur if scope changes then will have to change offset throughut, cant do this
@@ -572,7 +570,6 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 			if(temp == NULL){
 				temp = get(ht, id->lexeme, getType(ht, datatype, ans));
 				//check if declared in the same socpe
-				printf("-----------\n%s\t%s\t%s\t%d\n--------", id->lexeme, getType(ht, datatype, ans), scope, id->lineNo);
 				if (temp == NULL){
 					upsert(ht, id->lexeme, getType(ht, datatype, ans), scope, id->lineNo, 0, 0, -1);
 				}
@@ -621,8 +618,6 @@ void add_function(parseTree curr, hashtable *ht)
 	// add declarations now
 	if (dec != NULL)
 		add_declarations(dec, ht, scope);
-	else
-		printf("\n%s\n", "NULL HAI ji");
 	// add_stmts()
 }
 
@@ -639,11 +634,8 @@ void add_main_function(parseTree main, hashtable *ht)
 	parseTree dec = stmts->firstKid->siblings->firstKid;
 	// add declarations now
 	if (dec != NULL){
-		printf("%s\n", "NIGGA KUCH TOH HAI");
 		add_declarations(dec, ht, scope);
 	}
-	else
-		printf("%s\n", "NULL HAI Ji");
 }
 
 
@@ -679,7 +671,6 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	}
 
 	//mainLineNo needed
-	printf("%d\n", offset);
 }
 
 // TODO remove offset increment for input paramters of functions
@@ -695,11 +686,16 @@ hashtable * createSymbolTable(parseTree pt, int size)
 void printSymbolTable( hashtable *ht, int size){
 	int bin = 0;
 	entry *temp;
+	// @See printing blocked for record declarations, functions, input output parameters
+	printf("\n %20s %20s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
+
 	for (bin =0 ; bin < size; bin ++){
 		temp = ht->table[ bin ];
-		while( temp != NULL && temp->key != NULL && strcmp(temp->scope,"") !=0) {
-			printf("%s\n", "--------------");
-			printf("Key: %s\nType: %s\nScope: %s\nWidth: %d\nOffset: %d\nLineNo: %d\nInput:%d\nOutput: %d\nParameterNumber: %d\nInstance: %d\nDeclaration: %d\n", temp->key, temp->type, temp->scope, temp->width, temp->offset, temp->lineNo, temp->isInputParameter, temp->isOutputParameter, temp->ParameterNumber, temp->isRecordInstance, temp->isRecordDeclaration);
+
+		while( temp != NULL && temp->key != NULL && strcmp(temp->scope,"") !=0 && strcmp(temp->type, "function") !=0 && strcmp(temp->type,"record")!=0) {
+
+			printf("\n %20s %20s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
+
 			temp = temp->next;
 		}
 	}

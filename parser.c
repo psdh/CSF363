@@ -586,7 +586,6 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         // if $ is popped
         if(popVal == -47 && token.id == 55)
         {
-            printf("\n\nParsing now complete!\n");
             fclose(fp);
             return curr;
         }
@@ -612,7 +611,6 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
             {
                 if(popVal == -47 && token.id == 55)
                 {
-                    printf("\n\nParsing now complete!");
                     fclose(fp);
                     return ptree;
                 }

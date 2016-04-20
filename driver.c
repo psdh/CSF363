@@ -153,6 +153,7 @@ int main(int argc, char const *argv[])
 
                 if (choice == 5 || choice == 6 || choice == 7){
                     hashtable *st = createSymbolTable(answer, 100);
+
                     if (choice == 5){
                         printSymbolTable(st, 100);
                     }
