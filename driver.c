@@ -16,6 +16,7 @@ void printSize(int pt_size, int ast_size){
 	printf("\n");
     printf("Parse Tree\tNumber of Nodes:%d\tAllocated Memory:%d\n",pt_size, sizeof(parseTree)* pt_size);
     printf("AST\tNumber of Nodes:%d\tAllocated Memory:%d\n", ast_size, sizeof(parseTree)* ast_size);
+    printf("Compression: %.2f\n", ((pt_size-ast_size)/(float)pt_size)*100);
 };
 
 void commentFreeCode(char const* Filename){
