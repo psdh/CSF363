@@ -25,4 +25,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T);
 void printParseTree(parseTree  PT, char *outfile);
 
 void intializeTable(table T);
+
+void printParseTree_r(parseTree curr, FILE* f);
+
 #endif

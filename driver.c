@@ -8,8 +8,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "parser.h"
-#include "lexer.h"
+#include "semantic.h"
+
+void compile(parseTree pt, hashtable * ht){};
+
+void printSize(){};
 
 void commentFreeCode(char const* Filename){
     FILE * fp;
@@ -91,16 +94,16 @@ int main(int argc, char const *argv[])
         printf("Press 5 for printing the symbol table\n");
         printf("Press 6 for printing front end compilation, type checking and semantic correctness\n");
         printf("Press 7 for producing assembly code to code.asm\n");
-        printf("Press 8 to exit!")
+        printf("Press 8 to exit!\n");
         printf("---------------------------------------------------\n");
 
         char c;
         int choice;
         scanf(" %c",&c);
         choice = c - '0';
-        else if(choice == 1)
+        if(choice == 1)
             printAllTokens(argv[1]);
-        else if(choice == 3 || choice == 4 || choice == 5 || choice == 6 || choice == 7)
+        else if(choice == 2 || choice == 3 || choice == 4 || choice == 5 || choice == 6 || choice == 7)
         {
             table t = (int **) malloc(table_row * sizeof(int *));
             int i = 0;
@@ -108,28 +111,35 @@ int main(int argc, char const *argv[])
             for (i=0; i<table_row; i++)
                  t[i] = (int *) malloc(table_row * sizeof(int));
 
+
             FILE * fp;
             fp = fopen("grammar.txt", "r");
 
             createParseTable(fp, t);
-            parseTree answer = parseInputSourceCode(argv[1], t);
 
             fclose(fp);
 
-            if (choice == 3){
-                fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
+            parseTree answer = parseInputSourceCode(argv[1], t);
+
+
+            if (choice == 2){
+                fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                 printParseTree_r(answer, stdout);
             }
 
-            if (choice == 4 || choice == 5){
+            if (choice  == 3 || choice == 4 || choice == 5 || choice == 6 || choice == 7){
                 answer = ast(answer);
 
-                if (choice == 4){
-                    fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
+                if (choice == 3){
+                    fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                     printParseTree_r(answer, stdout);
                 }
 
-                if (choice == 5 || choice == 6){
+                if (choice == 4){
+                    printSize();
+                }
+
+                if (choice == 5 || choice == 6 || choice == 7){
                     hashtable *st = createSymbolTable(answer, 100);
                     if (choice == 5){
                         printSymbolTable(st, 100);

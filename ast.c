@@ -312,45 +312,45 @@ void ast_r(parseTree parsetree)
 }
 
 
-int main(int argc, char const *argv[])
-{
+// int main(int argc, char const *argv[])
+// {
 
-    if (argc != 2)
-    {
-        printf("filename daalo please");
-        return 0;
-    }
+//     if (argc != 2)
+//     {
+//         printf("filename daalo please");
+//         return 0;
+//     }
 
-    table t = (int **) malloc(table_row * sizeof(int *));
+//     table t = (int **) malloc(table_row * sizeof(int *));
 
-    int i = 0;
+//     int i = 0;
 
-    for (i=0; i<table_row; i++)
-         t[i] = (int *) malloc(table_row * sizeof(int));
+//     for (i=0; i<table_row; i++)
+//          t[i] = (int *) malloc(table_row * sizeof(int));
 
-    FILE * fp;
-    fp = fopen("grammar.txt", "r");
+//     FILE * fp;
+//     fp = fopen("grammar.txt", "r");
 
-    createParseTable(fp, t);
+//     createParseTable(fp, t);
 
-    fclose(fp);
+//     fclose(fp);
 
-    parseTree answer = parseInputSourceCode(argv[1], t);
+//     parseTree answer = parseInputSourceCode(argv[1], t);
 
-    printParseTree(answer, "outputParse");
+//     printParseTree(answer, "outputParse");
 
-    answer = ast(answer);
+//     answer = ast(answer);
 
-    printParseTree(answer, "outputAST");
+//     printParseTree(answer, "outputAST");
 
-    printf("AST creation done bro!!");
+//     printf("AST creation done bro!!");
 
-    hashtable* ht = createSymbolTable(answer);
-    printf("%s\n", "Symbol Table Created\n\n\n\n\n");
+//     hashtable* ht = createSymbolTable(answer, 100);
+//     printf("%s\n", "Symbol Table Created\n\n\n\n\n");
 
-    printSymbolTable(ht, 100);
+//     printSymbolTable(ht, 100);
 
-    printf("%s\n", "-----");
+//     printf("%s\n", "-----");
 
-    semanticAnalyzer(answer, ht);
-}
+//     semanticAnalyzer(answer, ht);
+// }
