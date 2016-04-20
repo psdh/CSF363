@@ -655,13 +655,13 @@ void check_io_stmt(parseTree curr, hashtable *st, char* scope)
     if (curr->firstKid->id == 35)
     {
         parseTree sor = curr->firstKid->siblings->firstKid;
-        entry * temp = get(st, sor->lexeme, scope);
+        entry *temp = get(st, sor->lexeme, scope);
         if(temp != NULL){
             temp->assigned = 1;
         }
 
         parseTree srid = curr->firstKid->siblings->firstKid;
-        traverse_all_write(srid->firstKid, st, scope);
+        traverse_all_write(srid, st, scope);
     }
     else
     {
