@@ -774,7 +774,6 @@ void printParseTree(parseTree  curr, char* outfile)
 {
     FILE* f = fopen(outfile, "w");
 
-    fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
     printParseTree_r(curr, f);
     fclose(f);
 
