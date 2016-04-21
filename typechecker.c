@@ -179,7 +179,7 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
             {
                 if (curr->siblings->firstKid == NULL)
                 {
-                    printf("Error: Cannot write to a record, must specify member\n");
+                    printf("Error: Cannot print a record, must specify member\n");
                     return;
                 }
                 else
@@ -327,8 +327,6 @@ int recordIsDivMulable(hashtable *st, char * record, char * inpType){
 
 
 void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
-    // a wild 5 was encountered but type expcted was different
-    // @ToDo take care of variable
     parseTree all = factor->firstKid;
     int highPrec = 0;
 
@@ -338,13 +336,13 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
 
     if(all->id == 5){
         if(strcmp(type, "int") != 0){
-            printf("Error: %s expected got %s\n", type, "int");
+            printf("Error: %s expected got %s at line %d\n", "int", type, all->lineNo);
         }
     }
     // a wild 5.55 was encountered but type expected was different
     else if(all->id == 6){
         if(strcmp(type, "real") != 0){
-            printf("Error: %s expected got %s\n", type, "real");
+            printf("Error: %s expected got %s at line %d\n", "real", type, all->lineNo);
         }
     }
     else {
@@ -513,6 +511,7 @@ void check_expprime(parseTree expprime, hashtable *st, char * scope, char * type
 
 
 void check_arith(parseTree expr, hashtable *st, char * scope, char * type){
+
     parseTree  term = expr->firstKid;
     parseTree expprime = term->siblings;
     parseTree factor = term->firstKid;
@@ -572,6 +571,8 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
              // printf("Variable %s not in current scope %s, checking global\n", sorrec->firstKid->lexeme, scope);
              record = get(st, sorrec->firstKid->lexeme, "global");
              var = get(st, sorrec->firstKid->lexeme, "global");
+
+
              if (record == NULL){
                 printf("Error: Record Variable %s not even declared globally\n", sorrec->firstKid->lexeme);
              }
@@ -579,7 +580,8 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
                 // record declaration found, we go through linkedlsit to find type
                 record = get(st, record->type, "global");
                 record_dec * rec = record-> record;
-                while(strcmp(rec!= NULL &&  rec->name, sorrec->firstKid->siblings->firstKid->lexeme) != 0){
+
+                while(rec!= NULL && strcmp(rec->name, sorrec->firstKid->siblings->firstKid->lexeme) != 0){
                     rec = rec->next;
                 }
                 if(rec != NULL){
@@ -676,10 +678,10 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
     {
         int i = 0;
         int line;
-        while(idList->firstKid != NULL){
+        while(idList!=NULL && idList->firstKid != NULL){
             entry * temp = getOutputParameter(st, funid, i);
             if(temp  == NULL){
-                printf("Error: Function %s doesnt have %d output parameters\n", funid, i + 1);
+                printf("Error: Function %s has only %d valid output parameters\n", funid, i + 1);
             }
             else {
                 entry * var = get(st, idList->firstKid->lexeme, scope);
@@ -699,7 +701,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
                 }
             }
             i++;
-            idList = idList->firstKid->siblings;
+            idList = idList->firstKid->siblings->firstKid;
         }
         entry * temp = getOutputParameter(st, funid, i);
         if(temp!=NULL){
@@ -709,10 +711,10 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
     else{
         int i = 0;
         int line;
-        while(idList->firstKid != NULL){
+        while(idList!=NULL && idList->firstKid != NULL){
             entry * temp = getInputParameter(st, funid, i);
             if(temp  == NULL){
-                printf("Error: Function %s doesnt have %d input parameters\n", funid, i + 1);
+                printf("Error: Function %s has only %d valid input parameters\n", funid, i + 1);
             }
             else {
                 entry * var = get(st, idList->firstKid->lexeme, scope);
@@ -732,7 +734,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
                 }
             }
             i++;
-            idList = idList->firstKid->siblings;
+            idList = idList->firstKid->siblings->firstKid;
 
         }
         entry * temp = getInputParameter(st, funid, i);

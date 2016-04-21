@@ -134,10 +134,10 @@ int main(int argc, char const *argv[])
                 fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                 printParseTree_r(answer, stdout, &pt_size, 1);
             }
-
-            pt_size = 1;
-        	printParseTree_r(answer, stdout, &pt_size, -1);
-
+            else{
+                pt_size = 0;
+            	printParseTree_r(answer, stdout, &pt_size, -1);
+            }
 
             if (choice  == 3 || choice == 4 || choice == 5 || choice == 6 || choice == 7){
                 answer = ast(answer);
