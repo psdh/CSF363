@@ -310,6 +310,4 @@ void ast_r(parseTree parsetree)
             level = level->siblings;
         }
     }
-
-
 }

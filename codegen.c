@@ -28,30 +28,183 @@ void handle_declarations(parseTree decl, FILE* f)
 }
 
 
-void handle_io_stmt(parseTree curr)
+void handle_io_stmt(parseTree curr, FILE* f)
 {
-    printf("Missing Feature: IO stmt code generation is not yet supported\n");
+    printf("Missing Feature: <WAITING FOR SCANF TO BE RESOLVED> IO stmt code generation is not yet supported\n");
+}
+
+void handle_arith(parseTree arith, FILE* f)
+{
+    printf("%d\t %d\n", arith->id, arith->firstKid->id);
+
+    parseTree factor = arith->firstKid->firstKid;
+
+    // handle_termprime(factor->siblings, f);
+
+    if (factor->firstKid->id ==  4)
+    {
+        fprintf(f, "\tmov eax, [%s]\n", factor->firstKid->lexeme);
+    }
+    else if (factor->firstKid->id ==  5 || factor->firstKid->id ==  6)
+    {
+        fprintf(f, "\tmov eax, %s\n", factor->firstKid->lexeme);
+    }
+    else
+    {
+        // arithmetic exp ke andar arithmethic exp: inceptioN :(
+
+        // recursively calling might fix this
+        // define new fn for that
+    }
+
+    parseTree termPrime = factor->siblings;
+
+    // handling termPrime iteratively in the following code
+    while(termPrime->firstKid != NULL)
+    {
+        if (termPrime->firstKid->firstKid->id == 40 || termPrime->firstKid->firstKid->id == 41)
+        {
+            char *operation;
+            operation = (char *) malloc(10* sizeof(char));
+
+            if (termPrime->firstKid->firstKid->id == 40)
+                operation = "mul";
+            else
+                operation = "div";
+
+
+            parseTree factor2 = termPrime->firstKid->siblings;
+
+            // TK_ID
+            if (factor2->firstKid->id ==  4)
+            {
+                fprintf(f, "\t%s eax, [%s]\n", operation, factor2->firstKid->lexeme);
+            }
+            // TK_NUM or TK_RNUM
+            else if (factor2->firstKid->id ==  5 || factor2->firstKid->id ==  6)
+            {
+                fprintf(f, "\t%s eax, %s\n", operation, factor2->firstKid->lexeme);
+            }
+            else
+            {
+                // arithmetic exp ke andar arithmethic exp: inceptioN :(
+
+                // recursively calling might fix this
+                // define new fn for that
+            }
+
+        }
+        termPrime = termPrime->firstKid->siblings->siblings;
+    }
+
+    // handling expPrime iteratively in the following code
+
+    parseTree expPrime = arith->firstKid->siblings;
+
+    while(expPrime->firstKid != NULL)
+    {
+        if (expPrime->firstKid->firstKid->id == 38 || expPrime->firstKid->firstKid->id == 39)
+        {
+            char *operation;
+            operation = (char *) malloc(10* sizeof(char));
+
+            if (expPrime->firstKid->firstKid->id == 38)
+                operation = "add";
+            else
+                operation = "sub";
+
+
+            parseTree factor2 = expPrime->firstKid->siblings;
+
+            // TK_ID
+            if (factor2->firstKid->firstKid->id ==  4)
+            {
+                fprintf(f, "\t%s eax, [%s]\n", operation, factor2->firstKid->firstKid->lexeme);
+            }
+            // TK_NUM or TK_RNUM
+            else if (factor2->firstKid->firstKid->id ==  5 || factor2->firstKid->firstKid->id ==  6)
+            {
+                fprintf(f, "\t%s eax, %s\n", operation, factor2->firstKid->firstKid->lexeme);
+            }
+            else
+            {
+                // arithmetic exp ke andar arithmethic exp: inceptioN :(
+
+                // recursively calling might fix this
+                // define new fn for that
+            }
+
+            termPrime = factor2->firstKid->siblings;
+
+            while(termPrime->firstKid != NULL)
+            {
+                if (termPrime->firstKid->firstKid->id == 40 || termPrime->firstKid->firstKid->id == 41)
+                {
+                    char *operation;
+                    operation = (char *) malloc(10* sizeof(char));
+
+                    if (termPrime->firstKid->firstKid->id == 40)
+                        operation = "mul";
+                    else
+                        operation = "div";
+
+
+                    parseTree factor2 = termPrime->firstKid->siblings;
+
+                    // TK_ID
+                    if (factor2->firstKid->id ==  4)
+                    {
+                        fprintf(f, "\t%s eax, [%s]\n", operation, factor2->firstKid->lexeme);
+                    }
+                    // TK_NUM or TK_RNUM
+                    else if (factor2->firstKid->id ==  5 || factor2->firstKid->id == 6)
+                    {
+                        fprintf(f, "\t%s eax, %s\n", operation, factor2->firstKid->lexeme);
+                    }
+                    else
+                    {
+                        // arithmetic exp ke andar arithmethic exp: inceptioN :(
+
+                        // recursively calling might fix this
+                        // define new fn for that
+                    }
+
+                }
+                termPrime = termPrime->firstKid->siblings->siblings;
+            }
+
+        }
+        expPrime = expPrime->firstKid->siblings->siblings;
+    }
 }
 
 
-void handle_assign_stmt(parseTree curr)
+void handle_assign_stmt(parseTree curr, FILE* f)
 {
-    printf("Missing Feature: assign stmt code generation is not yet supported\n");
+    // printf("Missing Feature: assign stmt code generation is not yet supported\n");
+    parseTree arith = curr->firstKid->siblings;
+
+    handle_arith(arith, f);
+
+    // TODO may have change byte to something else for TK_REAL
+    // TODO handle record ids here in singleRecId
+    fprintf(f, "\tmov byte [%s], eax ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme);
+
 }
 
-void handle_iter_stmt(parseTree curr)
+void handle_iter_stmt(parseTree curr, FILE* f)
 {
     printf("Missing Feature: iter stmt code generation is not yet supported\n");
 }
 
 
-void hanlde_cond_stmt(parseTree curr)
+void hanlde_cond_stmt(parseTree curr, FILE* f)
 {
     printf("Missing Feature: cond stmt code generation is not yet supported\n");
 }
 
 
-void handle_func_stmt(parseTree curr)
+void handle_func_stmt(parseTree curr, FILE* f)
 {
     printf("Missing Feature: Function Call code generation is not yet supported\n");
 }
@@ -63,15 +216,15 @@ void handle_stmt(parseTree stmt_it, FILE* f)
     {
 
         if (stmt_it->firstKid->id == 35 || stmt_it->firstKid->id == 36) // io statement
-            handle_io_stmt(stmt_it);
+            handle_io_stmt(stmt_it, f);
         else if (stmt_it->firstKid->id == 123) // assignment statement
-            handle_assign_stmt(stmt_it);
+            handle_assign_stmt(stmt_it, f);
         else if(stmt_it->firstKid->id == 12) // iterative statement: (while) might have to recursively call the  handle_stmts functions while handling iterative statments
-            handle_iter_stmt(stmt_it);
+            handle_iter_stmt(stmt_it, f);
         else  if (stmt_it->firstKid->id == 32) // conditional statement
-            hanlde_cond_stmt(stmt_it);
+            hanlde_cond_stmt(stmt_it, f);
         else if (stmt_it->firstKid->id == 125) // functional call statement
-            handle_func_stmt(stmt_it);
+            handle_func_stmt(stmt_it, f);
 
         stmt_it = stmt_it->siblings;
     }
