@@ -610,20 +610,46 @@ hashtable * createSymbolTable(parseTree pt, int size)
 	return ht;
 }
 
+
+char* getRecordType(hashtable * ht, char *record_name, char *type){
+	entry * record = get(ht, record_name, "global");
+	record_dec * rec = record->record;
+	strcpy(type,"");
+	strcat(type, "(");
+	while(rec!= NULL){
+		if(rec->next == NULL){
+			strcat(type, rec->type);
+			strcat(type, ")");
+		}
+		else{
+			strcat(type, rec->type);
+			strcat(type, ", ");
+		}
+		rec = rec->next;
+	}
+	return type;
+}
+
 void printSymbolTable( hashtable *ht, int size){
 	int bin = 0;
 	entry *temp;
 	// @See printing blocked for record declarations, functions, input output parameters
 	printf("Globals have offset -1, real has width 4, integer has width 2\n");
 
-	printf("\n %20s %20s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
+	printf("\n %20s %35s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
 
 	for (bin =0 ; bin < size; bin ++){
 		temp = ht->table[ bin ];
 
 		while( temp != NULL && temp->key != NULL ) {
-			if(strcmp(temp->scope,"") !=0 && strcmp(temp->type, "function") !=0 && strcmp(temp->type,"record")!=0)
-				printf("\n %20s %20s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
+			if(strcmp(temp->scope,"") !=0 && (strcmp(temp->type,"int") ==0 &&  strcmp(temp->type,"real")))
+				printf("\n %20s %35s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
+
+			if(strcmp(temp->scope,"") !=0 && (temp->type[0] == '#')){
+				char type[200];
+				printf("\n %20s %35s %15s %15d ", temp->key, getRecordType(ht, temp->type, type), temp->scope, temp->offset);
+			}
+
 
 			temp = temp->next;
 		}
