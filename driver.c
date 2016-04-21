@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include "lexer.h"
 #include "semantic.h"
-
-void compile(parseTree pt, hashtable * ht){};
+#include "codegen.h"
 
 void printSize(int pt_size, int ast_size){
 	printf("\n");
@@ -184,7 +183,7 @@ int main(int argc, char const *argv[])
                             semanticAnalyzer(answer, st);
                         }
                         if (choice == 7 && symbolerror == 0){
-                            compile(answer, st);
+                            codegen(answer);
                         }
                         else if(choice == 7){
                             printf("Cant compile as semantic errors exist");
