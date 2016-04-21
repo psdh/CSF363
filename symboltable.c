@@ -40,9 +40,6 @@ int seen(char * key){
 hashtable *create(int size){
 
 	hashtable *ht = NULL;
-	int i;
-
-	if (size < 1 ) return NULL;
 
 	ht = malloc(sizeof (hashtable));
 
@@ -50,6 +47,7 @@ hashtable *create(int size){
 
 	ht->table = malloc(sizeof(entry*)*size);
 
+	int i;
 	for (i =0; i< size; i++){
 		ht->table[i] = NULL;
 	}
@@ -57,17 +55,17 @@ hashtable *create(int size){
 	return ht;
 }
 
-int hash(hashtable *ht, char *key){
+int hash(hashtable *ht, char *nonce){
 
-	unsigned long int hashval = 6669;
+	unsigned long int hashvalue = 6669;
+
 	int i = 0;
-
-	while(hashval < ULONG_MAX && i < strlen(key)){
-		hashval  =  key[i] + 71 * hashval;
+	while(hashvalue < ULONG_MAX && i < strlen(nonce)){
+		hashvalue  =  nonce[i] + 71 * hashvalue;
 		i++;
 	}
 
-	return hashval % ht->size;
+	return hashvalue % ht->size;
 
 }
 
@@ -212,12 +210,12 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 
 entry *get(hashtable *ht, char *key, char*scope)
 {
-	int bin = 0;
+	int hashvalue = 0;
 	entry *temp;
 
-	bin = hash(ht, key);
+	hashvalue = hash(ht, key);
 
-	temp = ht->table[ bin ];
+	temp = ht->table[ hashvalue ];
 	while( temp != NULL && temp->key != NULL && (strcmp(key, temp->key) != 0  || strcmp(scope, temp->scope) != 0)) {
 		temp = temp->next;
 	}
@@ -225,7 +223,8 @@ entry *get(hashtable *ht, char *key, char*scope)
 	if( temp == NULL || temp->key == NULL || (strcmp( key, temp->key ) != 0  || strcmp(scope, temp->scope) !=0)) {
 		return NULL;
 
-	} else {
+	}
+	else {
 		return temp;
 	}
 
