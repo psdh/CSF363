@@ -138,6 +138,7 @@ int main(int argc, char const *argv[])
             if (choice == 2 && error_in_lexer == 0 && error_in_parsing == 0){
                 fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                 printParseTree_r(answer, stdout, &pt_size, 1);
+                printf("%s\n", "No syntactic errors");
             }
             else if(choice == 2){
                 printf("%s\n", "Syntactic errors exist, cant print");
@@ -181,6 +182,9 @@ int main(int argc, char const *argv[])
                                 printf("%s", symboltable_errors[i]);
                             }
                             semanticAnalyzer(answer, st);
+                        }
+                        if(symbolerror == 0 && choice == 6){
+                            printf("No Semantic or Syntactic Errors\n");
                         }
                         if (choice == 7 && symbolerror == 0){
                             codegen(answer);

@@ -59,6 +59,7 @@ void check_for_unassigned_outputs(hashtable *ht){
         while( temp != NULL && temp->key != NULL) {
             if(temp->isOutputParameter == 1 && temp->assigned == -1){
                 printf("Error: Variable %s of %s is unassigned\n", temp->key, temp->scope);
+                symbolerror = 1;
             }
             temp = temp->next;
         }

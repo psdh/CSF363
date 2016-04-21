@@ -96,6 +96,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
                     if (!(strcmp(found->type, "int") == 0 && strcmp(check, "int") == 0) && !(strcmp(found->type, "real") == 0 && strcmp(check, "real") == 0))
                     {
                         printf("Error: Variable <%s> is not of expected type: <%s> at line <%d>\n", curr->lexeme, check, curr->lineNo);
+                        symbolerror = 1;
                     }
                     else
                     {
@@ -122,6 +123,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
             {
 
                 printf("Error: <%s> not declared in scope: <%s> or in global scope at line <%d>\n", curr->lexeme, scope, curr->lineNo);
+                symbolerror = 1;
             }
         }
         else if (curr->id == 5 || curr->id == 6)
@@ -134,6 +136,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
                 if (strcmp(check, getCorrespondingToken(curr->id)) != 0)
                 {
                     printf("Error! type <%s> expected got <%s> at line no: <%d>\n", check, getCorrespondingToken(curr->id), curr->lineNo);
+                    symbolerror = 1;
                 }
         }
     }
@@ -170,6 +173,7 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
             if (found == NULL)
             {
                 printf("Error: Variable: <%s> undeclared in <%s> or global scope at line <%d>\n", curr->lexeme, scope, curr->lineNo);
+                symbolerror = 1;
                 return;
             }
 
@@ -180,6 +184,7 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
                 if (curr->siblings->firstKid == NULL)
                 {
                     printf("Error: Cannot print a record, must specify member at line <%d>\n", found->lineNo);
+                    symbolerror = 1;
                     return;
                 }
                 else
@@ -206,6 +211,7 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
                     if (flag == 0)
                     {
                         printf("Error: There is no field <%s> in record type <%s> at line <%d>\n", field, found->key, found->lineNo);
+                        symbolerror = 1;
                         return;
                     }
                 }
@@ -337,12 +343,14 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
     if(all->id == 5){
         if(strcmp(type, "int") != 0){
             printf("Error: <%s> expected got <%s> at line <%d>\n", "int", type, all->lineNo);
+            symbolerror = 1;
         }
     }
     // a wild 5.55 was encountered but type expected was different
     else if(all->id == 6){
         if(strcmp(type, "real") != 0){
             printf("Error: <%s> expected got <%s> at line <%d>\n", "real", type, all->lineNo);
+            symbolerror = 1;
         }
     }
     else {
@@ -353,11 +361,11 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
             // records are dvisible by scalar :(
             entry *var = get(st, all->lexeme, scope);
             if (var == NULL){
-                printf("Error: Variable <%s> not in current scope <%s>, checking global at line <%d>\n", all->lexeme, scope, all->lineNo);
                 var = get(st, all->lexeme, "global");
                 // doesnt exist globally
                 if (var == NULL){
                     printf("Error: Variable <%s> not even declared globally at line <%d>\n", all->lexeme, all->lineNo);
+                    symbolerror = 1;
                 }
                 // exists globally
                 else {
@@ -368,24 +376,29 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                             if (recordIsDivMulable(st, type, var->type) == 1){
                                 if( highPrec != 1){
                                     printf("Error: cant add/subtract scalar from record at line <%d>\n", var->lineNo);
+                                    symbolerror = 1;
                                 }
                             }
                             else {
                                 printf("Error: Given record <%s> isnt good for multiplication/divsion with type  <%s> as it has fields of different types at line <%d>", type, var->type, var->lineNo);
+                                symbolerror = 1;
                             }
                         }
                         // rhs mein record hai
                         else if (strcmp(type, var->type) != 0){
                             printf("Error: expected record of type <%s> got of type <%s> at line <%d>\n", type, var->type, var->lineNo);
+                            symbolerror = 1;
                         }
                         else if (strcmp(type, var->type) == 0){
                             if(highPrec == 1){
                                 printf("Error: Cant divide record at by record at line <%d>\n", var->lineNo);
+                                symbolerror = 1;
                             }
                         }
                     }
                     else if(strcmp(type, var->type) != 0){
                         printf("Error: <%s> expected got <%s> in <%s> at line <%d>\n", type, var->type, all->lexeme, var->lineNo);
+                        symbolerror = 1;
                     }
                 }
             }
@@ -398,24 +411,29 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                         if (recordIsDivMulable(st, type, var->type) == 1){
                             if( highPrec != 1){
                                 printf("Error: cant add/subtract scalar from record at line <%d>\n", var->lineNo);
+                                symbolerror = 1;
                             }
                         }
                         else {
                             printf("Error: Given record <%s> isnt good for arithmetic with type  <%s> as it has fields of different types at line <%d>\n", type, var->type, var->lineNo);
+                            symbolerror = 1;
                         }
                     }
                     // rhs mein record hai
                     else if (strcmp(type, var->type) != 0){
                         printf("Error: expected record of type <%s> got of type <%s> at line <%d>\n", type, var->type, var->lineNo);
+                        symbolerror = 1;
                     }
                     else if (strcmp(type, var->type) == 0){
                         if(highPrec == 1){
                             printf("Error: Cant divide record by record at line <%d>\n", var->lineNo);
+                            symbolerror = 1;
                         }
                     }
                 }
                 else if(strcmp(type, var->type) != 0){
                     printf("Error: <%s> expected got <%s> in <%s> at line <%d>\n", type, var->type, all->lexeme, var->lineNo);
+                    symbolerror = 1;
                 }
 
             }
@@ -425,10 +443,10 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
 
             entry * record = get(st, all->lexeme, scope);
             if (record == NULL){
-                 printf("Error: Record Variable <%s> not in current scope <%s>, checking global at line <%d>\n", all->lexeme, scope, all->lineNo);
                  record = get(st, all->lexeme, "global");
                  if (record == NULL){
                     printf("Error: Record Variable <%s> not even declared globally at line <%d>\n", all->firstKid->lexeme, all->lineNo);
+                    symbolerror = 1;
                  }
                  else {
                     // record declaration found, we go through linkedlsit to find type
@@ -439,9 +457,11 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                     }
                     if(rec == NULL){
                         printf("Error: Record <%s> has no field <%s> at line <%d>\n",record->key, temp->firstKid->lexeme, record->lineNo);
+                        symbolerror = 1;
                     }
                     else if (strcmp(rec->type, type)){
                         printf("Error: <%s> expected got <%s> in <%s.%s> at line <%d>\n", type, rec->type, all->firstKid->lexeme,rec->name, record->lineNo);
+                        symbolerror = 1;
                     }
                  }
             }
@@ -453,9 +473,11 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                 }
                 if(rec == NULL){
                     printf("Error: Record <%s> has no field <%s> at line <%d>\n",record->key, temp->firstKid->lexeme, temp->firstKid->lineNo);
+                    symbolerror = 1;
                 }
                 else if (strcmp(rec->type, type)){
                     printf("Error: <%s> expected got <%s> in <%s.%s> at line <%d>\n", type, rec->type, all->lexeme,rec->name, temp->firstKid->lineNo);
+                    symbolerror = 1;
                 }
             }
 
@@ -547,6 +569,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
             entry * var = get(st, sorrec->firstKid->lexeme, "global");
             if(var == NULL){
                 printf("Error: variable <%s> is not declared at line <%d>\n", sorrec->firstKid->lexeme, sorrec->firstKid->lineNo);
+                symbolerror = 1;
                 return;
             }
             else{
@@ -570,6 +593,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
 
              if (record == NULL){
                 printf("Error: Record Variable <%s> not even declared globally at line <%d>\n", sorrec->firstKid->lexeme, sorrec->firstKid->lineNo);
+                symbolerror = 1;
              }
              else {
                 // record declaration found, we go through linkedlsit to find type
@@ -585,6 +609,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
                 }
                 else {
                     printf("Error: Record <%s> has no field <%s> at line <%d>\n", record->key, sorrec->firstKid->siblings->firstKid->lexeme, sorrec->firstKid->siblings->firstKid->lineNo);
+                    symbolerror =  1;
                 }
              }
         }
@@ -598,8 +623,11 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
                 strcpy(type, rec->type);
                 var->assigned = 1;
             }
-            else
+            else{
                 printf("Error: Record <%s> has no field <%s> at line <%d>\n", record->key, sorrec->firstKid->siblings->firstKid->lexeme, sorrec->firstKid->siblings->firstKid->lineNo);
+                symbolerror = 1;
+            }
+
         }
 
     }
@@ -638,6 +666,7 @@ void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
             if (any_var_changed == 0)
             {
                 printf("Error: None of variables involved in the iterations are redefined\n");
+                symbolerror = 1;
             }
 
             // call handle_oth_stmts here
@@ -677,6 +706,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
             entry * temp = getOutputParameter(st, funid, i);
             if(temp  == NULL){
                 printf("Error: Function <%s> has only <%d> valid output parameters\n", funid, i + 1);
+                symbolerror = 1;
             }
             else {
                 entry * var = get(st, idList->firstKid->lexeme, scope);
@@ -688,11 +718,13 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
 
                 if(var == NULL){
                     printf("Error: variable <%s> undeclared at line <%d>\n", idList->firstKid->lexeme, idList->firstKid->lineNo);
+                    symbolerror = 1;
                 }
                 else{
                     var->assigned = 1;
                     if(strcmp(temp->type, var->type)!=0){
                         printf("Error: output paramter <%d> types <%s> and <%s> dont match at line <%d>\n", i, temp->type, var->type, line);
+                        symbolerror = 1;
                     }
                 }
             }
@@ -702,6 +734,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
         entry * temp = getOutputParameter(st, funid, i);
         if(temp!=NULL){
             printf("Error: The number of output parameters for function <%s> at line <%d> is incorrect", funid, lineNo);
+            symbolerror = 1;
         }
     }
     else{
@@ -711,6 +744,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
             entry * temp = getInputParameter(st, funid, i);
             if(temp  == NULL){
                 printf("Error: Function <%s> has only <%d> valid input parameters\n", funid, i + 1);
+                symbolerror = 1;
             }
             else {
                 entry * var = get(st, idList->firstKid->lexeme, scope);
@@ -722,10 +756,12 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
 
                 if(var == NULL){
                     printf("Error: variable <%s> undeclared at line <%d>\n", idList->firstKid->lexeme, idList->firstKid->lineNo);
+                    symbolerror = 1;
                 }
                 else{
                     if(strcmp(temp->type, var->type)!=0){
                         printf("Error: input paramter <%d> types <%s> and <%s> dont match at line <%d>\n", i, var->type, temp->type, idList->firstKid->lineNo);
+                        symbolerror = 1;
                     }
                 }
             }
@@ -736,6 +772,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
         entry * temp = getInputParameter(st, funid, i);
         if(temp!=NULL){
             printf("Error: The number of input parameters for function <%s> at line <%d> is incorrect\n", funid, line);
+            symbolerror = 1;
         }
 
     }
@@ -749,6 +786,7 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
 
     if(strcmp(funid->lexeme, scope) == 0){
         printf("Error: function <%s> being recursively called at line <%d>\n", scope, funid->lineNo);
+        symbolerror = 1;
         return;
     }
 
@@ -758,6 +796,7 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
     // undeclared function or function declared after current function
     if (function == NULL || function->lineNo > current->lineNo){
         printf("Error: Undefined function <%s> being called at line <%d>\n", funid->lexeme, funid->lineNo);
+        symbolerror = 1;
         return;
     }
 
@@ -765,6 +804,7 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
     if (outputparameters ==  NULL || outputparameters->firstKid == NULL){
         entry *temp = getOutputParameter(st, funid->lexeme, 0);
         if(temp != NULL){
+            symbolerror = 1;
             printf("Error: Function has return items but there is no return associated with this function <%s>\n", funid->lexeme);
         }
     }
