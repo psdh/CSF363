@@ -33,29 +33,27 @@ void handle_io_stmt(parseTree curr, FILE* f)
     printf("Missing Feature: <WAITING FOR SCANF TO BE RESOLVED> IO stmt code generation is not yet supported\n");
 }
 
-void handle_arith(parseTree arith, FILE* f)
+void handle_term_arith(parseTree term, FILE* f, char* reg)
 {
-    printf("%d\t %d\n", arith->id, arith->firstKid->id);
+    parseTree factor = term->firstKid;
 
-    parseTree factor = arith->firstKid->firstKid;
-
-    // handle_termprime(factor->siblings, f);
-
-    if (factor->firstKid->id ==  4)
+    // eax has been stored with the required  value!
+    if (factor->firstKid->id == 132) // arithmetic expression
     {
-        fprintf(f, "\tmov eax, [%s]\n", factor->firstKid->lexeme);
+        // handle_arith_r(factor->firstKid, f);
+        handle_arith(factor->firstKid, f);
     }
-    else if (factor->firstKid->id ==  5 || factor->firstKid->id ==  6)
+    else if (factor->firstKid->id == 4)
     {
-        fprintf(f, "\tmov eax, %s\n", factor->firstKid->lexeme);
+        fprintf(f, "\tmov %s, [%s]\n", reg, factor->firstKid->lexeme);
     }
-    else
+    else if (factor->firstKid->id == 5)
     {
-        // arithmetic exp ke andar arithmethic exp: inceptioN :(
+        fprintf(f, "\tmov %s, %s\n", reg, factor->firstKid->lexeme);
+    }
+    // else if (factor->firstKid->id == 6) TODO handle TK_RNUM
 
-        // recursively calling might fix this
-        // define new fn for that
-    }
+    // will process termPrime now
 
     parseTree termPrime = factor->siblings;
 
@@ -78,15 +76,16 @@ void handle_arith(parseTree arith, FILE* f)
             // TK_ID
             if (factor2->firstKid->id ==  4)
             {
-                fprintf(f, "\t%s eax, [%s]\n", operation, factor2->firstKid->lexeme);
+                fprintf(f, "\t%s %s, [%s]\n", operation, reg, factor2->firstKid->lexeme);
             }
             // TK_NUM or TK_RNUM
             else if (factor2->firstKid->id ==  5 || factor2->firstKid->id ==  6)
             {
-                fprintf(f, "\t%s eax, %s\n", operation, factor2->firstKid->lexeme);
+                fprintf(f, "\t%s %s, %s\n", operation, reg, factor2->firstKid->lexeme);
             }
             else
             {
+                printf("does not support complicated arithmetic expressions as of now\n");
                 // arithmetic exp ke andar arithmethic exp: inceptioN :(
 
                 // recursively calling might fix this
@@ -96,86 +95,54 @@ void handle_arith(parseTree arith, FILE* f)
         }
         termPrime = termPrime->firstKid->siblings->siblings;
     }
+}
 
+void handle_expPrime(parseTree expPrime, FILE *f, char* reg)
+{
     // handling expPrime iteratively in the following code
-
-    parseTree expPrime = arith->firstKid->siblings;
 
     while(expPrime->firstKid != NULL)
     {
-        if (expPrime->firstKid->firstKid->id == 38 || expPrime->firstKid->firstKid->id == 39)
-        {
-            char *operation;
-            operation = (char *) malloc(10* sizeof(char));
+        char *operation;
+        operation = (char *) malloc(10* sizeof(char));
 
-            if (expPrime->firstKid->firstKid->id == 38)
-                operation = "add";
-            else
-                operation = "sub";
+        if (expPrime->firstKid->firstKid->id == 38)
+            operation = "add";
+        else
+            operation = "sub";
 
 
-            parseTree factor2 = expPrime->firstKid->siblings;
+        parseTree term = expPrime->firstKid->siblings;
 
-            // TK_ID
-            if (factor2->firstKid->firstKid->id ==  4)
-            {
-                fprintf(f, "\t%s eax, [%s]\n", operation, factor2->firstKid->firstKid->lexeme);
-            }
-            // TK_NUM or TK_RNUM
-            else if (factor2->firstKid->firstKid->id ==  5 || factor2->firstKid->firstKid->id ==  6)
-            {
-                fprintf(f, "\t%s eax, %s\n", operation, factor2->firstKid->firstKid->lexeme);
-            }
-            else
-            {
-                // arithmetic exp ke andar arithmethic exp: inceptioN :(
+        char *reg2 = (char*) malloc(10*sizeof(char));
 
-                // recursively calling might fix this
-                // define new fn for that
-            }
+        if (strcmp(reg, "eax") == 0)
+            strcpy(reg2, "ebx");
+        else
+            strcpy(reg2, "eax");
+        handle_term_arith(term, f, reg2);
 
-            termPrime = factor2->firstKid->siblings;
-
-            while(termPrime->firstKid != NULL)
-            {
-                if (termPrime->firstKid->firstKid->id == 40 || termPrime->firstKid->firstKid->id == 41)
-                {
-                    char *operation;
-                    operation = (char *) malloc(10* sizeof(char));
-
-                    if (termPrime->firstKid->firstKid->id == 40)
-                        operation = "mul";
-                    else
-                        operation = "div";
-
-
-                    parseTree factor2 = termPrime->firstKid->siblings;
-
-                    // TK_ID
-                    if (factor2->firstKid->id ==  4)
-                    {
-                        fprintf(f, "\t%s eax, [%s]\n", operation, factor2->firstKid->lexeme);
-                    }
-                    // TK_NUM or TK_RNUM
-                    else if (factor2->firstKid->id ==  5 || factor2->firstKid->id == 6)
-                    {
-                        fprintf(f, "\t%s eax, %s\n", operation, factor2->firstKid->lexeme);
-                    }
-                    else
-                    {
-                        // arithmetic exp ke andar arithmethic exp: inceptioN :(
-
-                        // recursively calling might fix this
-                        // define new fn for that
-                    }
-
-                }
-                termPrime = termPrime->firstKid->siblings->siblings;
-            }
-
-        }
+        fprintf(f, "\n\t%s %s %s\n", operation, reg, reg2);
         expPrime = expPrime->firstKid->siblings->siblings;
     }
+}
+
+
+void handle_arith(parseTree arith, FILE* f)
+{
+    printf("%d\t %d\n", arith->id, arith->firstKid->id);
+
+    parseTree term = arith->firstKid;
+
+    char *reg1 = (char *) malloc(10);
+    reg1 = "eax";
+
+    handle_term_arith(term, f, reg1);
+
+    parseTree expPrime = term->siblings;
+    handle_expPrime(expPrime, f, reg1);
+
+
 }
 
 
@@ -248,7 +215,7 @@ void codegen(parseTree ast)
 
     handle_declarations(decl->firstKid, output);
 
-    char global_start[] = "\n\nsection .text\nglobal main\n\nmain:\n";
+    char global_start[] = "\n\nsection .text\n\tglobal main\n\textern scanf\n\textern printf\n\nmain:\n";
 
     fprintf(output, "%s", global_start);
 
