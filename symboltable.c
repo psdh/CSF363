@@ -5,17 +5,6 @@
     Filename:symboltable.c
 */
 
-//@ToDo change size of real to 8 --> Done
-//@Todo har ek ka definition ka statement dekhna hai pehle --> Done
-//@Todo Save Function Names --> done
-//@Todo point 1 semantic analyzer --> taken care off
-//@Todo point 9 semantic anaylzer --> taken care off
-//@Todo point 3 semantic analyzer --> taken care off
-//@Todo non exit error handling --> Done
-//@Todo point 13 semantic analyzer --> in type checking
-//@Todo point 7 semantic analyzer --> in type checking
-//@Todo symbol tabe -->record first
-//@Todo symbol table printing
 
 #ifndef __USE_XOPEN2K8
     #define __USE_XOPEN2K8 1
@@ -582,7 +571,6 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	parseTree othfun = head->firstKid->firstKid;
 	parseTree mf = head->firstKid->siblings;
 
-	// @Todo add line no of _main
 	upsert(ht, "_main", "function", "global", mainfuncitonline, 0, 0, -1);
 	strcpy(functions[fun_count++], "_main");
 	add_main_function(mf->firstKid, ht);

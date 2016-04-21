@@ -3,7 +3,6 @@
     Gyanendra Mishra 2013A7PS126P
     Prabhjyot Singh Sodhi 2013A7PS151P
     Filename: semantic.c
-    This file helps check and report the semantic errors in the generated AST.
 */
 
 
@@ -19,28 +18,6 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope);
 
 void semanticAnalyzer(parseTree ast, hashtable *ht)
 {
-    // TODO<psdh> this analysis should include stuff like
-    //  identifier should not be declared multiple times in the same scope
-    // Function overloading is not allowed.
-    // global identifer declasred else where
-    // Preferable do this when including stuff in the symbol table stage
-
-    // do_symboltable_analysis();
-
-    // From here, we are trying to traverse functions statements and identify semantic errors
-
-
-    // stuff to be handled in stmt's:
-    // An identifier must be declared before its use.
-    // The types and  the number of parameters returned by a function must be the same as that of the parameters used in invoking the function.
-    // The parameters being returned by a function must be assigned a value. If a parameter does not get a value assigned within the function definition, it should be reported as an error.
-    // The function that does not return any value, must be invoked appropriately.
-    // Function input parameters passed while invoking it should be of the same type as those used in the function definition. Number of input parameters must be same as that of those used in the function definition.
-    // An if statement must have the expression of boolean type.
-    // The function cannot be invoked recursively.
-
-
-    // All of the above might just be irrelevant now :(
 
     parseTree othfun = ast->firstKid->firstKid;
     parseTree mf_stmts = ast->firstKid->siblings->firstKid;

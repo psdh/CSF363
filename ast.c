@@ -3,7 +3,6 @@
     Gyanendra Mishra 2013A7PS126P
     Prabhjyot Singh Sodhi 2013A7PS151P
     Filename: ast.c
-    This file helps create the Abstract Syntax Tree for the already constructed parse tree.
 */
 
 #include <stdio.h>
