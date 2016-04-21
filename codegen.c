@@ -44,19 +44,36 @@ void handle_declarations(parseTree decl, FILE* f)
         fprintf(f, "\t%s:\tresw\t1\n", decl->firstKid->siblings->lexeme);
         decl = decl->siblings;
     }
+    int i = 0;
+
+    for (i = 0; i < 14; i++)
+    {
+        fprintf(f, "\t%s:\tresw\t1\n", vars[i]);
+    }
 }
 
 
 
-void handle_term_arith(parseTree term, FILE* f, char* reg)
+int handle_term_arith(parseTree term, FILE* f)
 {
+    char *reg;
+    reg = vars[counter_used];
+    int ret = counter_used;
+
+    counter_used++;
+
     parseTree factor = term->firstKid;
 
     // eax has been stored with the required  value!
     if (factor->firstKid->id == 132) // arithmetic expression
     {
         // handle_arith_r(factor->firstKid, f);
+        char *reg2;
+        reg2 = vars[counter_used];
+
         handle_arith(factor->firstKid, f);
+        fprintf(f, "\n\tmov [%s], [%s]", reg, reg2);
+
     }
     else if (factor->firstKid->id == 4)
     {
@@ -105,16 +122,24 @@ void handle_term_arith(parseTree term, FILE* f, char* reg)
 
                 // recursively calling might fix this
                 // define new fn for that
+
+                int ans = handle_arith(factor->firstKid, f);
+                fprintf(f, "\n\tmov [%s], [%s]", reg, vars[ans]);
             }
 
         }
         termPrime = termPrime->firstKid->siblings->siblings;
     }
+    return ret;
 }
 
-void handle_expPrime(parseTree expPrime, FILE *f, char* reg)
+void handle_expPrime(parseTree expPrime, FILE *f)
 {
     // handling expPrime iteratively in the following code
+
+    char *reg;
+    reg = vars[counter_used - 1];
+
 
     while(expPrime->firstKid != NULL)
     {
@@ -129,33 +154,37 @@ void handle_expPrime(parseTree expPrime, FILE *f, char* reg)
 
         parseTree term = expPrime->firstKid->siblings;
 
-        char *reg2 = (char*) malloc(10*sizeof(char));
 
-        if (strcmp(reg, "eax") == 0)
-            strcpy(reg2, "ebx");
-        else
-            strcpy(reg2, "eax");
-        handle_term_arith(term, f, reg2);
+        int ans = handle_term_arith(term, f);
 
-        fprintf(f, "\n\t%s %s, %s\n", operation, reg, reg2);
+        fprintf(f, "\n\t%s %s, %s\n", operation, reg, vars[ans]);
         expPrime = expPrime->firstKid->siblings->siblings;
     }
 }
 
 
-void handle_arith(parseTree arith, FILE* f)
+int handle_arith(parseTree arith, FILE* f)
 {
     // printf("%d\t %d\n", arith->id, arith->firstKid->id);
 
     parseTree term = arith->firstKid;
 
-    char *reg1 = (char *) malloc(10);
-    reg1 = "eax";
+    char *reg1;
+    reg1 = vars[counter_used];
+    char *reg2;
 
-    handle_term_arith(term, f, reg1);
+    int ret = counter_used;
+
+    counter_used++;
+    reg2 = vars[counter_used];
+
+    handle_term_arith(term, f);
 
     parseTree expPrime = term->siblings;
-    handle_expPrime(expPrime, f, reg1);
+    handle_expPrime(expPrime, f);
+
+    fprintf(f, "\n\tmov [%s], [%s]", reg1, reg2);
+    return ret;
 }
 
 int glo_cod_count = 0;
@@ -165,11 +194,12 @@ void handle_assign_stmt(parseTree curr, FILE* f)
     // printf("Missing Feature: assign stmt code generation is not yet supported\n");
     parseTree arith = curr->firstKid->siblings;
 
+    counter_used = 0;
     handle_arith(arith, f);
 
     // TODO may have change byte to something else for TK_REAL
     // TODO handle record ids here in singleRecId
-    fprintf(f, "\tmov [%s], eax ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme);
+    fprintf(f, "\n\tmov [%s], temp1 ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme);
 
 }
 
@@ -413,7 +443,6 @@ void codegen(parseTree ast)
     // TODO <psdh> handle type definitions here
 
     parseTree decl = typedefinitions->siblings;
-
 
 
     char data_section[] = "\nsection .data\n\tnumberin_form:\tdb \"%d\", 0\n\n";
