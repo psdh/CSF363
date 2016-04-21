@@ -67,7 +67,7 @@ void printAllTokens(char const* Filename){
     b = (buffer) malloc(sizeof(char)*bufsize);
 
     tokenInfo token = getNextToken(fp, b, k);
-    printf("%25s%25s%25d\n", "Token Name", "Lexeme", "Line Number");
+    printf("%25s%25s%25s\n", "Token Name", "Lexeme", "Line Number");
 
     while(strcmp(token.name, "$")!=0){
         printf("%25s%25s%25d\n",getCorrespondingToken(token.id),token.name,token.lineNo);
