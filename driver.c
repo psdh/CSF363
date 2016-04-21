@@ -15,8 +15,9 @@ void compile(parseTree pt, hashtable * ht){};
 
 void printSize(int pt_size, int ast_size){
 	printf("\n");
-    printf("Parse Tree\tNumber of Nodes:%d\tAllocated Memory:%d\n",pt_size, sizeof(parseTree)* pt_size);
-    printf("AST\tNumber of Nodes:%d\tAllocated Memory:%d\n", ast_size, sizeof(parseTree)* ast_size);
+    printf(" %15s %25s %25s\n", "Tree Type", "Number of Nodes", "Memory Allocated" );
+    printf(" %15s %25d %25d\n", "Parse Tree", pt_size, sizeof(parseTree)* pt_size);
+    printf(" %15s %25d %25d\n", "AST", ast_size, sizeof(parseTree)* ast_size);
     printf("Compression: %.2f\n", ((pt_size-ast_size)/(float)pt_size)*100);
 };
 
