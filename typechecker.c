@@ -354,7 +354,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
             entry *var = get(st, all->lexeme, scope);
             if (var == NULL){
                 printf("Error: Variable <%s> not in current scope <%s>, checking global at line <%d>\n", all->lexeme, scope, all->lineNo);
-                var = get(st, all->firstKid->lexeme, "global");
+                var = get(st, all->lexeme, "global");
                 // doesnt exist globally
                 if (var == NULL){
                     printf("Error: Variable <%s> not even declared globally at line <%d>\n", all->lexeme, all->lineNo);
@@ -423,12 +423,12 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
         // record type
         else {
 
-            entry * record = get(st, all->firstKid->lexeme, scope);
+            entry * record = get(st, all->lexeme, scope);
             if (record == NULL){
-                 printf("Error: Record Variable <%s> not in current scope <%s>, checking global at line <%d>\n", all->firstKid->lexeme, scope, all->firstKid->lineNo);
-                 record = get(st, all->firstKid->lexeme, "global");
+                 printf("Error: Record Variable <%s> not in current scope <%s>, checking global at line <%d>\n", all->lexeme, scope, all->lineNo);
+                 record = get(st, all->lexeme, "global");
                  if (record == NULL){
-                    printf("Error: Record Variable <%s> not even declared globally at line <%d>\n", all->firstKid->lexeme, all->firstKid->lineNo);
+                    printf("Error: Record Variable <%s> not even declared globally at line <%d>\n", all->firstKid->lexeme, all->lineNo);
                  }
                  else {
                     // record declaration found, we go through linkedlsit to find type
@@ -455,7 +455,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                     printf("Error: Record <%s> has no field <%s> at line <%d>\n",record->key, temp->firstKid->lexeme, temp->firstKid->lineNo);
                 }
                 else if (strcmp(rec->type, type)){
-                    printf("Error: <%s> expected got <%s> in <%s.%s> at line <%d>\n", type, rec->type, all->firstKid->lexeme,rec->name, temp->firstKid->lineNo);
+                    printf("Error: <%s> expected got <%s> in <%s.%s> at line <%d>\n", type, rec->type, all->lexeme,rec->name, temp->firstKid->lineNo);
                 }
             }
 
