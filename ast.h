@@ -11,5 +11,6 @@
 #include "parser.h"
 
 parseTree ast(parseTree parsetree);
+int mainfuncitonline;
 
 #endif

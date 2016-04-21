@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "parser.h"
-#include "symboltable.h"
+#include "ast.h"
 
 void ast_r(parseTree);
 
@@ -246,6 +246,9 @@ void ast_r(parseTree parsetree)
                 case 44:
                 case 56:
                         {
+                            if (level->id == 16)
+                                mainfuncitonline = level->lineNo;
+
                             // linearizing "stmt otherstmts in iterativestmts"
                             if (level->id == 31 && level->siblings != NULL && level->siblings->id == 121)
                             {

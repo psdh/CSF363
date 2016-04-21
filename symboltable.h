@@ -12,6 +12,7 @@
 #include "symboltabledef.h"
 #include "parser.h"
 #include "lexer.h"
+#include "ast.h"
 
 #include <stdio.h>
 

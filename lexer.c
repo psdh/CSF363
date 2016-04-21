@@ -47,6 +47,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 {
 	state = 1;
 	buffer lexeme = (buffer) malloc(k*sizeof(buffer));
+	memset(lexeme, 0, 100);
 	int i = 0;
 	tokenInfo token;
 	token.name = (buffer) malloc(k*sizeof(buffer));

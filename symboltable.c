@@ -34,6 +34,7 @@ error_count = 0;
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
+#include "ast.h"
 
 int seen(char * key){
     int i = 0;
@@ -196,78 +197,15 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 	if(next != NULL && next->key != NULL && (strcmp(key, next->key) == 0 && strcmp(scope, next->scope) == 0))
 	{
 
-		free(next->key);
-		free(next->type);
-
-		next->key = strdup(key);
-		next->type = strdup(type);
-		next->lineNo = lineNo;
-
-		if (isInputParameter == 1){
-			next->isInputParameter = 1;
-			next->ParameterNumber = ParameterNumber;
-		}
-		else{
-			next->isInputParameter = 0;
-		}
-
-		if (isOutputParameter == 1){
-			next->isOutputParameter = 1;
-			next->ParameterNumber = ParameterNumber;
-			next->assigned = -1;
-		}
-		else{
-			next->isOutputParameter = 0;
-			next->assigned = 0;
-		}
-
-		next->ParameterNumber = ParameterNumber;
-
-		if(strcmp(type,"int") == 0)
-		{	next->width = 2;
-			next->offset  = offset;
-			offset = offset + next->width;
-		}
-
-		if(strcmp(type,"real") == 0)
-		{
-			next->width = 4;
-			next->offset  = offset;
-			offset = offset + next->width;
-		}
-
-
-		if(strcmp(type, "record")){
-			next->isRecordDeclaration = 1;
-			next->record = NULL;
-		}
-		else{
-			next->isRecordDeclaration = 0;
-		}
-
-		if(type[0] == '#'){
-			next->isRecordInstance = 1;
-			entry * temp = get(ht, type, "global");
-			if(temp != NULL){
-				next->offset = offset;
-				next->width = temp->width;
-				offset = offset + next->width;
-			}
-			else{
-				next->offset = -1;
-				next->width = -1;
-			}
-		}
-		else{
-			next->isRecordInstance = 0;
-		}
-
+		sprintf(symboltable_errors[error_count++],"Error: %s being re declared\n", next->key);
 	}
 	else
 	{
 		newpair = newentry(ht, key, type, scope, lineNo, isInputParameter, isOutputParameter, ParameterNumber);
 
+
 		if( next == ht->table[bin] ) {
+			// printf("1:\t%s\n", key);
 			newpair->next = next;
 			ht->table[bin] = newpair;
 
@@ -275,6 +213,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 			last->next = newpair;
 
 		} else  {
+			// printf("3:\t%s\n", key);
 			newpair->next = next;
 			last->next = newpair;
 		}
@@ -289,7 +228,7 @@ entry *get(hashtable *ht, char *key, char*scope)
 	bin = hash(ht, key);
 
 	temp = ht->table[ bin ];
-	while( temp != NULL && temp->key != NULL && (strcmp(key, temp->key) > 0  || strcmp(scope, temp->scope) > 0)) {
+	while( temp != NULL && temp->key != NULL && (strcmp(key, temp->key) != 0  || strcmp(scope, temp->scope) != 0)) {
 		temp = temp->next;
 	}
 
@@ -647,7 +586,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	parseTree mf = head->firstKid->siblings;
 
 	// @Todo add line no of _main
-	upsert(ht, "_main", "function", "global", 1000, 0, 0, -1);
+	upsert(ht, "_main", "function", "global", mainfuncitonline, 0, 0, -1);
 	strcpy(functions[fun_count++], "_main");
 	add_main_function(mf->firstKid, ht);
 
@@ -689,14 +628,15 @@ void printSymbolTable( hashtable *ht, int size){
 	entry *temp;
 	// @See printing blocked for record declarations, functions, input output parameters
 	printf("Globals have offset -1, real has width 4, integer has width 2\n");
+
 	printf("\n %20s %20s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
 
 	for (bin =0 ; bin < size; bin ++){
 		temp = ht->table[ bin ];
 
-		while( temp != NULL && temp->key != NULL && strcmp(temp->scope,"") !=0 && strcmp(temp->type, "function") !=0 && strcmp(temp->type,"record")!=0) {
-
-			printf("\n %20s %20s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
+		while( temp != NULL && temp->key != NULL ) {
+			if(strcmp(temp->scope,"") !=0 && strcmp(temp->type, "function") !=0 && strcmp(temp->type,"record")!=0)
+				printf("\n %20s %20s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
 
 			temp = temp->next;
 		}
