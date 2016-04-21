@@ -10,6 +10,7 @@
 #include "lexer.h"
 #include <stdlib.h>
 #include <string.h>
+#include "parser.h"
 
 #define table_row 60
 int flag_eps;
@@ -615,12 +616,13 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                     return ptree;
                 }
                 else if(token.id == 55)
-                {
+                {   error_in_parsing = 1;
                     printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
                     fclose(fp);
                     return ptree;
                 }
                 else {
+                    error_in_parsing = 1;
                     printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>\n",
                        getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(popVal));
 
@@ -648,6 +650,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                             while(token.id != 55)
                                 token = getNextToken(fp, b, bufsize);
 
+                            error_in_parsing = 1;
                             printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
 
                             fclose(fp);
@@ -684,7 +687,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         ruleNum = T[popVal % 100][token.id];
 
         if (ruleNum == -1)
-        {
+        {   error_in_parsing = 1;
             int* ans = getFirsts(getCorrespondingToken(popVal));
             printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>\n",
                        getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(*ans));
@@ -712,7 +715,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 {
                     while(token.id != 55)
                         token = getNextToken(fp, b, bufsize);
-
+                    error_in_parsing = 1;
                     printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
 
                     fclose(fp);

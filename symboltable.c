@@ -198,6 +198,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 	{
 
 		sprintf(symboltable_errors[error_count++],"Error: %s being re declared\n", next->key);
+		symbolerror = 1;
 	}
 	else
 	{
@@ -307,6 +308,7 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 				if (temp == NULL){
 					sprintf(symboltable_errors[error_count++],  "\nError: Undeclared record type %s being used %d\n", curr->firstKid->siblings->lexeme, curr->firstKid->siblings->lineNo);
 					strcpy(ans, curr->firstKid->siblings->lexeme);
+					symbolerror = 1;
 				}
 				else{
 					strcpy(ans, curr->firstKid->siblings->lexeme);
@@ -336,12 +338,13 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 			}
 			else{
 				sprintf(symboltable_errors[error_count++], "Error: Variable %s being re declared in the same scope\n", curr->siblings->lexeme);
+				symbolerror = 1;
 			}
 		}
 		else{
 
 			sprintf(symboltable_errors[error_count++], "Error: Global Variable %s is being redeclared\n", curr->siblings->lexeme);
-
+			symbolerror = 1;
 		}
 
 		curr = curr->siblings->siblings;
@@ -469,6 +472,7 @@ void add_record(parseTree curr, hashtable *ht){
 	}
 	else{
 		sprintf(symboltable_errors[error_count++], "Error: Record %s being declared again\n", scope);
+		symbolerror = 1;
 	}
 }
 
@@ -502,6 +506,7 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 					sprintf(symboltable_errors[error_count++], "Error: Global variable %s declared non globally earlier in function %s\n", id->lexeme, functions[pos]);
 				else
 					sprintf(symboltable_errors[error_count++], "Error: Global variable %s being redeclared globally\n", id->lexeme, id->lineNo);
+				symbolerror = 1;
 			}
 		}
 		else{
@@ -516,12 +521,14 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 				}
 				else{
 					sprintf(symboltable_errors[error_count++], "Error: Variable %s being re declared in the same scope\n", id->lexeme);
+					symbolerror = 1;
 				}
 
 			}
 			else{
 				sprintf(symboltable_errors[error_count++], "Error: Global Variable %s is being redeclared\n", id->lexeme);
 
+				symbolerror = 1;
 			}
 
 		}
@@ -602,11 +609,13 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 		}
 		else if(strcmp(othfun->firstKid->lexeme, "_main") == 0){
 			sprintf(symboltable_errors[error_count++], "Error: _main being used for non main function\n");
+			symbolerror = 1;
+
 		}
 		else{
 			sprintf(symboltable_errors[error_count++], "Error: Function %s is being overloaded\n", othfun->firstKid->lineNo);
+			symbolerror = 1;
 		}
-
 		othfun = othfun->siblings;
 	}
 

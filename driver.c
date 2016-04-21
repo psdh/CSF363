@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "lexer.h"
 #include "semantic.h"
 
 void compile(parseTree pt, hashtable * ht){};
@@ -125,14 +126,21 @@ int main(int argc, char const *argv[])
 
             fclose(fp);
 
+            error_in_lexer = 0;
+            error_in_parsing = 0;
+            symbolerror = 0;
+
             parseTree answer = parseInputSourceCode(argv[1], t);
 
             int ast_size  = 0;
             int pt_size = 0;
 
-            if (choice == 2){
+            if (choice == 2 && error_in_lexer == 0 && error_in_parsing == 0){
                 fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                 printParseTree_r(answer, stdout, &pt_size, 1);
+            }
+            else if(choice == 2){
+                printf("%s\n", "Syntactic errros exist, cant print");
             }
             else{
                 pt_size = 0;
@@ -140,19 +148,26 @@ int main(int argc, char const *argv[])
             }
 
             if (choice  == 3 || choice == 4 || choice == 5 || choice == 6 || choice == 7){
-                answer = ast(answer);
+                if(error_in_lexer == 0 && error_in_parsing == 0)
+                    answer = ast(answer);
 
-                if (choice == 3){
+                if (choice == 3 && error_in_lexer == 0 && error_in_parsing == 0){
                     fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                     printParseTree_r(answer, stdout, &ast_size, 1);
                 }
+                else if(choice == 3){
+                    printf("%s\n", "Syntactic errros exist, ast not built");
+                }
 
-                if (choice == 4){
+                if (choice == 4 && error_in_lexer == 0 && error_in_parsing == 0){
                 	printParseTree_r(answer, stdout, &ast_size, -1);
                     printSize(pt_size, ast_size);
                 }
+                else if(choice == 4){
+                    printf("%s\n", "Syntactic errros exist, ast not built");
+                }
 
-                if (choice == 5 || choice == 6 || choice == 7){
+                if ((choice == 5 || choice == 6 || choice == 7) && error_in_parsing == 0 && error_in_lexer == 0){
                     hashtable *st = createSymbolTable(answer, 100);
 
                     if (choice == 5){
@@ -167,12 +182,17 @@ int main(int argc, char const *argv[])
                             }
                             semanticAnalyzer(answer, st);
                         }
-                        if (choice == 7){
+                        if (choice == 7 && symbolerror == 0){
                             compile(answer, st);
+                        }
+                        else if(choice == 7){
+                            printf("Cant compile as semantic errors exist");
                         }
                     }
                 }
-
+                else if (choice == 5 || choice == 6 || choice == 7){
+                    printf("Can't proceed with symbol table creation, semantic analysis or asm creation as  syntactic errors exist\n");
+                }
 
             }
 
