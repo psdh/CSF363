@@ -198,7 +198,7 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
                         if (strcmp(starter->name, field) == 0)
                         {
                             flag = 1;
-                            printf("sab equal hai\n");
+                            // printf("sab equal hai\n");
                             break;
                         }
                         starter = starter->next;
