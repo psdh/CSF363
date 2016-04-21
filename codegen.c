@@ -10,6 +10,21 @@
 #include <stdlib.h>
 #include "parser.h"
 
+void handle_io_stmt(parseTree curr, FILE* f)
+{
+    if (curr->firstKid->id == 35) // read command
+    {
+        // TODO handle record here
+        fprintf(f, "\n\tmov esi, %s\n\tmov edi, numberin_form\n\tmov al, 0\n\tcall scanf\n", curr->firstKid->siblings->firstKid->lexeme);
+    }
+    else // write command
+    {
+        // TODO handle record here
+        fprintf(f, "\n\tmov di, %s\n\tmov al, 0\n\tcall printf\n", curr->firstKid->siblings->firstKid->lexeme);
+    }
+}
+
+
 void handle_declarations(parseTree decl, FILE* f)
 {
     // add static "section .bss to file"
@@ -22,16 +37,12 @@ void handle_declarations(parseTree decl, FILE* f)
         printf("id: %d %s", decl->firstKid->siblings->id, decl->firstKid->siblings->lexeme);
 
         // add comments to asm code0
-        fprintf(f, "%s:\tresw\t1\n", decl->firstKid->siblings->lexeme);
+        fprintf(f, "\t%s:\tresw\t1\n", decl->firstKid->siblings->lexeme);
         decl = decl->siblings;
     }
 }
 
 
-void handle_io_stmt(parseTree curr, FILE* f)
-{
-    printf("Missing Feature: <WAITING FOR SCANF TO BE RESOLVED> IO stmt code generation is not yet supported\n");
-}
 
 void handle_term_arith(parseTree term, FILE* f, char* reg)
 {
@@ -122,7 +133,7 @@ void handle_expPrime(parseTree expPrime, FILE *f, char* reg)
             strcpy(reg2, "eax");
         handle_term_arith(term, f, reg2);
 
-        fprintf(f, "\n\t%s %s %s\n", operation, reg, reg2);
+        fprintf(f, "\n\t%s %s, %s\n", operation, reg, reg2);
         expPrime = expPrime->firstKid->siblings->siblings;
     }
 }
@@ -155,7 +166,7 @@ void handle_assign_stmt(parseTree curr, FILE* f)
 
     // TODO may have change byte to something else for TK_REAL
     // TODO handle record ids here in singleRecId
-    fprintf(f, "\tmov byte [%s], eax ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme);
+    fprintf(f, "\tmov [%s], eax ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme);
 
 }
 
@@ -213,12 +224,18 @@ void codegen(parseTree ast)
 
     parseTree decl = typedefinitions->siblings;
 
+
+
+    char data_section[] = "\nsection .data\n\tnumberin_form:\tdb \"%d\", 0\n\n";
+    fprintf(output, "%s", data_section);
+
+
     handle_declarations(decl->firstKid, output);
 
-    char global_start[] = "\n\nsection .text\n\tglobal main\n\textern scanf\n\textern printf\n\nmain:\n";
-
+    char global_start[] = "section .text\n\tglobal main\n\textern scanf\n\textern printf";
     fprintf(output, "%s", global_start);
 
+    fprintf(output, "\nmain:");
     // handling stmt's now
     handle_stmt(decl->siblings->firstKid, output);
 
