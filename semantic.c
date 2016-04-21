@@ -68,6 +68,10 @@ void handle_stmts(parseTree stmts, hashtable *ht, char* scope)
     parseTree stmt_it;
     stmt_it = stmts->firstKid->siblings->siblings->firstKid;
     handle_oth_stmts(stmt_it, ht, scope);
+    // check return sttmt
+    parseTree returnstmt = stmts->firstKid->siblings->siblings->siblings;
+    if(returnstmt != NULL && returnstmt->firstKid != NULL)
+        check_stmt(returnstmt->firstKid ,ht, 5, scope);
 }
 
 void check_for_unassigned_outputs(hashtable *ht){
@@ -108,8 +112,6 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
             type = 3;
         else if (stmt_it->firstKid->id == 125) // functional call statement
             type = 4;
-        else if (stmt_it->firstKid->id == 146):
-            type = 5;
         else
             printf("unknown type of stmt :( %d\n", stmt_it->firstKid->id);
 

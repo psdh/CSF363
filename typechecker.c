@@ -770,7 +770,7 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
 }
 
 void check_return(parseTree curr, hashtable *st, char *scope){
-    if(curr->firstKid !=NULL){
+    if(curr!=NULL && curr->firstKid !=NULL){
         parseTree idList = curr->firstKid;
         check_idlist(st, idList, scope, 0, scope);
     }
@@ -789,6 +789,6 @@ void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
     else if (type == 4)
         check_fun(curr, st, scope);
     else if(type ==5)
-        check_return(curr, st, scope)
+        check_return(curr, st, scope);
 
 }
