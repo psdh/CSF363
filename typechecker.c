@@ -769,6 +769,13 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
 
 }
 
+void check_return(parseTree curr, hashtable *st, char *scope){
+    if(curr->firstKid !=NULL){
+        parseTree idList = curr->firstKid;
+        check_idlist(st, idList, scope, 0, scope);
+    }
+}
+
 void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
 {
     if (type == 1) // assignment statement
@@ -781,5 +788,7 @@ void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
         check_io_stmt(curr, st, scope);
     else if (type == 4)
         check_fun(curr, st, scope);
+    else if(type ==5)
+        check_return(curr, st, scope)
 
 }

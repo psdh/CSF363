@@ -108,6 +108,8 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
             type = 3;
         else if (stmt_it->firstKid->id == 125) // functional call statement
             type = 4;
+        else if (stmt_it->firstKid->id == 146):
+            type = 5;
         else
             printf("unknown type of stmt :( %d\n", stmt_it->firstKid->id);
 

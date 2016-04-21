@@ -240,6 +240,7 @@ void ast_r(parseTree parsetree)
                 case 28:
                 case 30:
                 case 31:
+                case 37:
                 // added 42 for TK_CALL
                 case 42:
                 case 44:
