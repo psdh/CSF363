@@ -26,6 +26,8 @@ int offset = 0;
 char functions[500][500];
 int fun_count =0;
 
+error_count = 0;
+
 
 #include "symboltable.h"
 #include <stdlib.h>
@@ -110,9 +112,9 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if(strcmp(type,"int") == 0)
 	{
-		new->width = 4;
+		new->width = 2;
 
-		if((isInputParameter == 1 || isOutputParameter == 1) == 0){
+		if(strcmp(scope, "global") != 0){
 			new->offset  = offset;
 			offset = offset + new->width;
 		}
@@ -123,9 +125,9 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if(strcmp(type,"real") == 0)
 	{
-		new->width = 8;
+		new->width = 4;
 
-		if((isInputParameter == 1 || isOutputParameter == 1) == 0){
+		if((strcmp(scope, "global")) != 0){
 			new->offset  = offset;
 			offset = offset + new->width;
 		}
@@ -150,7 +152,7 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 		if (temp != NULL){
 			new->width = temp->width;
 
-			if((isInputParameter == 1 || isOutputParameter == 1) == 0){
+			if(strcmp(scope, "global") != 0){
 				new->offset  = offset;
 				offset = offset + new->width;
 			}
@@ -222,14 +224,14 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 		next->ParameterNumber = ParameterNumber;
 
 		if(strcmp(type,"int") == 0)
-		{	next->width = 4;
+		{	next->width = 2;
 			next->offset  = offset;
 			offset = offset + next->width;
 		}
 
 		if(strcmp(type,"real") == 0)
 		{
-			next->width = 8;
+			next->width = 4;
 			next->offset  = offset;
 			offset = offset + next->width;
 		}
@@ -364,7 +366,7 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 			if(curr->firstKid->siblings->id == 8){
 				entry * temp = get(ht, curr->firstKid->siblings->lexeme, "global");
 				if (temp == NULL){
-					printf( "\nUndeclared record type %s being used %d\n", curr->firstKid->siblings->lexeme, curr->firstKid->siblings->lineNo);
+					sprintf(symboltable_errors[error_count++],  "\nError: Undeclared record type %s being used %d\n", curr->firstKid->siblings->lexeme, curr->firstKid->siblings->lineNo);
 					strcpy(ans, curr->firstKid->siblings->lexeme);
 				}
 				else{
@@ -384,22 +386,22 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 	while(curr != NULL)
 	{
 		char ans[20];
-
+		getType(ht, curr, ans);
 		entry * temp = get(ht, curr->siblings->lexeme, "global");
 		if(temp == NULL){
 
-			temp = get(ht, curr->siblings->lexeme, getType(ht, curr, ans));
+			temp = get(ht, curr->siblings->lexeme, scope);
 
 			if (temp == NULL){
 				upsert(ht, curr->siblings->lexeme, ans, scope, curr->siblings->lineNo, input, output, counter);
 			}
 			else{
-				printf("Error: Variable %s being re declared in the same scope\n", curr->siblings->lexeme);
+				sprintf(symboltable_errors[error_count++], "Error: Variable %s being re declared in the same scope\n", curr->siblings->lexeme);
 			}
 		}
 		else{
 
-			printf("Error: Global Variable %s is being redeclared\n", curr->siblings->lexeme);
+			sprintf(symboltable_errors[error_count++], "Error: Global Variable %s is being redeclared\n", curr->siblings->lexeme);
 
 		}
 
@@ -431,15 +433,15 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 	parseTree fieldDef = curr->firstKid;
 
 	if(fieldDef == NULL)
-		printf("\n");
+		;
 	else
 	{
 		add_fielddef(ht, fieldDef, scope, record);
 
 		if(strcmp(record->type, "int") == 0)
-			*width = *width + 4;
+			*width = *width + 2;
 		else
-			*width = *width + 8;
+			*width = *width + 4;
 
 		// printf("\t%s\t%s\n", record->type, record->name);
 
@@ -485,14 +487,14 @@ void add_record(parseTree curr, hashtable *ht){
 		int width = 0;
 
 		if(strcmp(recordF->type, "int") == 0)
-			width+=4;
+			width+=2;
 		else
-			width+=8;
+			width+=4;
 
 		if(strcmp(recordS->type, "int") == 0)
-			width+=4;
+			width+=2;
 		else
-			width+=8;
+			width+=4;
 
 
 		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
@@ -527,7 +529,7 @@ void add_record(parseTree curr, hashtable *ht){
 
 	}
 	else{
-		printf("Error: Record %s being declared again\n", scope);
+		sprintf(symboltable_errors[error_count++], "Error: Record %s being declared again\n", scope);
 	}
 }
 
@@ -558,13 +560,9 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 			else {
 				int pos = existsNonGlobally(ht, id->lexeme);
 				if (pos == -1)
-					printf("Error: Global variable %s declared non globally earlier in function %s\n", id->lexeme, functions[pos]);
+					sprintf(symboltable_errors[error_count++], "Error: Global variable %s declared non globally earlier in function %s\n", id->lexeme, functions[pos]);
 				else
-					printf("Error: Global variable %s being redeclared globally\n", id->lexeme, id->lineNo);
-				// entry * temp = get(ht, id->lexeme, functions[pos]);
-				// strcpy(temp->scope, "global");
-				// //@heur if scope changes then will have to change offset throughut, cant do this
-				// strcpy(temp->scope, )
+					sprintf(symboltable_errors[error_count++], "Error: Global variable %s being redeclared globally\n", id->lexeme, id->lineNo);
 			}
 		}
 		else{
@@ -572,18 +570,18 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 			entry * temp = get(ht, id->lexeme, "global");
 			//check if globally declared
 			if(temp == NULL){
-				temp = get(ht, id->lexeme, getType(ht, datatype, ans));
+				temp = get(ht, id->lexeme, scope);
 				//check if declared in the same socpe
 				if (temp == NULL){
 					upsert(ht, id->lexeme, getType(ht, datatype, ans), scope, id->lineNo, 0, 0, -1);
 				}
 				else{
-					printf("Error: Variable %s being re declared in the same scope\n", id->lexeme);
+					sprintf(symboltable_errors[error_count++], "Error: Variable %s being re declared in the same scope\n", id->lexeme);
 				}
 
 			}
 			else{
-				printf("Error: Global Variable %s is being redeclared\n", id->lexeme);
+				sprintf(symboltable_errors[error_count++], "Error: Global Variable %s is being redeclared\n", id->lexeme);
 
 			}
 
@@ -599,6 +597,7 @@ void add_function(parseTree curr, hashtable *ht)
 	char scope[200];
 	strcpy(scope, curr->lexeme);
 
+
 	// printf("%d\n", curr->id);
 
 	parseTree input = curr->siblings;
@@ -611,8 +610,6 @@ void add_function(parseTree curr, hashtable *ht)
 	add_list(output->firstKid->firstKid, ht, scope, 0, 1);
 
 	parseTree stmts = output->siblings;
-	// printf("%d\n", stmts->id);
-	// printf("%d\n", stmts->firstKid->id);
 
 	// if no typedefinitions
 	if (stmts->firstKid->firstKid != NULL)
@@ -665,10 +662,10 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 			add_function(othfun->firstKid, ht);
 		}
 		else if(strcmp(othfun->firstKid->lexeme, "_main") == 0){
-			printf("Error: _main being used for non main function\n");
+			sprintf(symboltable_errors[error_count++], "Error: _main being used for non main function\n");
 		}
 		else{
-			printf("Error: Function %s is being overloaded\n", othfun->firstKid->lineNo);
+			sprintf(symboltable_errors[error_count++], "Error: Function %s is being overloaded\n", othfun->firstKid->lineNo);
 		}
 
 		othfun = othfun->siblings;
@@ -691,6 +688,7 @@ void printSymbolTable( hashtable *ht, int size){
 	int bin = 0;
 	entry *temp;
 	// @See printing blocked for record declarations, functions, input output parameters
+	printf("Globals have offset -1, real has width 4, integer has width 2\n");
 	printf("\n %20s %20s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
 
 	for (bin =0 ; bin < size; bin ++){

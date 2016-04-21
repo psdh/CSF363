@@ -112,6 +112,7 @@ int main(int argc, char const *argv[])
         {
             table t = (int **) malloc(table_row * sizeof(int *));
             int i = 0;
+            error_count = 0;
 
             for (i=0; i<table_row; i++)
                  t[i] = (int *) malloc(table_row * sizeof(int));
@@ -160,6 +161,10 @@ int main(int argc, char const *argv[])
 
                     if(choice == 6 || choice == 7){
                         if(choice == 6){
+                            i = 0;
+                            for(i=0 ;i< error_count; i++){
+                                printf("%s", symboltable_errors[i]);
+                            }
                             semanticAnalyzer(answer, st);
                         }
                         if (choice == 7){

@@ -22,5 +22,8 @@ void printSymbolTable(hashtable *ht, int size);
 entry *getInputParameter(hashtable *ht, char *function, int ParameterNumber);
 entry *getOutputParameter(hashtable *ht, char *function, int ParameterNumber);
 
+char symboltable_errors[500][500];
+int error_count;
+
 
 #endif

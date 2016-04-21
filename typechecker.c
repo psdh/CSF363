@@ -373,7 +373,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                                 }
                             }
                             else {
-                                printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types", type, var->type);
+                                printf("Error: Given record %s isnt good for multiplication/divsion with type  %s as it has fields of different types at line %d", type, var->type, var->lineNo);
                             }
                         }
                         // rhs mein record hai
@@ -403,7 +403,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                             }
                         }
                         else {
-                            printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types\n", type, var->type);
+                            printf("Error: Given record %s isnt good for arithmetic with type  %s as it has fields of different types at line %d\n", type, var->type, var->lineNo);
                         }
                     }
                     // rhs mein record hai
@@ -675,6 +675,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
     if (io == 0)
     {
         int i = 0;
+        int line;
         while(idList->firstKid != NULL){
             entry * temp = getOutputParameter(st, funid, i);
             if(temp  == NULL){
@@ -682,6 +683,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
             }
             else {
                 entry * var = get(st, idList->firstKid->lexeme, scope);
+                line = idList->firstKid->lineNo;
 
                 if(var == NULL){
                     var = get(st, idList->firstKid->lexeme, "global");
@@ -692,16 +694,21 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
                 }
                 else{
                     if(strcmp(temp->type, var->type)!=0){
-                        printf("Error: output paramter %d types dont match at line %d\n", i, idList->firstKid->lineNo);
+                        printf("Error: output paramter %d types %s and %s dont match at line %d\n", i, temp->type, var->type, line);
                     }
                 }
             }
             i++;
             idList = idList->firstKid->siblings;
         }
+        entry * temp = getOutputParameter(st, funid, i);
+        if(temp!=NULL){
+            printf("Error: The number of output parameters for function %s at line %d is incorrect", funid, lineNo);
+        }
     }
     else{
         int i = 0;
+        int line;
         while(idList->firstKid != NULL){
             entry * temp = getInputParameter(st, funid, i);
             if(temp  == NULL){
@@ -709,6 +716,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
             }
             else {
                 entry * var = get(st, idList->firstKid->lexeme, scope);
+                line = idList->firstKid->lineNo;
 
                 if(var == NULL){
                     var = get(st, idList->firstKid->lexeme, "global");
@@ -719,15 +727,18 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
                 }
                 else{
                     if(strcmp(temp->type, var->type)!=0){
-                        printf("Error: input paramter %d types dont match at line %d\n", i, idList->firstKid->lineNo);
+                        printf("Error: input paramter %d types %s and %s dont match at line %d\n", i, var->type, temp->type, idList->firstKid->lineNo);
                     }
                 }
             }
             i++;
             idList = idList->firstKid->siblings;
+
         }
-
-
+        entry * temp = getInputParameter(st, funid, i);
+        if(temp!=NULL){
+            printf("Error: The number of input parameters for function %s at line %d is incorrect\n", funid, line);
+        }
 
     }
 }
