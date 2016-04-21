@@ -87,7 +87,6 @@ int main(int argc, char const *argv[])
 
     printf("---------------------------------------------------\n");
     printf("Level 4: Symbol Table/Type Checking/ Semantic Analysis works/ AST -- ALL WORK.\n");
-    printf("Lexical and Syntax analysis module implemented!\n");
     printf("---------------------------------------------------\n");
 
     while(1){
