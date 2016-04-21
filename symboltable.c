@@ -6,10 +6,6 @@
 */
 
 
-#ifndef __USE_XOPEN2K8
-    #define __USE_XOPEN2K8 1
-#endif
-
 int offset = 0;
 
 char functions[500][500];
@@ -72,9 +68,14 @@ int hash(hashtable *ht, char *nonce){
 entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry *new;
 	new = (entry*) malloc(sizeof(entry));
-	new->key = strdup(key);
-	new->type = strdup(type);
-	new->scope = strdup(scope);
+	new->key = (char*) malloc(sizeof(char)* 50);
+	new->type = (char*) malloc(sizeof(char)* 50);
+	new->scope = (char*) malloc(sizeof(char)* 50);
+
+	strcpy(new->key, key);
+	strcpy(new->type, type);
+	strcpy(new->scope, scope);
+
 	new->lineNo = lineNo;
 	// new->id = getColumnIndex(type);
 
@@ -210,12 +211,10 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 
 entry *get(hashtable *ht, char *key, char*scope)
 {
-	int hashvalue = 0;
-	entry *temp;
+	int hashvalue = hash(ht, key);
 
-	hashvalue = hash(ht, key);
+	entry *temp = ht->table[hashvalue];
 
-	temp = ht->table[ hashvalue ];
 	while( temp != NULL && temp->key != NULL && (strcmp(key, temp->key) != 0  || strcmp(scope, temp->scope) != 0)) {
 		temp = temp->next;
 	}
