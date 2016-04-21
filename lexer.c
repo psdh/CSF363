@@ -378,7 +378,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							if(b[offset] == '-' && b[offset+1] == '-'){
 								lexeme[i++] = b[offset++];
 								lexeme[i++] = b[offset++];
-								lexeme[i++] = b[offset++];
 								i = 0;
 								token.id = 1;
 								token.lineNo=lineNo;
