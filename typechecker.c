@@ -690,6 +690,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
                     printf("Error: variable <%s> undeclared at line <%d>\n", idList->firstKid->lexeme, idList->firstKid->lineNo);
                 }
                 else{
+                    var->assigned = 1;
                     if(strcmp(temp->type, var->type)!=0){
                         printf("Error: output paramter <%d> types <%s> and <%s> dont match at line <%d>\n", i, temp->type, var->type, line);
                     }
