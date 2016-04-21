@@ -76,6 +76,7 @@ void printAllTokens(char const* Filename){
         state = 1;
         token = getNextToken(fp, b, k);
     }
+    fclose(fp);
 }
 
 int main(int argc, char const *argv[])
@@ -140,7 +141,7 @@ int main(int argc, char const *argv[])
                 printParseTree_r(answer, stdout, &pt_size, 1);
             }
             else if(choice == 2){
-                printf("%s\n", "Syntactic errros exist, cant print");
+                printf("%s\n", "Syntactic errors exist, cant print");
             }
             else{
                 pt_size = 0;
@@ -156,7 +157,7 @@ int main(int argc, char const *argv[])
                     printParseTree_r(answer, stdout, &ast_size, 1);
                 }
                 else if(choice == 3){
-                    printf("%s\n", "Syntactic errros exist, ast not built");
+                    printf("%s\n", "Syntactic errors exist, ast not built");
                 }
 
                 if (choice == 4 && error_in_lexer == 0 && error_in_parsing == 0){
@@ -164,7 +165,7 @@ int main(int argc, char const *argv[])
                     printSize(pt_size, ast_size);
                 }
                 else if(choice == 4){
-                    printf("%s\n", "Syntactic errros exist, ast not built");
+                    printf("%s\n", "Syntactic errors exist, ast not built");
                 }
 
                 if ((choice == 5 || choice == 6 || choice == 7) && error_in_parsing == 0 && error_in_lexer == 0){
