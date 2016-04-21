@@ -5,6 +5,6 @@
 
 
 rm *.o
-rm stage1exe
+rm toycompiler
 rm firstandfollow
 rm ast
