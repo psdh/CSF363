@@ -15,6 +15,7 @@
 
 void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope);
 void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
+// exposed to semantic analyzer
 void semanticAnalyzer(parseTree ast, hashtable *ht);
 
 #endif

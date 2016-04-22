@@ -16,6 +16,7 @@
 void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
 void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope);
 
+// invoked by driver
 void semanticAnalyzer(parseTree ast, hashtable *ht)
 {
 
@@ -39,7 +40,7 @@ void semanticAnalyzer(parseTree ast, hashtable *ht)
     check_for_unassigned_outputs(ht);
 }
 
-
+// handle <stmts>
 void handle_stmts(parseTree stmts, hashtable *ht, char* scope)
 {
     parseTree stmt_it;
@@ -51,6 +52,7 @@ void handle_stmts(parseTree stmts, hashtable *ht, char* scope)
         check_stmt(returnstmt->firstKid ,ht, 5, scope);
 }
 
+// after we are done with a function this function checks if output is unassigned
 void check_for_unassigned_outputs(hashtable *ht){
     int bin = 0;
     entry *temp;
@@ -67,6 +69,7 @@ void check_for_unassigned_outputs(hashtable *ht){
     return NULL;
 }
 
+// handle <otherstmts>
 void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
 {
     if(stmt_it != NULL && stmt_it->id != 121)
@@ -78,7 +81,6 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
     while (stmt_it != NULL)
     {
         int type;
-        // printf("%d  ", stmt_it->firstKid->id);
 
         if (stmt_it->firstKid->id == 35 || stmt_it->firstKid->id == 36) // io statement
             type = 10;
@@ -93,7 +95,6 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
         else
             printf("unknown type of stmt :( %d\n", stmt_it->firstKid->id);
 
-        // printf("%d  \n", type);
 
         check_stmt(stmt_it, ht, type, scope);
 
@@ -104,7 +105,7 @@ void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope)
 }
 
 
-// Depth first traversal
+// Traverses all statements calls related handler
 traverse_all(parseTree curr)
 {
     if (curr == NULL)
@@ -114,11 +115,10 @@ traverse_all(parseTree curr)
     if(curr->firstKid != NULL)
     {
         traverse_all(curr->firstKid);
-       // do  you thing again!
     }
     else
     {
-        // do your thing
+    	;
     }
 
     parseTree prev = curr;
