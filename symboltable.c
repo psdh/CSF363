@@ -39,24 +39,30 @@ int seen(char * key){
     return -1;
 }
 
-// creates a hash table of given size
-hashtable *create(int size){
+// starter fn  to initailize and return hashtable's pointer
+hashtable *create(int number_bins)
+{
+    hashtable *htt;
 
-	hashtable *ht = NULL;
 
-	ht = malloc(sizeof (hashtable));
+    // initializing pointer
+    htt = (hashtable*) malloc(sizeof(hashtable));
 
-	ht->size = size;
+    htt->size = number_bins;
 
-	ht->table = malloc(sizeof(entry*)*size);
+    htt->table = (entry **) malloc(number_bins*sizeof(entry*));
 
-	int i;
-	for (i =0; i< size; i++){
-		ht->table[i] = NULL;
-	}
+    int iter = 0;
 
-	return ht;
+    while (iter < number_bins)
+    {
+        htt->table[iter] = NULL;
+        iter ++;
+    }
+
+    return htt;
 }
+
 
 // creates a hash
 int hash(char *nonce, hashtable *ht){
