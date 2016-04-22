@@ -5,6 +5,10 @@
     Filename: ast.h
 */
 
+/*
+	Used to expose functions of ast to other files.
+*/
+
 #ifndef SEMANTIC_H_INCLUDED
 #define SEMANTIC_H_INCLUDED
 

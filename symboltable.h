@@ -5,6 +5,8 @@
     Filename:symboltable.h
 */
 
+/* Used to expose symbol table module to other files
+*/
 
 #ifndef SYMBOL_H_INCLUDED
 #define SYMBOL_H_INCLUDED

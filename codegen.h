@@ -5,6 +5,10 @@
     Filename: codegen.h
 */
 
+/*
+	Used to expose codegen to driver.
+*/
+
 #ifndef CODEGEN_H_INCLUDED
 #define CODEGEN_H_INCLUDED
 

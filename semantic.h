@@ -5,6 +5,10 @@
     Filename: semantic.h
 */
 
+/*
+	Used to expose functions of semantic analyzer to other modules.
+*/
+
 #ifndef SEMANTIC_H_INCLUDED
 #define SEMANTIC_H_INCLUDED
 

@@ -5,6 +5,10 @@
     Filename: typecheckerdef.h
 */
 
+/*
+	Contains defintions used by the typechecker module.
+*/
+
 #ifndef TYPECHECKERDEF_H_INCLUDED
 #define TYPECHECKERDEF_H_INCLUDED
 

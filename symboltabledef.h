@@ -5,6 +5,8 @@
     Filename:symboltableDef.h
 */
 
+/* Used to define data structure used by symbol table
+*/
 
 #ifndef SYMBOLTABLEDEF_H_INCLUDED
 #define SYMBOLTABLEDEF_H_INCLUDED

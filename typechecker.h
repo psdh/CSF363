@@ -5,6 +5,8 @@
     Filename: typechecker.h
 */
 
+/* used to expose typechecker functions to other files
+*/
 #ifndef TYPECHECKER_H_INCLUDED
 #define TYPECHECKER_H_INCLUDED
 
