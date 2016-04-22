@@ -138,10 +138,10 @@ int main(int argc, char const *argv[])
             if (choice == 2 && error_in_lexer == 0 && error_in_parsing == 0){
                 fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                 printParseTree_r(answer, stdout, &pt_size, 1);
-                printf("%s\n", "No syntactic errors");
+                printf("%s\n", "\nNo syntactic errors");
             }
             else if(choice == 2){
-                printf("%s\n", "Syntactic errors exist, cant print");
+                printf("%s\n", "\nSyntactic errors exist, cant print");
             }
             else{
                 pt_size = 0;

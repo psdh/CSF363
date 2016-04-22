@@ -5,6 +5,12 @@
     Filename: ast.c
 */
 
+/*
+This file handles the creation of the AST. The struct used by the ast is the same as the
+one used by the parsetree. Unused nodes are pruned from the parsetree. Making the ast
+much smaller and easier to navigate.
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,6 +19,8 @@
 
 void ast_r(parseTree);
 
+// Function exposed to driver.
+// @param parsetree The parse tree created by parser.c
 parseTree ast(parseTree parsetree)
 {
     parseTree ast = parsetree;
@@ -35,9 +43,6 @@ void ast_r(parseTree parsetree)
     {
         if (ast->id == 57)
         {
-            // assuming that "eps" in the first kid of its parent (mostly the case)
-            // TODO <psdh> confirm this
-            // sibling wala scene handled elsewhere! (see while before return in this fn)
             ast->parent->firstKid = NULL;
             free(ast);
             return;
@@ -53,9 +58,6 @@ void ast_r(parseTree parsetree)
     {
         if (ast->id == 100)
         {
-            // Don't remove "program"
-
-            // ast = ast->firstKid;
             return ast_r(ast->firstKid);
         }
         else
@@ -209,7 +211,6 @@ void ast_r(parseTree parsetree)
 
     // if the tree has reached here => siblings pointer is not null
     // parsing all siblings to remove ";", "input", "output", "parameters" and the likes
-    // TODO<psdh> mention all that is being removed here!
 
     parseTree level = ast;
 
@@ -222,28 +223,27 @@ void ast_r(parseTree parsetree)
             // add more here
             switch(level->id)
             {
-                case 1:
-                case 9:
-                case 10:
-                case 11:
-                case 15:
-                case 16:
-                case 18:
-                case 19:
-                case 20:
-                case 21:
-                case 22:
-                case 23:
-                case 26:
-                case 27:
-                case 28:
-                case 30:
-                case 31:
-                case 37:
-                // added 42 for TK_CALL
-                case 42:
-                case 44:
-                case 56:
+                case 1: //TK_ASSSIGNOP
+                case 9: //TK_WITH
+                case 10: //TK_PARAMETERS
+                case 11: //TK_END
+                case 15: //TK_TYPE
+                case 16: //TK_MAIN
+                case 18: //TK_PARAMETER
+                case 19: //TK_LIST
+                case 20: //TK_SQL
+                case 21: //TK_SQR
+                case 22: //TK_INPUT
+                case 23: //TK_OUTPUT
+                case 26: //TK_SEM
+                case 27: //TK_COLON
+                case 28: //TK_DOT
+                case 30: //TK_OP
+                case 31: //TK_CL
+                case 37: //TK_RETURN
+                case 42: //TK_CALL
+                case 44: //TK_ENDRECORD
+                case 56: //TK_COMMA
                         {
                             if (level->id == 16)
                                 mainfuncitonline = level->lineNo;
@@ -280,7 +280,6 @@ void ast_r(parseTree parsetree)
 
 
             // linearizing statements in the if branch
-            // TODO<psdh> do this for conditional and elsepart statements too
             if (level->id == 33)
             {
                 parseTree othst = level->siblings->siblings;
