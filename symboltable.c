@@ -21,6 +21,12 @@ error_count = 0;
 #include <stdio.h>
 #include "ast.h"
 
+/*
+	This file handles the creation of the symbol table and all related functions like
+	fetching from a symbol table, inserting into a symbol table and various other
+	enumerations.
+*/
+
 // checks if a function has been visited, if yes returns position in array
 int seen(char * key){
     int i = 0;

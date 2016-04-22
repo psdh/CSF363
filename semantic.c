@@ -12,6 +12,11 @@
 #include "parser.h"
 #include "semantic.h"
 
+/*
+	Semantic Analysis Module. The function semanticAnalyzer is
+	exposed to the driver. It uses several functions from type
+	checker.
+*/
 
 void handle_stmts(parseTree stmts, hashtable *ht, char* scope);
 void handle_oth_stmts(parseTree stmt_it, hashtable *ht, char* scope);

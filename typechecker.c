@@ -11,6 +11,12 @@
 #include <stdio.h>
 #include "typechecker.h"
 
+/*
+    Handles typechecking of multiple type of statments. Also takes care of several
+    semantic rules. The check_stmt function is invoked by semantic.c for semantic
+    analysis.
+*/
+
 // Handles boolean expressions
 void handle_boolean_exp(parseTree stmt, hashtable *ht, char* scope, list_var **head)
 {
