@@ -176,7 +176,7 @@ int main(int argc, char const *argv[])
                     }
 
                     if(choice == 6 || choice == 7){
-                        if(choice == 6){
+                        if(choice == 6 || choice == 7){
                             i = 0;
                             for(i=0 ;i< error_count; i++){
                                 printf("%s", symboltable_errors[i]);
