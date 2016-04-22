@@ -123,7 +123,7 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if(strcmp(type,"real") == 0)
 	{
-		new->width = 2;
+		new->width = 4;
 
 		if((strcmp(scope, "global")) != 0){
 			new->offset  = offset;
@@ -379,7 +379,7 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 		if(strcmp(record->type, "int") == 0)
 			*width = *width + 2;
 		else
-			*width = *width + 2;
+			*width = *width + 4;
 
 		parseTree moreFields = fieldDef->siblings;
 
@@ -422,12 +422,12 @@ void add_record(parseTree curr, hashtable *ht){
 		if(strcmp(recordF->type, "int") == 0)
 			width+=2;
 		else
-			width+=2;
+			width+=4;
 
 		if(strcmp(recordS->type, "int") == 0)
 			width+=2;
 		else
-			width+=2;
+			width+=4;
 
 
 		if (fieldDef2->siblings->firstKid == NULL)
@@ -480,7 +480,7 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 				upsert(ht, id->lexeme, getType(ht, datatype, ans), "global", id->lineNo, 0, 0, -1);
 			else {
 				int pos = existsNonGlobally(ht, id->lexeme);
-				if (pos == -1)
+				if (pos != -1)
 					sprintf(symboltable_errors[error_count++], "Error: Global variable <%s> declared non globally earlier in function <%s> at line <%d>\n", id->lexeme, functions[pos], id->lineNo);
 				else
 					sprintf(symboltable_errors[error_count++], "Error: Global variable <%s> being redeclared globally at line <%d>\n", id->lexeme, id->lineNo);
@@ -567,9 +567,9 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 	upsert(ht, "_main", "function", "global", mainfuncitonline, 0, 0, -1);
 	strcpy(functions[fun_count++], "_main");
 	add_main_function(mf->firstKid, ht);
-
+    offset = 0;
 	while(othfun != NULL)
-	{
+	{   offset = 0;
 		entry *temp = get(ht, othfun->firstKid->lexeme, "global");
 		if (temp == NULL && strcmp(othfun->firstKid->lexeme, "_main") != 0){
 			strcpy(functions[fun_count++], othfun->firstKid->lexeme);
@@ -622,7 +622,7 @@ char* getRecordType(hashtable * ht, char *record_name, char *type){
 void printSymbolTable( hashtable *ht, int size){
 	int bin = 0;
 	entry *temp;
-	printf("Globals have offset -1, real has width 4, integer has width 2\n");
+	printf("Globals have offset -, real has width 4, integer has width 2\n");
 
 	printf("\n %20s %35s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
 
@@ -630,13 +630,19 @@ void printSymbolTable( hashtable *ht, int size){
 		temp = ht->table[ bin ];
 
 		while( temp != NULL && temp->key != NULL ) {
-			if(strcmp(temp->scope,"") !=0 && (strcmp(temp->type,"int") ==0 &&  strcmp(temp->type,"real")))
-				printf("\n %20s %35s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
+			if(strcmp(temp->scope,"") !=0 && (strcmp(temp->type,"int") ==0 ||  strcmp(temp->type,"real") == 0))
+                if(temp->offset != -1)
+				    printf("\n %20s %35s %15s %15d ", temp->key, temp->type, temp->scope, temp->offset);
+                else
+                    printf("\n %20s %35s %15s %15s ", temp->key, temp->type, temp->scope, "-");
 
 			if(strcmp(temp->scope,"") !=0 && (temp->type[0] == '#')){
 				char type[200];
-				printf("\n %20s %35s %15s %15d ", temp->key, getRecordType(ht, temp->type, type), temp->scope, temp->offset);
-			}
+                if(temp->offset != -1)
+				    printf("\n %20s %35s %15s %15d ", temp->key, getRecordType(ht, temp->type, type), temp->scope, temp->offset);
+			    else
+                    printf("\n %20s %35s %15s %15s ", temp->key, getRecordType(ht, temp->type, type), temp->scope, "-");
+            }
 
 
 			temp = temp->next;

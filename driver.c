@@ -86,7 +86,7 @@ int main(int argc, char const *argv[])
     }
 
     printf("---------------------------------------------------\n");
-    printf("Level 4: Symbol Table/Type Checking/ Semantic Analysis works/ AST -- ALL WORK.\n");
+    printf("Level 4: Symbol Table/Type Checking/ Semantic Analysis works/ AST/ Code Generation -- ALL WORK.\n");
     printf("---------------------------------------------------\n");
 
     while(1){
@@ -138,10 +138,10 @@ int main(int argc, char const *argv[])
             if (choice == 2 && error_in_lexer == 0 && error_in_parsing == 0){
                 fprintf(stdout, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
                 printParseTree_r(answer, stdout, &pt_size, 1);
-                printf("%s\n", "\nNo syntactic errors");
+                printf("%s\n", "\n\nNo syntactic errors");
             }
             else if(choice == 2){
-                printf("%s\n", "\nSyntactic errors exist, cant print");
+                printf("%s\n", "\n\nSyntactic errors exist, can't print");
             }
             else{
                 pt_size = 0;
@@ -157,7 +157,7 @@ int main(int argc, char const *argv[])
                     printParseTree_r(answer, stdout, &ast_size, 1);
                 }
                 else if(choice == 3){
-                    printf("%s\n", "Syntactic errors exist, ast not built");
+                    printf("%s\n", "\n\nSyntactic errors exist, ast not built");
                 }
 
                 if (choice == 4 && error_in_lexer == 0 && error_in_parsing == 0){
@@ -165,7 +165,7 @@ int main(int argc, char const *argv[])
                     printSize(pt_size, ast_size);
                 }
                 else if(choice == 4){
-                    printf("%s\n", "Syntactic errors exist, ast not built");
+                    printf("%s\n", "\n\nSyntactic errors exist, ast not built");
                 }
 
                 if ((choice == 5 || choice == 6 || choice == 7) && error_in_parsing == 0 && error_in_lexer == 0){
@@ -184,19 +184,19 @@ int main(int argc, char const *argv[])
                             semanticAnalyzer(answer, st);
                         }
                         if(symbolerror == 0 && choice == 6){
-                            printf("No Semantic or Syntactic Errors\n");
+                            printf("\n\nNo Semantic or Syntactic Errors\n");
                         }
                         if (choice == 7 && symbolerror == 0){
                             codegen(answer, st);
-                            printf("%s\n", "Find your file at code.asm");
+                            printf("%s\n", "\n\nFind your file at code.asm");
                         }
                         else if(choice == 7){
-                            printf("Cant compile as semantic errors exist");
+                            printf("\n\nNot proceeding as semantic errors exist");
                         }
                     }
                 }
                 else if (choice == 5 || choice == 6 || choice == 7){
-                    printf("Can't proceed with symbol table creation, semantic analysis or asm creation as  syntactic errors exist\n");
+                    printf("\n\nNot proceeding with symbol table creation, semantic analysis or asm creation as  syntactic errors exist\n");
                 }
 
             }
@@ -209,7 +209,7 @@ int main(int argc, char const *argv[])
                 exit(0);
         }
         else {
-            printf("Please enter valid input\n");
+            printf("\n\nPlease enter valid input\n");
         }
     }
 
