@@ -7,3 +7,5 @@ parser
 firstandfollow
 out
 stage1exe
+toycompiler
+code.asm

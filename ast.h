@@ -10,7 +10,9 @@
 
 #include "parser.h"
 
+// creates the ast
 parseTree ast(parseTree parsetree);
+// stores the line number of the main function.
 int mainfuncitonline;
 
 #endif

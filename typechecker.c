@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "typechecker.h"
 
-
+// Handles boolean expressions
 void handle_boolean_exp(parseTree stmt, hashtable *ht, char* scope, list_var **head)
 {
     char *to_check_here;
@@ -21,6 +21,8 @@ void handle_boolean_exp(parseTree stmt, hashtable *ht, char* scope, list_var **h
     traverse_all_boolean(stmt, ht, scope, to_check_here, head);
 }
 
+// Adds idList to a linked list called list_var
+// Used to keep track of variables changing in itterations
 void add_to_list_var(list_var **head, char* name)
 {
     if (head != NULL)
@@ -64,6 +66,7 @@ void add_to_list_var(list_var **head, char* name)
     }
 }
 
+// Traverses all boolean expressions.
 void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *check, list_var **head)
 {
     if (curr == NULL)
@@ -150,6 +153,8 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
     }
 }
 
+// Traverses all write statements
+// Also used for read statements.
 void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
 {
     if (curr == NULL)
@@ -182,10 +187,10 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
             if (found->isRecordInstance == 1)
             {
                 if (curr->siblings->firstKid == NULL)
-                {
-                    printf("Error: Cannot print a record, must specify member at line <%d>\n", found->lineNo);
-                    symbolerror = 1;
-                    return;
+                {	// @Change not an error any more.
+                    // printf("Error: Cannot print a record, must specify member at line <%d>\n", found->lineNo);
+                    // symbolerror = 1;
+                    // return;
                 }
                 else
                 {
@@ -230,7 +235,7 @@ void traverse_all_write(parseTree curr, hashtable *ht, char *scope)
     }
 }
 
-
+// Tells if a certain value exists in a linked list.
 int var_in_list_var(list_var **head, char* name)
 {
     if (head == NULL || *head == NULL)
@@ -253,7 +258,7 @@ int var_in_list_var(list_var **head, char* name)
     return 0;
 }
 
-
+// Checks if given variable is changed
 int check_var_changed(parseTree curr, list_var **head)
 {
     parseTree iter = curr;
@@ -280,6 +285,7 @@ int check_var_changed(parseTree curr, list_var **head)
 // things to check here
 // 1) expression in if statment is boolean, Done => by the parser
 // 2) call handle_stmts recursively on this, for otherstmts, Done
+// Semantic and Type Checking of conditional statements
 void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
 {
     curr = curr->firstKid;
@@ -298,8 +304,6 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
         else if (curr->id == 120)
         {
 
-
-            // call handle_oth_stmts here
             handle_oth_stmts(curr->firstKid, st, scope);
         }
 
@@ -310,6 +314,10 @@ void check_conditional_stmt(parseTree curr, hashtable *st, char* scope)
     }
 }
 
+// Finds out if a record is dividable or multiplicable
+// A record with all same types is both divisable and multiplicable
+// Records containing all ints can only be divided by integer
+// Records containing all real can only be divided by real
 int recordIsDivMulable(hashtable *st, char * record, char * inpType){
     entry *temp = get(st, record, "global");
     record_dec * rec = temp->record;
@@ -332,6 +340,7 @@ int recordIsDivMulable(hashtable *st, char * record, char * inpType){
 }
 
 
+// Type checking of factor
 void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
     parseTree all = factor->firstKid;
     int highPrec = 0;
@@ -356,9 +365,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
     else {
         parseTree temp = all->siblings;
         // Normal variable (not record)
-        // @ToDo Scalar natak
         if(temp == NULL || temp->firstKid == NULL){
-            // records are dvisible by scalar :(
             entry *var = get(st, all->lexeme, scope);
             if (var == NULL){
                 var = get(st, all->lexeme, "global");
@@ -369,9 +376,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                 }
                 // exists globally
                 else {
-                    // ek record hai lhs mein and rhs mein you can have variable or record
                     if(strcmp(type, "int") != 0 && strcmp(type, "real") != 0){
-                        //rhs mein variable, operator should be divide or something
                         if( strcmp("int", var->type) == 0 || strcmp("real", var->type) == 0){
                             if (recordIsDivMulable(st, type, var->type) == 1){
                                 if( highPrec != 1){
@@ -384,7 +389,6 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                                 symbolerror = 1;
                             }
                         }
-                        // rhs mein record hai
                         else if (strcmp(type, var->type) != 0){
                             printf("Error: expected record of type <%s> got of type <%s> at line <%d>\n", type, var->type, var->lineNo);
                             symbolerror = 1;
@@ -402,11 +406,9 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                     }
                 }
             }
-            // exists in scope
             else {
 
                 if(strcmp(type, "int") != 0 && strcmp(type, "real") != 0){
-                    //rhs mein variable, operator should be divide or something
                     if( strcmp("int", var->type) == 0 || strcmp("real", var->type) == 0){
                         if (recordIsDivMulable(st, type, var->type) == 1){
                             if( highPrec != 1){
@@ -419,7 +421,6 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
                             symbolerror = 1;
                         }
                     }
-                    // rhs mein record hai
                     else if (strcmp(type, var->type) != 0){
                         printf("Error: expected record of type <%s> got of type <%s> at line <%d>\n", type, var->type, var->lineNo);
                         symbolerror = 1;
@@ -438,7 +439,6 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
 
             }
         }
-        // record type
         else {
 
             entry * record = get(st, all->lexeme, scope);
@@ -485,7 +485,7 @@ void check_factor(parseTree factor, hashtable *st, char *scope, char *type){
     }
 }
 
-
+// Checks termPrime part of arithmetic expression
 void check_termprime(parseTree termprime, hashtable *st, char*scope, char* type){
     parseTree hpo = termprime->firstKid;
     parseTree factor = hpo->siblings;
@@ -503,6 +503,7 @@ void check_termprime(parseTree termprime, hashtable *st, char*scope, char* type)
     }
 }
 
+// Checks expprime part of arithmetic expression
 void check_expprime(parseTree expprime, hashtable *st, char * scope, char * type){
     parseTree term = expprime->firstKid->siblings;
     parseTree expp = term->siblings;
@@ -538,7 +539,6 @@ void check_arith(parseTree expr, hashtable *st, char * scope, char * type){
     if (factor->firstKid->id == 132){
         check_arith(factor->firstKid, st, scope, type);
     }
-    // not another arithmetic expression
     else {
         check_factor(factor, st, scope, type);
     }
@@ -582,7 +582,6 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
             var->assigned = 1;
         }
     }
-    // bhai ye toh record hai
     else {
         entry * record = get(st, sorrec->firstKid->lexeme, scope);
         entry * var = get(st, sorrec->firstKid->lexeme, scope);
@@ -643,6 +642,7 @@ void check_assignment_stmt(parseTree curr, hashtable *st, char* scope){
 
 }
 
+// Checks iterative statements for type expressions
 void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
 {
     curr = curr->firstKid;
@@ -656,7 +656,6 @@ void check_iterative_stmt(parseTree curr, hashtable *st, char* scope)
         // boolean expression
         if (curr->id == 141)
         {
-            // TODO check what variabes have been declared and everything here
             handle_boolean_exp(curr->firstKid, st, scope, head);
         }
         else if (curr->id == 120)
@@ -697,6 +696,7 @@ void check_io_stmt(parseTree curr, hashtable *st, char* scope)
     }
 }
 
+// check id list for matches
 void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * scope){
     if (io == 0)
     {
@@ -778,7 +778,7 @@ void check_idlist(hashtable *st, parseTree idList, char * funid, int io, char * 
     }
 }
 
-
+// checks functional semantic errors
 void check_fun(parseTree funcall, hashtable *st, char * scope){
     parseTree outputparameters = funcall->firstKid;
     parseTree funid = outputparameters->siblings;
@@ -800,7 +800,7 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
         return;
     }
 
-    // no return parameters --> 6th rule I guess
+    // no return parameters
     if (outputparameters ==  NULL || outputparameters->firstKid == NULL){
         entry *temp = getOutputParameter(st, funid->lexeme, 0);
         if(temp != NULL){
@@ -808,7 +808,6 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
             printf("Error: Function has return items but there is no return associated with this function <%s>\n", funid->lexeme);
         }
     }
-    // parameters hain check marte hain
     else {
         parseTree idList = outputparameters->firstKid;
         check_idlist(st, idList, funid->lexeme, 0, scope);
@@ -818,6 +817,7 @@ void check_fun(parseTree funcall, hashtable *st, char * scope){
 
 }
 
+// checks return stmt
 void check_return(parseTree curr, hashtable *st, char *scope){
     if(curr!=NULL && curr->firstKid !=NULL){
         parseTree idList = curr->firstKid;
@@ -825,6 +825,7 @@ void check_return(parseTree curr, hashtable *st, char *scope){
     }
 }
 
+// invoked by semantic.c
 void check_stmt(parseTree curr, hashtable *st, int type, char* scope)
 {
     if (type == 1) // assignment statement
