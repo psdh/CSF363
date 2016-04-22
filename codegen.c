@@ -19,12 +19,12 @@ void handle_io_stmt(parseTree curr, FILE* f)
     if (curr->firstKid->id == 35) // read command
     {
         // TODO handle record here
-        fprintf(f, "\n\tmov esi, %s\n\tmov edi, numberin_form\n\tmov al, 0\n\tcall scanf\n", curr->firstKid->siblings->firstKid->lexeme);
+        fprintf(f, "\n\tmov esi, %s\n\tmov edi, numberin_form\n\tmov al, 0\n\tcall scanf\n\n", curr->firstKid->siblings->firstKid->lexeme);
     }
     else // write command
     {
         // TODO handle record here
-        fprintf(f, "\n\tmov di, %s\n\tmov al, 0\n\tcall printf\n", curr->firstKid->siblings->firstKid->lexeme);
+        fprintf(f, "\n\tmov edi, numberin_form\n\tmov esi, [%s]\n\tmov al, 0\n\tcall printf\n", curr->firstKid->siblings->firstKid->lexeme);
     }
 }
 
@@ -41,18 +41,22 @@ void handle_declarations(parseTree decl, FILE* f)
         // printf("id: %d %s", decl->firstKid->siblings->id, decl->firstKid->siblings->lexeme);
 
         // add comments to asm code0
-        fprintf(f, "\t%s:\tresw\t1\n", decl->firstKid->siblings->lexeme);
+        fprintf(f, "\t%s:\tresd\t1\n", decl->firstKid->siblings->lexeme);
         decl = decl->siblings;
     }
     int i = 0;
 
     for (i = 0; i < 14; i++)
     {
-        fprintf(f, "\t%s:\tresw\t1\n", vars[i]);
+        fprintf(f, "\t%s:\tresd\t1\n", vars[i]);
     }
 }
 
-
+void move(char* one, char* two, FILE* f)
+{
+    fprintf(f, "\n\tmov eax, [%s]", two);
+    fprintf(f, "\n\tmov [%s], eax\n", one);
+}
 
 int handle_term_arith(parseTree term, FILE* f)
 {
@@ -68,20 +72,20 @@ int handle_term_arith(parseTree term, FILE* f)
     if (factor->firstKid->id == 132) // arithmetic expression
     {
         // handle_arith_r(factor->firstKid, f);
-        char *reg2;
-        reg2 = vars[counter_used];
 
-        handle_arith(factor->firstKid, f);
-        fprintf(f, "\n\tmov [%s], [%s]", reg, reg2);
-
+        int ans = handle_arith(factor->firstKid, f);
+        // fprintf(f, "\n\tmov word [%s], %s", reg, vars[ans]);
+        move(reg, vars[ans], f);
     }
     else if (factor->firstKid->id == 4)
     {
-        fprintf(f, "\tmov %s, [%s]\n", reg, factor->firstKid->lexeme);
+        // fprintf(f, "\n\tmov word [%s], %s\n", reg, factor->firstKid->lexeme);
+        move(reg, factor->firstKid->lexeme, f);
     }
     else if (factor->firstKid->id == 5)
     {
-        fprintf(f, "\tmov %s, %s\n", reg, factor->firstKid->lexeme);
+        fprintf(f, "\n\tmov word [%s], %s\n", reg, factor->firstKid->lexeme);
+
     }
     // else if (factor->firstKid->id == 6) TODO handle TK_RNUM
 
@@ -105,15 +109,17 @@ int handle_term_arith(parseTree term, FILE* f)
 
             parseTree factor2 = termPrime->firstKid->siblings;
 
+            fprintf(f, "\n\tmov word eax, [%s]\n", reg);
+
             // TK_ID
             if (factor2->firstKid->id ==  4)
             {
-                fprintf(f, "\t%s %s, [%s]\n", operation, reg, factor2->firstKid->lexeme);
+                fprintf(f, "\n\t%s word [%s]\n", operation, factor2->firstKid->lexeme);
             }
             // TK_NUM or TK_RNUM
             else if (factor2->firstKid->id ==  5 || factor2->firstKid->id ==  6)
             {
-                fprintf(f, "\t%s %s, %s\n", operation, reg, factor2->firstKid->lexeme);
+                fprintf(f, "\n\t%s word %s\n", operation, factor2->firstKid->lexeme);
             }
             else
             {
@@ -123,24 +129,22 @@ int handle_term_arith(parseTree term, FILE* f)
                 // recursively calling might fix this
                 // define new fn for that
 
-                int ans = handle_arith(factor->firstKid, f);
-                fprintf(f, "\n\tmov [%s], [%s]", reg, vars[ans]);
+                int ans2 = handle_arith(factor->firstKid, f);
+                fprintf(f, "\n\t%s word %s", operation, reg, vars[ans2]);
             }
 
+            fprintf(f, "\n\tmov [%s], eax", reg);
         }
         termPrime = termPrime->firstKid->siblings->siblings;
     }
     return ret;
 }
 
-void handle_expPrime(parseTree expPrime, FILE *f)
+int handle_expPrime(parseTree expPrime, FILE *f, int fac)
 {
     // handling expPrime iteratively in the following code
 
-    char *reg;
-    reg = vars[counter_used - 1];
-
-
+    int ret = 0;
     while(expPrime->firstKid != NULL)
     {
         char *operation;
@@ -154,12 +158,14 @@ void handle_expPrime(parseTree expPrime, FILE *f)
 
         parseTree term = expPrime->firstKid->siblings;
 
-
         int ans = handle_term_arith(term, f);
 
-        fprintf(f, "\n\t%s %s, %s\n", operation, reg, vars[ans]);
+        fprintf(f, "\n\tmov eax, [%s]", vars[fac]);
+        fprintf(f, "\n\t%s eax, [%s]", operation, vars[ans]);
+        fprintf(f, "\n\tmov [%s], eax\n", vars[fac]);
         expPrime = expPrime->firstKid->siblings->siblings;
     }
+    return ret;
 }
 
 
@@ -171,19 +177,18 @@ int handle_arith(parseTree arith, FILE* f)
 
     char *reg1;
     reg1 = vars[counter_used];
-    char *reg2;
 
     int ret = counter_used;
 
     counter_used++;
-    reg2 = vars[counter_used];
 
-    handle_term_arith(term, f);
+    int ans = handle_term_arith(term, f);
 
     parseTree expPrime = term->siblings;
-    handle_expPrime(expPrime, f);
+    handle_expPrime(expPrime, f, ans);
 
-    fprintf(f, "\n\tmov [%s], [%s]", reg1, reg2);
+    move(reg1, vars[ans], f);
+    // fprintf(f, "\n\tmov word [%s], %s\n", reg1, vars[ans]);
     return ret;
 }
 
@@ -195,12 +200,15 @@ void handle_assign_stmt(parseTree curr, FILE* f)
     parseTree arith = curr->firstKid->siblings;
 
     counter_used = 0;
-    handle_arith(arith, f);
+    int ans = handle_arith(arith, f);
+
+    // reinitialize counter to 0
+    counter_used = 0;
 
     // TODO may have change byte to something else for TK_REAL
     // TODO handle record ids here in singleRecId
-    fprintf(f, "\n\tmov [%s], temp1 ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme);
-
+    // fprintf(f, "\n\tmov word [%s], %s ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme, vars[ans]);
+    move(curr->firstKid->firstKid->lexeme, vars[ans], f);
 }
 
 void handle_boolean(parseTree pt, FILE * f, int reverse){
