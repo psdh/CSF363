@@ -16,7 +16,7 @@
 struct entry;
 struct record_dec;
 
-
+// a linkedlist that stores information of record types
 struct record_dec {
     char *type;
     char *name;
@@ -26,21 +26,19 @@ struct record_dec {
 typedef struct record_dec record_dec;
 
 typedef struct {
+	// d2b
     char *key;
     //int
     char *type;
     //_main
     char *scope;
-    // 4
+    // 2
     int width;
-    // curr_offset + 4
     int offset;
     // lineNo
     int lineNo;
     // pointer
     struct entry *next;
-    // record ka declaration hai kya ye
-    // let them all be -1
     int isInputParameter;
     int isOutputParameter;
     int assigned;

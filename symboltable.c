@@ -21,6 +21,7 @@ error_count = 0;
 #include <stdio.h>
 #include "ast.h"
 
+// checks if a function has been visited, if yes returns position in array
 int seen(char * key){
     int i = 0;
     while(i != fun_count){
@@ -32,7 +33,7 @@ int seen(char * key){
     return -1;
 }
 
-
+// creates a hash table of given size
 hashtable *create(int size){
 
 	hashtable *ht = NULL;
@@ -51,6 +52,7 @@ hashtable *create(int size){
 	return ht;
 }
 
+// creates a hash
 int hash(hashtable *ht, char *nonce){
 
 	unsigned long int hashvalue = 6669;
@@ -65,6 +67,7 @@ int hash(hashtable *ht, char *nonce){
 
 }
 
+// creates a hashtable entry
 entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 	entry *new;
 	new = (entry*) malloc(sizeof(entry));
@@ -114,7 +117,7 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 
 	if(strcmp(type,"real") == 0)
 	{
-		new->width = 4;
+		new->width = 2;
 
 		if((strcmp(scope, "global")) != 0){
 			new->offset  = offset;
@@ -162,6 +165,7 @@ entry *newentry(hashtable * ht, char *key, char *type, char *scope, int lineNo, 
 	return new;
 }
 
+// ataches entry to hashtable
 void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int isInputParameter, int isOutputParameter, int ParameterNumber){
 
 	int bin = 0;
@@ -209,6 +213,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 	}
 }
 
+// used to fetch from a hash table
 entry *get(hashtable *ht, char *key, char*scope)
 {
 	int hashvalue = hash(ht, key);
@@ -229,9 +234,8 @@ entry *get(hashtable *ht, char *key, char*scope)
 
 }
 
-
+// checks if a variable exists non globally
 int existsNonGlobally(hashtable *ht, char *varname){
-	// enumerate scopes get karte raho break karke return kardo
 	int i = 0;
 	entry * temp;
 	while(i!= fun_count){
@@ -245,9 +249,7 @@ int existsNonGlobally(hashtable *ht, char *varname){
 }
 
 
-//@Heur input parameter ka numbers should be stored somewhere
-
-
+// returns input parameter corresponding to parameter number
 entry *getInputParameter(hashtable *ht, char *function, int ParameterNumber)
 {
 
@@ -265,6 +267,7 @@ entry *getInputParameter(hashtable *ht, char *function, int ParameterNumber)
 	return NULL;
 }
 
+// returns output parameter corresponding to parameter number
 entry *getOutputParameter(hashtable *ht, char *function, int ParameterNumber)
 {
 	int bin = 0;
@@ -281,7 +284,7 @@ entry *getOutputParameter(hashtable *ht, char *function, int ParameterNumber)
 	return NULL;
 }
 
-
+// returns datatype of variable
 char* getType(hashtable * ht, parseTree curr, char* ans)
 {
 	if(curr->firstKid->id == 13)
@@ -305,7 +308,7 @@ char* getType(hashtable * ht, parseTree curr, char* ans)
 	return ans;
 }
 
-
+// add any list to symbol table, output parameter list, input parameter list etc
 void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 {
 
@@ -340,7 +343,7 @@ void add_list(parseTree curr, hashtable *ht, char* scope, int input, int output)
 	}
 }
 
-
+// adds field defintion to record
 void add_fielddef(hashtable *ht, parseTree curr, char * scope, record_dec *record){
 	char type[20];
 	parseTree datatype = curr->firstKid;
@@ -356,7 +359,7 @@ void add_fielddef(hashtable *ht, parseTree curr, char * scope, record_dec *recor
 	record->next = NULL;
 }
 
-
+// add morefields to record
 void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *scope, int * width)
 {
 	parseTree fieldDef = curr->firstKid;
@@ -370,9 +373,7 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 		if(strcmp(record->type, "int") == 0)
 			*width = *width + 2;
 		else
-			*width = *width + 4;
-
-		// printf("\t<%s>\t<%s>\n", record->type, record->name);
+			*width = *width + 2;
 
 		parseTree moreFields = fieldDef->siblings;
 
@@ -381,12 +382,11 @@ void add_more_fields(hashtable *ht, parseTree curr, record_dec *record, char *sc
 			record_dec *next = (record_dec *) malloc(sizeof(record_dec));
 			add_more_fields(ht, moreFields, next, scope, width);
 			record->next = next;
-			// printf("\t<%s>\t<%s>\n", record->type, record->name);
 		}
 	}
 }
 
-
+// adds the particular record declaration
 void add_record(parseTree curr, hashtable *ht){
 	parseTree recid = curr->siblings;
 	char *scope = curr->siblings->lexeme;
@@ -406,8 +406,6 @@ void add_record(parseTree curr, hashtable *ht){
 
 		add_fielddef(ht, fieldDef1, scope, recordF);
 
-		// printf("First fieldname: \t<%s>\t<%s>\n", recordF->type, recordF->name);
-
 		record_dec *recordS = (record_dec *) malloc(sizeof(record_dec));
 		recordF->next = recordS;
 
@@ -418,26 +416,23 @@ void add_record(parseTree curr, hashtable *ht){
 		if(strcmp(recordF->type, "int") == 0)
 			width+=2;
 		else
-			width+=4;
+			width+=2;
 
 		if(strcmp(recordS->type, "int") == 0)
 			width+=2;
 		else
-			width+=4;
+			width+=2;
 
 
-		// checked for firstkid instead of having two checks at parent  and firstkid level of morefields
 		if (fieldDef2->siblings->firstKid == NULL)
 		{
-			printf("");
-			// printf("<%s>\n", "Only two parameters");
+			;
 		}
 		else
 		{
 			record_dec *nrecord;
 			nrecord = (record_dec *) malloc(sizeof(record_dec));
 			recordS->next = nrecord;
-			// printf("<%s>\n", "No  There are more things");
 			parseTree moreFields = fieldDef2->siblings;
 			add_more_fields(ht, moreFields, nrecord, scope, &width);
 		}
@@ -453,16 +448,17 @@ void add_record(parseTree curr, hashtable *ht){
 	}
 }
 
+// adds data definitions
 void add_definitions(parseTree curr, hashtable *ht)
 {
 	while(curr != NULL)
 	{
-		// printf("definitions <%d>\n", curr->id);
 		add_record(curr->firstKid, ht);
 		curr = curr->siblings;
 	}
 }
 
+// adds declarations to symbol table
 void add_declarations(parseTree curr, hashtable *ht, char* scope)
 {
 	while(curr != NULL)
@@ -473,7 +469,6 @@ void add_declarations(parseTree curr, hashtable *ht, char* scope)
 
 		char ans[20];
 		if (gon->firstKid != NULL){
-			// printf("<%s>\n", "WE COOl");
 			entry * temp = get(ht, id->lexeme, "global");
 			if(existsNonGlobally(ht, id->lexeme) == -1 && temp == NULL)
 				upsert(ht, id->lexeme, getType(ht, datatype, ans), "global", id->lineNo, 0, 0, -1);
@@ -521,11 +516,9 @@ void add_function(parseTree curr, hashtable *ht)
 	strcpy(scope, curr->lexeme);
 
 
-	// printf("<%d>\n", curr->id);
 
 	parseTree input = curr->siblings;
 
-	// to bypass parameter list
 	add_list(input->firstKid->firstKid, ht, scope, 1, 0);
 
 	parseTree output = input->siblings;
@@ -534,15 +527,12 @@ void add_function(parseTree curr, hashtable *ht)
 
 	parseTree stmts = output->siblings;
 
-	// if no typedefinitions
 	if (stmts->firstKid->firstKid != NULL)
 		add_definitions(stmts->firstKid->firstKid, ht);
 
 	parseTree dec = stmts->firstKid->siblings->firstKid;
-	// add declarations now
 	if (dec != NULL)
 		add_declarations(dec, ht, scope);
-	// add_stmts()
 }
 
 
@@ -556,7 +546,6 @@ void add_main_function(parseTree main, hashtable *ht)
 		add_definitions(stmts->firstKid->firstKid, ht);
 
 	parseTree dec = stmts->firstKid->siblings->firstKid;
-	// add declarations now
 	if (dec != NULL){
 		add_declarations(dec, ht, scope);
 	}
@@ -575,9 +564,7 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 
 	while(othfun != NULL)
 	{
-		//@huerestic if a function reappears ignore it
 		entry *temp = get(ht, othfun->firstKid->lexeme, "global");
-		// check if _main is being used for function name
 		if (temp == NULL && strcmp(othfun->firstKid->lexeme, "_main") != 0){
 			strcpy(functions[fun_count++], othfun->firstKid->lexeme);
 			upsert(ht, othfun->firstKid->lexeme, "function", "global", othfun->firstKid->lineNo, 0, 0, -1);
@@ -595,10 +582,8 @@ void popuplateHashTable(parseTree head, hashtable *ht, char *scope)
 		othfun = othfun->siblings;
 	}
 
-	//mainLineNo needed
 }
 
-// TODO remove offset increment for input paramters of functions
 hashtable * createSymbolTable(parseTree pt, int size)
 {	offset = 0;
 	hashtable *ht = create(size);
@@ -631,7 +616,6 @@ char* getRecordType(hashtable * ht, char *record_name, char *type){
 void printSymbolTable( hashtable *ht, int size){
 	int bin = 0;
 	entry *temp;
-	// @See printing blocked for record declarations, functions, input output parameters
 	printf("Globals have offset -1, real has width 4, integer has width 2\n");
 
 	printf("\n %20s %35s %15s %15s ", "Lexeme", "Type", "Scope", "Offset");
