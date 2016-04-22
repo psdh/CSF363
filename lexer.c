@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "lexer.h"
 /* getStream function
  * FILE *getStream(FILE *fp, buffer B, buffersize k)
  * This function takes the  input from the file pointed to by 'fp'. This file is the source code written in the
@@ -47,6 +47,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 {
 	state = 1;
 	buffer lexeme = (buffer) malloc(k*sizeof(buffer));
+	memset(lexeme, 0, 100);
 	int i = 0;
 	tokenInfo token;
 	token.name = (buffer) malloc(k*sizeof(buffer));
@@ -266,6 +267,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						token.lineNo = lineNo;
 						return token;
 					default:
+						error_in_lexer = 1;
 						printf("ERROR_2: Unknown Symbol <%c> at line<%d>\n",b[offset], lineNo);
 						offset++;
 						error = 1;
@@ -310,12 +312,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						else if(offset+2 <k && b[offset+1] == '-'){
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
+							error_in_lexer = 1;
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error = 1;
 							break;
 						}
 						else if(offset+2 <k){
 							lexeme[i++] = b[offset++];
+							error_in_lexer = 1;
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error = 1;
 							break;
@@ -324,6 +328,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							lexeme[i++] = b[offset++];
 							lexeme[i++] = b[offset++];
 							if(feof(fp)){
+								error_in_lexer = 1;
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error = 1;
 								break;
@@ -343,6 +348,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 									return token;
 								}
 								else{
+									error_in_lexer = 1;
 									printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 									error = 1;
 									break;
@@ -351,6 +357,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						}
 						else if(offset+1<k){
 							lexeme[i++] = b[offset++];
+							error_in_lexer = 1;
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error = 1;
 							break;
@@ -359,6 +366,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							if (feof(fp)){
 								//@gyani print offsets?
 								lexeme[i++] = b[offset++];
+								error_in_lexer = 1;
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error = 1;
 								break;
@@ -368,7 +376,6 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							offset=0;
 							// come back here
 							if(b[offset] == '-' && b[offset+1] == '-'){
-								lexeme[i++] = b[offset++];
 								lexeme[i++] = b[offset++];
 								lexeme[i++] = b[offset++];
 								i = 0;
@@ -382,12 +389,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							else if (b[offset] == '-'){
 								lexeme[i++] = b[offset++];
 								lexeme[i++] = b[offset++];
+								error_in_lexer = 1;
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error=1;
 								break;
 							}
 							else {
 								lexeme[i++] = b[offset++];
+								error_in_lexer = 1;
 								printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 								error=1;
 								break;
@@ -395,6 +404,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						}
 						else{
 							lexeme[i++] = b[offset++];
+							error_in_lexer = 1;
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error=1;
 							break;
@@ -720,6 +730,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				// minimum length of 20 is enforced automatically, as it will be detected as fieldid
 				if(strlen(lexeme) > 20){
+					error_in_lexer = 1;
 					printf("Error_1:Identifier at line<%d> is longer than the prescribed length of 20 characters.\n", lineNo);
 					error = 1;
 					break;
@@ -772,11 +783,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					else if(48 <= b[offset] && b[offset]<=57){
 						state = 15;
 						lexeme[i++] = b[offset++];
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
 					}
 					else{
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error =1;
 						break;
@@ -787,6 +800,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						state = 15;
 						lexeme[i++] = b[offset++];
 						if (feof(fp)){
+							error_in_lexer = 1;
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error =1;
 							break;
@@ -805,6 +819,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 							return token;
 						}
 						else{
+							error_in_lexer = 1;
 							printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 							error=1;
 							break;
@@ -812,6 +827,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					}
 				}
 				else{
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -824,6 +840,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					break;
 				}
 				else{
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -842,6 +859,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					}
 				}
 				if(strlen(lexeme) > 30){
+					error_in_lexer = 1;
 					printf("Error_6:Function Identifier at line<%d> is longer than the prescribed length of 30 characters.\n", lineNo);
 					error = 1;
 					break;
@@ -910,6 +928,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				else {
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -920,6 +939,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					lexeme[i++] = b[offset++];
 					state = 34;
 					if(feof(fp)){
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
@@ -938,12 +958,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						return token;
 					}
 					else{
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
 					}
 				}
 				else if (offset+1 ==k ){
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -960,11 +982,13 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 				}
 				else if(b[offset] == '&'){
 						lexeme[i++] = b[offset++];
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
 				}
 				else{
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -975,6 +999,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					lexeme[i++] = b[offset++];
 					state = 37;
 					if(feof(fp)){
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
@@ -993,12 +1018,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 						return token;
 					}
 					else{
+						error_in_lexer = 1;
 						printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 						error = 1;
 						break;
 					}
 				}
 				else if (offset+1 == k ){
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -1014,12 +1041,14 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				else if(b[offset] == '@'){
+					error_in_lexer = 1;
 					lexeme[i++] = b[offset++];
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
 				}
 				else{
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -1037,6 +1066,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				else{
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;
@@ -1074,6 +1104,7 @@ tokenInfo getNextToken(FILE *fp, buffer b, buffersize k)
 					return token;
 				}
 				else{
+					error_in_lexer = 1;
 					printf("ERROR_3: Unknown pattern <%s> at line number <%d>\n", lexeme, lineNo);
 					error = 1;
 					break;

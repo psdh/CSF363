@@ -1,6 +1,11 @@
+ast
+output*
+out*
 parser
 *.out
 *.o
 firstandfollow
 out
 stage1exe
+toycompiler
+code.asm

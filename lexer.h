@@ -17,4 +17,6 @@ FILE *getStream(FILE *fp, buffer B, buffersize k);
 
 tokenInfo getNextToken(FILE *fp, buffer b, buffersize k);
 
+int error_in_lexer;
+
 #endif

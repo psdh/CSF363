@@ -3,25 +3,29 @@
 %The variable d3 maintains the sum of values
 _sumN  input parameter list [int d5cc34]
 output parameter list[real d3];
-	type int : b5b567;
+	type int : b5b567:global;
+	type int : b3;
+	type real : c3bd;
 	b5b567 <--- 1;
 	d3 <--- 0.00;
 	while ( b5b567 <= d5cc34)
 		read( c3bd);
 		d3 <--- d3 + c3bd;
-		b5b567 <--- b5b567 + 1;
 	endwhile
-	return [d3];
+	return [b5b567];
 end
 
 _main
-	type int :b3;
 	type real :c4bd56;
+	type int :c2;
+	type int : b5b567:global;
 	b3 <--- 7;
-	[c4bd56]<--- call _sumN with parameters [b3];
+	read( c2);
+	[c4bd56]<--- call _sumN with parameters [c2];
 	write(c4bd56);
 	return;
 end
+
 
 
 

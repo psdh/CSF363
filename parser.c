@@ -10,9 +10,11 @@
 #include "lexer.h"
 #include <stdlib.h>
 #include <string.h>
+#include "parser.h"
 
 #define table_row 60
 int flag_eps;
+nodecount = 0;
 
 // returns firsts set of given token
 int* getFirsts(char * input){
@@ -345,7 +347,12 @@ char* getCorrespondingToken(int f){
         case 148: return "more_ids";
         case 149: return "new24";
         case 150: return "newVar";
-        default: return "NOTHING";
+        default:
+                {
+                    char buf[12];
+                    sprintf(buf, "Nothing", f);
+                    return buf;
+                }
     }
 }
 // returns token id for terminals
@@ -580,7 +587,6 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         // if $ is popped
         if(popVal == -47 && token.id == 55)
         {
-            printf("\n\nParsing now complete!\n");
             fclose(fp);
             return curr;
         }
@@ -606,17 +612,17 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
             {
                 if(popVal == -47 && token.id == 55)
                 {
-                    printf("\n\nParsing now complete!");
                     fclose(fp);
                     return ptree;
                 }
                 else if(token.id == 55)
-                {
+                {   error_in_parsing = 1;
                     printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
                     fclose(fp);
                     return ptree;
                 }
                 else {
+                    error_in_parsing = 1;
                     printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>\n",
                        getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(popVal));
 
@@ -644,6 +650,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                             while(token.id != 55)
                                 token = getNextToken(fp, b, bufsize);
 
+                            error_in_parsing = 1;
                             printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
 
                             fclose(fp);
@@ -680,7 +687,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
         ruleNum = T[popVal % 100][token.id];
 
         if (ruleNum == -1)
-        {
+        {   error_in_parsing = 1;
             int* ans = getFirsts(getCorrespondingToken(popVal));
             printf("ERROR_5: The token <%s> for lexeme<%s> does not match at line <%d>. The expected token here is <%s>\n",
                        getCorrespondingToken(token.id), token.name, token.lineNo, getCorrespondingToken(*ans));
@@ -708,7 +715,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
                 {
                     while(token.id != 55)
                         token = getNextToken(fp, b, bufsize);
-
+                    error_in_parsing = 1;
                     printf("ERROR_4: Input is consumed while it is expected to have token <%s> at line number <%d>\n", getCorrespondingToken(popVal), token.lineNo);
 
                     fclose(fp);
@@ -727,7 +734,7 @@ parseTree parseInputSourceCode(char *testcaseFile, table T)
 }
 
 // helper fn for tree printing (does the acutal printing)
-void printParseTree_r(parseTree curr, FILE* f)
+int printParseTree_r(parseTree curr, FILE* f, int * size, int print)
 {
     if (curr == NULL)
         return;
@@ -735,14 +742,19 @@ void printParseTree_r(parseTree curr, FILE* f)
 
     if(curr->firstKid != NULL)
     {
-        printParseTree_r(curr->firstKid, f);
+
+        printParseTree_r(curr->firstKid, f, size, print);
 
         char* value = (char*) malloc(sizeof(char)*20);
         strcpy(value, "");
 
-        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
-                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
-                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+        if(print != -1)
+	        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+	                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+	                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+
+        *size  = *size + 1;
+
     }
     else
     {
@@ -751,26 +763,33 @@ void printParseTree_r(parseTree curr, FILE* f)
         if (curr->id == 5 || curr->id == 6)
             strcpy(value, curr->lexeme);
 
-        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
-                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
-                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+        if(print != -1)
+	        fprintf(f, "\n %20s %15d %15s %15s %20s %15s %15s", curr->lexeme, curr->lineNo,
+	                getCorrespondingToken(curr->id), value, getCorrespondingToken(curr->parent->id),
+	                curr->firstKid == NULL?"yes": "no", getCorrespondingToken(curr->id));
+
+
+        *size  = *size + 1;
+
+
+
     }
     parseTree prev = curr;
     curr = curr->siblings;
 
     if(curr != NULL)
     {
-        return printParseTree_r(curr, f);
+        printParseTree_r(curr, f, size, print);
     }
+
 }
 
 // prints parse tree to given out file
 void printParseTree(parseTree  curr, char* outfile)
 {
     FILE* f = fopen(outfile, "w");
-
-    fprintf(f, "\n %20s %15s %15s %15s %20s %15s %15s\n", "lexemeCurrentNode", "lineNo", "token", "valueIFNumber", "parentNodeSymbol", "ifLeafNode(Yes/No)", "NodeSymbol");
-    printParseTree_r(curr, f);
+    int size = 0;
+    printParseTree_r(curr, f, &size, 1);
     fclose(f);
 
 }
