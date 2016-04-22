@@ -21,7 +21,7 @@ void readem(char* what, FILE* f)
 
 void writem(char* what, FILE* f)
 {
-    fprintf(f, "\n\tmov edi, numberin_form\n\tmov esi, [%s]\n\tmov al, 0\n\tcall printf\n", what);
+    fprintf(f, "\n\tmov edi, numberout_form\n\tmov esi, [%s]\n\tmov al, 0\n\tcall printf\n", what);
 }
 
 void handle_io_stmt(parseTree curr, FILE* f, hashtable *st)
@@ -303,21 +303,78 @@ int handle_arith(parseTree arith, FILE* f)
 
 int glo_cod_count = 0;
 
-void handle_assign_stmt(parseTree curr, FILE* f)
+void handle_assign_stmt(parseTree curr, FILE* f, hashtable *ht)
 {
     // printf("Missing Feature: assign stmt code generation is not yet supported\n");
     parseTree arith = curr->firstKid->siblings;
 
-    counter_used = 0;
-    int ans = handle_arith(arith, f);
+    entry *found = get(ht, curr->firstKid->firstKid->lexeme, "_main");
+    if (found == NULL)
+    {
+        printf("UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
+    }
+    else
+    {
+        if (strcmp(found->type, "int") == 0 || strcmp(found->type, "real") == 0 || curr->firstKid->firstKid->siblings->firstKid != NULL)
+        {
+            counter_used = 0;
+            int ans = handle_arith(arith, f);
 
-    // reinitialize counter to 0
-    counter_used = 0;
+            // reinitialize counter to 0
+            counter_used = 0;
 
-    // TODO may have change byte to something else for TK_REAL
-    // TODO handle record ids here in singleRecId
-    // fprintf(f, "\n\tmov word [%s], %s ;; assign the calculated value back\n\n", curr->firstKid->firstKid->lexeme, vars[ans]);
-    move(curr->firstKid->firstKid->lexeme, vars[ans], f);
+            // handling recordname.fieldname here
+            if (curr->firstKid->firstKid->siblings->firstKid != NULL)
+            {
+                char *operation2;
+                operation2 = (char *) malloc(100* sizeof(char));
+
+                strcpy(operation2, curr->firstKid->firstKid->lexeme);
+                strcat(operation2, curr->firstKid->firstKid->siblings->firstKid->lexeme);
+                move(operation2, vars[ans], f);
+            }
+            else
+            {
+                move(curr->firstKid->firstKid->lexeme, vars[ans], f);
+            }
+        }
+        else
+        {
+            printf("will handle record arithmetic next\n");
+            // as of now, it handles adding two records
+
+            parseTree record1 = arith->firstKid->firstKid->firstKid;
+            parseTree assign_record = curr->firstKid->firstKid;
+            parseTree record2 = arith->firstKid->siblings->firstKid->siblings->firstKid->firstKid;
+            printf("record1 id: %d\n", record1->id);
+            printf("record2 id: %d\n", record2->id);
+
+            char *operation;
+            operation = (char *) malloc(10* sizeof(char));
+
+            printf("add sub: %d\n", arith->firstKid->siblings->firstKid->firstKid->id);
+            if (arith->firstKid->siblings->firstKid->firstKid->id == 38)
+                operation = "add";
+            else
+                operation = "sub";
+
+
+            entry *found = get(ht, assign_record->lexeme, "_main");
+            found = get(ht, found->type, "global");
+
+            record_dec* starter = found->record;
+
+            while (starter != NULL)
+            {
+                fprintf(f, "\n\tmov eax, [%s%s]", record1->lexeme, starter->name);
+                fprintf(f, "\n\t%s eax, [%s%s]", operation, record2->lexeme, starter->name);
+                fprintf(f, "\n\tmov [%s%s], eax\n", assign_record->lexeme, starter->name);
+
+                starter = starter->next;
+            }
+        }
+    }
+
 }
 
 void handle_boolean(parseTree pt, FILE * f, int reverse){
@@ -531,7 +588,7 @@ void handle_stmt(parseTree stmt_it, FILE* f, hashtable *ht)
             handle_io_stmt(stmt_it, f, ht);
         }
         else if (stmt_it->firstKid->id == 123) // assignment statement
-            handle_assign_stmt(stmt_it, f);
+            handle_assign_stmt(stmt_it, f, ht);
         else if(stmt_it->firstKid->id == 12) // iterative statement: (while) might have to recursively call the  handle_stmts functions while handling iterative statments
             handle_iter_stmt(stmt_it, f, ht);
         else  if (stmt_it->firstKid->id == 32) // conditional statement
@@ -560,7 +617,7 @@ void codegen(parseTree ast, hashtable *ht)
     parseTree decl = typedefinitions->siblings;
 
 
-    char data_section[] = "\nsection .data\n\tnumberin_form:\tdb \"%d\", 0\n\n";
+    char data_section[] = "\nsection .data\n\tnumberin_form:\tdb \"%d\",0\n\n\tnumberout_form:\tdb \"%d\",10,0\n";
     fprintf(output, "%s", data_section);
 
 
