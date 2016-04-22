@@ -59,7 +59,7 @@ hashtable *create(int size){
 }
 
 // creates a hash
-int hash(hashtable *ht, char *nonce){
+int hash(char *nonce, hashtable *ht){
 
 	unsigned long int hashvalue = 6669;
 
@@ -180,7 +180,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 	entry *next = NULL;
 	entry *last = NULL;
 
-	bin = hash(ht, key);
+	bin = hash(key, ht);
 
 	next = ht->table[bin];
 
@@ -222,7 +222,7 @@ void upsert(hashtable *ht, char *key, char *type, char * scope, int lineNo, int 
 // used to fetch from a hash table
 entry *get(hashtable *ht, char *key, char*scope)
 {
-	int hashvalue = hash(ht, key);
+	int hashvalue = hash(key, ht);
 
 	entry *temp = ht->table[hashvalue];
 
