@@ -218,19 +218,19 @@ void handle_boolean(parseTree pt, FILE * f, int reverse){
     if(pt->firstKid->firstKid != NULL && (pt->firstKid->firstKid->id == 4 || pt->firstKid->firstKid->id == 5 || pt->firstKid->firstKid->id == 6)){
         pt = pt->firstKid;
 
-        if(pt->firstKid->id == 6){
-            fprintf(f, "\tmov eax,%s\n", pt->firstKid->lexeme);
+        if(pt->firstKid->id == 4){
+            fprintf(f, "\tmov eax, [%s]\n", pt->firstKid->lexeme);
         }
         else{
-            fprintf(f, "\tmov eax,%s\n", pt->firstKid->lexeme);
+            fprintf(f, "\tmov eax, %s\n", pt->firstKid->lexeme);
         }
 
 
-        if(pt->siblings->siblings->firstKid->id == 6){
-            fprintf(f, "\tmov ebx,%s\n", pt->siblings->siblings->firstKid->lexeme);
+        if(pt->siblings->siblings->firstKid->id == 4){
+            fprintf(f, "\tmov ebx, [%s]\n", pt->siblings->siblings->firstKid->lexeme);
         }
         else{
-            fprintf(f, "\tmov ebx,%s\n", pt->siblings->siblings->firstKid->lexeme);
+            fprintf(f, "\tmov ebx, %s\n", pt->siblings->siblings->firstKid->lexeme);
         }
 
 
