@@ -628,7 +628,6 @@ void codegen(parseTree ast, hashtable *ht)
 
     fprintf(output, "\nmain:");
     // handling stmt's now
-    printf("\t\t%d\n", ht->size);
     handle_stmt(decl->siblings->firstKid, output, ht);
 
     fclose(output);
