@@ -30,10 +30,12 @@ void handle_io_stmt(parseTree curr, FILE* f, hashtable *st)
     {
         // TODO handle record here
         entry *found = get(st, curr->firstKid->siblings->firstKid->lexeme, "_main");
+        if (found == NULL)
+            found = get(st, curr->firstKid->siblings->firstKid->lexeme, "global");
 
         if (found == NULL)
         {
-            printf("UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
+            printf("1UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
         }
         else
         {
@@ -74,8 +76,11 @@ void handle_io_stmt(parseTree curr, FILE* f, hashtable *st)
         {
             entry *found = get(st, curr->firstKid->siblings->firstKid->lexeme, "_main");
             if (found == NULL)
+                found = get(st, curr->firstKid->siblings->firstKid->lexeme, "global");
+
+            if (found == NULL)
             {
-                printf("UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
+                printf("2UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
             }
             else
             {
@@ -310,8 +315,11 @@ void handle_assign_stmt(parseTree curr, FILE* f, hashtable *ht)
 
     entry *found = get(ht, curr->firstKid->firstKid->lexeme, "_main");
     if (found == NULL)
+        found = get(ht, curr->firstKid->firstKid->lexeme, "global");
+
+    if (found == NULL)
     {
-        printf("UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
+        printf("3) UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile. Please report to compiler developers\n");
     }
     else
     {
@@ -340,19 +348,15 @@ void handle_assign_stmt(parseTree curr, FILE* f, hashtable *ht)
         }
         else
         {
-            printf("will handle record arithmetic next\n");
             // as of now, it handles adding two records
 
             parseTree record1 = arith->firstKid->firstKid->firstKid;
             parseTree assign_record = curr->firstKid->firstKid;
             parseTree record2 = arith->firstKid->siblings->firstKid->siblings->firstKid->firstKid;
-            printf("record1 id: %d\n", record1->id);
-            printf("record2 id: %d\n", record2->id);
 
             char *operation;
             operation = (char *) malloc(10* sizeof(char));
 
-            printf("add sub: %d\n", arith->firstKid->siblings->firstKid->firstKid->id);
             if (arith->firstKid->siblings->firstKid->firstKid->id == 38)
                 operation = "add";
             else
@@ -555,7 +559,7 @@ void handle_cond_stmt(parseTree curr, FILE* f, hashtable *ht)
     handle_boolean(booleanExp, f, 0);
 
     fprintf(f, "\tthen%d:\n", cond_count);
-    handle_stmt(otherstmt->firstKid, f);
+    handle_stmt(otherstmt->firstKid, f, ht);
     fprintf(f, "\tjmp end%d\n", cond_count);
 
 
