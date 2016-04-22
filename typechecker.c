@@ -102,7 +102,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
 
                 if (strlen(check) > 0)
                 {   // made change here changed tk_num to int in strcmp(chec, "int") talk to sodhi @Todo
-                    if (!(strcmp(found->type, "int") == 0 && strcmp(check, "int") == 0) && !(strcmp(found->type, "real") == 0 && strcmp(check, "real") == 0))
+                    if (!(strcmp(found->type, "int") == 0 && strcmp(check, "TK_NUM") == 0) && !(strcmp(found->type, "real") == 0 && strcmp(check, "TK_RNUM") == 0))
                     {
                         printf("Error: Variable <%s> is not of expected type: <%s> at line <%d>\n", curr->lexeme, check, curr->lineNo);
                         symbolerror = 1;
@@ -118,12 +118,12 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
                     if (strcmp("int", found->type) == 0 )
                     {
                         // answer = "int";
-                        strcpy(check, "int");
+                        strcpy(check, "TK_NUM");
                     }
                     else
                     {
                         // answer = "real";
-                        strcpy(check, "real");
+                        strcpy(check, "TK_RNUM");
                     }
                     add_to_list_var(head, curr->lexeme);
                 }
@@ -144,7 +144,7 @@ void traverse_all_boolean(parseTree curr, hashtable *ht, char *scope, char *chec
             else
                 if (strcmp(check, getCorrespondingToken(curr->id)) != 0)
                 {
-                    printf("Error! type <%s> expected got <%s> at line no: <%d>\n", check, getCorrespondingToken(curr->id), curr->lineNo);
+                    printf("Error: type <%s> expected got <%s> at line no: <%d>\n", check, getCorrespondingToken(curr->id), curr->lineNo);
                     symbolerror = 1;
                 }
         }
