@@ -187,7 +187,7 @@ int main(int argc, char const *argv[])
                             printf("No Semantic or Syntactic Errors\n");
                         }
                         if (choice == 7 && symbolerror == 0){
-                            codegen(answer);
+                            codegen(answer, st);
                             printf("%s\n", "Find your file at code.asm");
                         }
                         else if(choice == 7){

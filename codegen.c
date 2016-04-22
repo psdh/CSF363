@@ -14,22 +14,105 @@ int counter_used = 0;
 
 char vars[14][100] = {"temp1", "temp2", "temp3", "temp4", "temp5", "temp6", "temp7", "temp8", "temp9", "temp10", "temp11", "temp12", "temp13", "temp14"};
 
-void handle_io_stmt(parseTree curr, FILE* f)
+void readem(char* what, FILE* f)
+{
+    fprintf(f, "\n\tmov esi, %s\n\tmov edi, numberin_form\n\tmov al, 0\n\tcall scanf\n\n", what);
+}
+
+void writem(char* what, FILE* f)
+{
+    fprintf(f, "\n\tmov edi, numberin_form\n\tmov esi, [%s]\n\tmov al, 0\n\tcall printf\n", what);
+}
+
+void handle_io_stmt(parseTree curr, FILE* f, hashtable *st)
 {
     if (curr->firstKid->id == 35) // read command
     {
         // TODO handle record here
-        fprintf(f, "\n\tmov esi, %s\n\tmov edi, numberin_form\n\tmov al, 0\n\tcall scanf\n\n", curr->firstKid->siblings->firstKid->lexeme);
+        entry *found = get(st, curr->firstKid->siblings->firstKid->lexeme, "_main");
+
+        if (found == NULL)
+        {
+            printf("UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
+        }
+        else
+        {
+            if (strcmp(found->type, "int") == 0 || strcmp(found->type, "real") == 0)
+                readem(curr->firstKid->siblings->firstKid->lexeme, f);
+            else
+            {
+                char *big = (char*) malloc(100);
+
+                if (curr->firstKid->siblings->firstKid->siblings->firstKid != NULL)
+                {
+                    // particular record field to be read/written
+                    strcpy(big, curr->firstKid->siblings->firstKid->lexeme);
+                    strcat(big, curr->firstKid->siblings->firstKid->siblings->firstKid->lexeme);
+                    readem(big, f);
+                }
+                else
+                {
+                    record_dec *starter = found->record;
+                    while (starter !=  NULL)
+                    {
+                        strcpy(big, curr->firstKid->siblings->firstKid->lexeme);
+                        strcat(big, starter->name);
+                        readem(big, f);
+
+                        starter = starter->next;
+                    }
+                }
+            }
+        }
+
     }
     else // write command
     {
-        // TODO handle record here
-        fprintf(f, "\n\tmov edi, numberin_form\n\tmov esi, [%s]\n\tmov al, 0\n\tcall printf\n", curr->firstKid->siblings->firstKid->lexeme);
+        if (curr->firstKid->siblings->firstKid->id != 4)
+            fprintf(f, "\n\tmov edi, numberin_form\n\tmov esi, %s\n\tmov al, 0\n\tcall printf\n", curr->firstKid->siblings->firstKid->lexeme);
+        else
+        {
+            entry *found = get(st, curr->firstKid->siblings->firstKid->lexeme, "_main");
+            if (found == NULL)
+            {
+                printf("UNEXPECTED ERROR, Program seems to have semantic errors, cannot compile\n");
+            }
+            else
+            {
+                if (strcmp(found->type, "int") == 0 || strcmp(found->type, "real") == 0)
+                    writem(curr->firstKid->siblings->firstKid->lexeme, f);
+                else
+                {
+                    char *big = (char*) malloc(100);
+
+                    if (curr->firstKid->siblings->firstKid->siblings->firstKid != NULL)
+                    {
+                        // particular record field to be read/written
+                        strcpy(big, curr->firstKid->siblings->firstKid->lexeme);
+                        strcat(big, curr->firstKid->siblings->firstKid->siblings->firstKid->lexeme);
+                        writem(big, f);
+                    }
+                    else
+                    {
+                        found = get(st, found->type, "global");
+                        record_dec *starter = found->record;
+                        while (starter !=  NULL)
+                        {
+                            strcpy(big, curr->firstKid->siblings->firstKid->lexeme);
+                            strcat(big, starter->name);
+                            writem(big, f);
+
+                            starter = starter->next;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 
-void handle_declarations(parseTree decl, FILE* f)
+void handle_declarations(parseTree decl, FILE* f, hashtable *ht)
 {
     // add static "section .bss to file"
     char sec_bss[] = "section .bss\n";
@@ -41,9 +124,36 @@ void handle_declarations(parseTree decl, FILE* f)
         // printf("id: %d %s", decl->firstKid->siblings->id, decl->firstKid->siblings->lexeme);
 
         // add comments to asm code0
-        fprintf(f, "\t%s:\tresd\t1\n", decl->firstKid->siblings->lexeme);
+        // record case:
+        if (decl->firstKid->firstKid->id == 43)
+        {
+            // record must be found
+            entry *found = get(ht, decl->firstKid->firstKid->siblings->lexeme, "global");
+
+            if (found == NULL)
+            {
+                printf("Enexpected error, record type definition not found\n");
+            }
+            else
+            {
+                record_dec *starter = found->record;
+
+                while (starter != NULL)
+                {
+                    // declaring a new variable for each field
+                    fprintf(f, "\t%s%s:\tresd\t1\n", decl->firstKid->siblings->lexeme, starter->name);
+
+                    starter = starter->next;
+                }
+            }
+
+        }
+        else
+            fprintf(f, "\t%s:\tresd\t1\n", decl->firstKid->siblings->lexeme);
+
         decl = decl->siblings;
     }
+
     int i = 0;
 
     for (i = 0; i < 14; i++)
@@ -167,7 +277,6 @@ int handle_expPrime(parseTree expPrime, FILE *f, int fac)
     }
     return ret;
 }
-
 
 int handle_arith(parseTree arith, FILE* f)
 {
@@ -354,7 +463,7 @@ void handle_boolean(parseTree pt, FILE * f, int reverse){
 
 }
 
-void handle_iter_stmt(parseTree curr, FILE* f)
+void handle_iter_stmt(parseTree curr, FILE* f, hashtable *ht)
 {   glo_cod_count+=1;
     int while_count = glo_cod_count;
 
@@ -367,16 +476,14 @@ void handle_iter_stmt(parseTree curr, FILE* f)
 
     handle_boolean(boolexp, f, 0);
 
-    handle_stmt(otherstmt->firstKid, f);
+    handle_stmt(otherstmt->firstKid, f, ht);
 
     fprintf(f, "\tjmp parent%d\n", while_count);
 
     fprintf(f, "\telse%d:\n", while_count);
 }
 
-
-
-void handle_cond_stmt(parseTree curr, FILE* f)
+void handle_cond_stmt(parseTree curr, FILE* f, hashtable *ht)
 {
     glo_cod_count +=1;
 
@@ -401,7 +508,7 @@ void handle_cond_stmt(parseTree curr, FILE* f)
     else{
         fprintf(f, "\telse%d:\n", cond_count);
         otherstmt = elsePart->firstKid->siblings;
-        handle_stmt(otherstmt->firstKid, f);
+        handle_stmt(otherstmt->firstKid, f, ht);
     }
 
     fprintf(f, "\tend%d:\n\n",cond_count);
@@ -409,26 +516,26 @@ void handle_cond_stmt(parseTree curr, FILE* f)
 
 }
 
-
 void handle_func_stmt(parseTree curr, FILE* f)
 {
     printf("Missing Feature: Function Call code generation is not yet supported\n");
 }
 
 // TODO ask user to report unexpected errors to compiler developers
-void handle_stmt(parseTree stmt_it, FILE* f)
+void handle_stmt(parseTree stmt_it, FILE* f, hashtable *ht)
 {
     while(stmt_it != NULL)
     {
 
-        if (stmt_it->firstKid->id == 35 || stmt_it->firstKid->id == 36) // io statement
-            handle_io_stmt(stmt_it, f);
+        if (stmt_it->firstKid->id == 35 || stmt_it->firstKid->id == 36){ // io statement
+            handle_io_stmt(stmt_it, f, ht);
+        }
         else if (stmt_it->firstKid->id == 123) // assignment statement
             handle_assign_stmt(stmt_it, f);
         else if(stmt_it->firstKid->id == 12) // iterative statement: (while) might have to recursively call the  handle_stmts functions while handling iterative statments
-            handle_iter_stmt(stmt_it, f);
+            handle_iter_stmt(stmt_it, f, ht);
         else  if (stmt_it->firstKid->id == 32) // conditional statement
-            handle_cond_stmt(stmt_it, f);
+            handle_cond_stmt(stmt_it, f, ht);
         else if (stmt_it->firstKid->id == 125) // functional call statement
             handle_func_stmt(stmt_it, f);
 
@@ -436,7 +543,7 @@ void handle_stmt(parseTree stmt_it, FILE* f)
     }
 }
 
-void codegen(parseTree ast)
+void codegen(parseTree ast, hashtable *ht)
 {
     // Opening file for writing in the assembly code
     FILE *output = fopen("code.asm", "wb");
@@ -457,14 +564,15 @@ void codegen(parseTree ast)
     fprintf(output, "%s", data_section);
 
 
-    handle_declarations(decl->firstKid, output);
+    handle_declarations(decl->firstKid, output, ht);
 
     char global_start[] = "section .text\n\tglobal main\n\textern scanf\n\textern printf";
     fprintf(output, "%s", global_start);
 
     fprintf(output, "\nmain:");
     // handling stmt's now
-    handle_stmt(decl->siblings->firstKid, output);
+    printf("\t\t%d\n", ht->size);
+    handle_stmt(decl->siblings->firstKid, output, ht);
 
     fclose(output);
 }

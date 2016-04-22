@@ -13,7 +13,8 @@
 #define CODEGEN_H_INCLUDED
 
 #include "parser.h"
+#include "symboltable.h"
 
-void codegen(parseTree ast);
+void codegen(parseTree ast, hashtable *ht);
 
 #endif
