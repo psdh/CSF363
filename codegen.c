@@ -173,11 +173,6 @@ void handle_assign_stmt(parseTree curr, FILE* f)
 
 }
 
-void handle_iter_stmt(parseTree curr, FILE* f)
-{
-    printf("Missing Feature: iter stmt code generation is not yet supported\n");
-}
-
 void handle_boolean(parseTree pt, FILE * f, int reverse){
     // printf("%d\n", pt->firstKid->id);
     int cond_count = glo_cod_count;
@@ -320,6 +315,28 @@ void handle_boolean(parseTree pt, FILE * f, int reverse){
     }
 
 }
+
+void handle_iter_stmt(parseTree curr, FILE* f)
+{   glo_cod_count+=1;
+    int while_count = glo_cod_count;
+
+    parseTree tk_while = curr->firstKid;
+    parseTree boolexp = tk_while->siblings;
+    parseTree otherstmt = boolexp->siblings;
+
+    fprintf(f, "\tparent%d:\n", while_count);
+
+
+    handle_boolean(boolexp, f, 0);
+
+    handle_stmt(otherstmt->firstKid, f);
+
+    fprintf(f, "\tjmp parent%d\n", while_count);
+
+    fprintf(f, "\telse%d:\n", while_count);
+}
+
+
 
 void handle_cond_stmt(parseTree curr, FILE* f)
 {
