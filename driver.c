@@ -188,6 +188,7 @@ int main(int argc, char const *argv[])
                         }
                         if (choice == 7 && symbolerror == 0){
                             codegen(answer);
+                            printf("%s\n", "Find your file at code.asm");
                         }
                         else if(choice == 7){
                             printf("Cant compile as semantic errors exist");

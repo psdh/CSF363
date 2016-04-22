@@ -38,7 +38,7 @@ void handle_declarations(parseTree decl, FILE* f)
     while(decl != NULL)
     {
         // add a check here for "TK_INT" or "TK_REAL"
-        printf("id: %d %s", decl->firstKid->siblings->id, decl->firstKid->siblings->lexeme);
+        // printf("id: %d %s", decl->firstKid->siblings->id, decl->firstKid->siblings->lexeme);
 
         // add comments to asm code0
         fprintf(f, "\t%s:\tresw\t1\n", decl->firstKid->siblings->lexeme);
@@ -145,7 +145,7 @@ void handle_expPrime(parseTree expPrime, FILE *f, char* reg)
 
 void handle_arith(parseTree arith, FILE* f)
 {
-    printf("%d\t %d\n", arith->id, arith->firstKid->id);
+    // printf("%d\t %d\n", arith->id, arith->firstKid->id);
 
     parseTree term = arith->firstKid;
 
@@ -158,6 +158,7 @@ void handle_arith(parseTree arith, FILE* f)
     handle_expPrime(expPrime, f, reg1);
 }
 
+int glo_cod_count = 0;
 
 void handle_assign_stmt(parseTree curr, FILE* f)
 {
@@ -177,10 +178,180 @@ void handle_iter_stmt(parseTree curr, FILE* f)
     printf("Missing Feature: iter stmt code generation is not yet supported\n");
 }
 
+void handle_boolean(parseTree pt, FILE * f, int reverse){
+    // printf("%d\n", pt->firstKid->id);
+    int cond_count = glo_cod_count;
 
-void hanlde_cond_stmt(parseTree curr, FILE* f)
+    if(pt->firstKid->firstKid != NULL && (pt->firstKid->firstKid->id == 4 || pt->firstKid->firstKid->id == 5 || pt->firstKid->firstKid->id == 6)){
+        pt = pt->firstKid;
+
+        if(pt->firstKid->id == 6){
+            fprintf(f, "\tmov eax,%s\n", pt->firstKid->lexeme);
+        }
+        else{
+            fprintf(f, "\tmov eax,%s\n", pt->firstKid->lexeme);
+        }
+
+
+        if(pt->siblings->siblings->firstKid->id == 6){
+            fprintf(f, "\tmov ebx,%s\n", pt->siblings->siblings->firstKid->lexeme);
+        }
+        else{
+            fprintf(f, "\tmov ebx,%s\n", pt->siblings->siblings->firstKid->lexeme);
+        }
+
+
+
+        fprintf(f, "\tcmp eax, ebx\n\n");
+
+        parseTree relationalOp = pt->siblings->firstKid;
+
+        // printf("%d\t%d\n", relationalOp->id, reverse);
+        // lt -> jge
+        if(relationalOp->id == 49 && reverse == 0){
+            fprintf(f, "\tjge else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 49 && reverse == 1){
+            fprintf(f, "\tjl else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 49 && reverse == 2){
+            fprintf(f, "\tjl then%d\n", cond_count);
+        }
+        else if(relationalOp->id == 49 && reverse == 3){
+            fprintf(f, "\tjge then%d\n", cond_count);
+        }
+
+
+        // le ->jg
+        else if(relationalOp->id == 50 && reverse == 0){
+            fprintf(f, "\tjg else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 50 && reverse == 1){
+            fprintf(f, "\tjle else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 50 && reverse == 2){
+            fprintf(f, "\tjle then%d\n", cond_count);
+        }
+        else if(relationalOp->id == 50 && reverse == 3){
+            fprintf(f, "\tjg then%d\n", cond_count);
+        }
+
+        //eq -> jne
+        else if(relationalOp->id == 51 && reverse == 0){
+            fprintf(f, "\tjne else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 51 && reverse == 1){
+            fprintf(f, "\tje else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 51 && reverse ==2){
+            fprintf(f, "\tje then%d\n", cond_count);
+        }
+        else if(relationalOp->id == 51 && reverse == 3){
+            fprintf(f, "\tjne then%d\n", cond_count);
+        }
+
+
+        // gt -> jle
+        else if(relationalOp->id == 52 && reverse == 0){
+            fprintf(f, "\tjle else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 52 && reverse == 1){
+            fprintf(f, "\tjg else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 52 && reverse == 2){
+            fprintf(f, "\tjg then%d\n", cond_count);
+        }
+        else if(relationalOp->id == 52 && reverse == 4){
+            fprintf(f, "\tjle then%d\n", cond_count);
+        }
+
+        // ge -> jl
+        else if(relationalOp->id == 53 && reverse == 0){
+            fprintf(f, "\tjl else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 53 && reverse == 1){
+            fprintf(f, "\tjge else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 53 && reverse == 2){
+            fprintf(f, "\tjge then%d\n", cond_count);
+        }
+        else if (relationalOp->id == 53 && reverse == 3){
+            fprintf(f, "\tjge then%d\n", cond_count);
+        }
+
+        //ne -> je
+        else if(relationalOp->id == 54 && reverse == 0){
+            fprintf(f, "\tje else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 54 && reverse == 1){
+            fprintf(f, "\tjne else%d\n", cond_count);
+        }
+        else if (relationalOp->id == 54 && reverse == 2){
+            fprintf(f, "\tjne then%d\n", cond_count);
+        }
+        else if(relationalOp->id == 54 && reverse == 3){
+            fprintf(f, "\tje then%d\n", cond_count);
+        }
+
+
+    }
+    else if(pt->firstKid->id == 48){
+        pt = pt->firstKid->siblings;
+        if (reverse == 2)
+            handle_boolean(pt, f, 3);
+        else
+            handle_boolean(pt, f, 1);
+    }
+    else {
+        parseTree bool1 = pt->firstKid;
+        parseTree logop = bool1->siblings;
+        parseTree bool2 = logop->siblings;
+
+
+        if(logop->firstKid->id == 46){
+            handle_boolean(bool1, f, 0);
+            handle_boolean(bool2, f, 0);
+        }
+        else{
+            handle_boolean(bool1, f, 2);
+            handle_boolean(bool2, f, 0);
+        }
+
+    }
+
+}
+
+void handle_cond_stmt(parseTree curr, FILE* f)
 {
-    printf("Missing Feature: cond stmt code generation is not yet supported\n");
+    glo_cod_count +=1;
+
+    int cond_count = glo_cod_count;
+
+    parseTree booleanExp = curr->firstKid->siblings;
+
+    parseTree otherstmt = booleanExp->siblings->siblings;
+    parseTree elsePart = otherstmt->siblings;
+
+
+    handle_boolean(booleanExp, f, 0);
+
+    fprintf(f, "\tthen%d:\n", cond_count);
+    handle_stmt(otherstmt->firstKid, f);
+    fprintf(f, "\tjmp end%d\n", cond_count);
+
+
+    if(elsePart->firstKid->id == 34){
+        fprintf(f, "\telse%d:\n", cond_count);
+    }
+    else{
+        fprintf(f, "\telse%d:\n", cond_count);
+        otherstmt = elsePart->firstKid->siblings;
+        handle_stmt(otherstmt->firstKid, f);
+    }
+
+    fprintf(f, "\tend%d:\n\n",cond_count);
+
+
 }
 
 
@@ -202,7 +373,7 @@ void handle_stmt(parseTree stmt_it, FILE* f)
         else if(stmt_it->firstKid->id == 12) // iterative statement: (while) might have to recursively call the  handle_stmts functions while handling iterative statments
             handle_iter_stmt(stmt_it, f);
         else  if (stmt_it->firstKid->id == 32) // conditional statement
-            hanlde_cond_stmt(stmt_it, f);
+            handle_cond_stmt(stmt_it, f);
         else if (stmt_it->firstKid->id == 125) // functional call statement
             handle_func_stmt(stmt_it, f);
 
@@ -218,7 +389,7 @@ void codegen(parseTree ast)
     // given that code files will only have one function: the _main function
 
     parseTree mf = ast->firstKid->siblings;
-    printf("mf id: %d\n", mf->id);
+    // printf("mf id: %d\n", mf->id);
 
     parseTree typedefinitions = mf->firstKid->firstKid;
 
