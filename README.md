@@ -12,5 +12,5 @@ Follows the language given in *grammar.txt* and *LanguageSpecifications.pdf*.
 ```bash
 $ make #compile the compiler
 $ ./toycompiler <filename> #compiles the code
-$ ./run #converts the code.asm to machine code and executes
+$ ./run.sh #converts the code.asm to machine code and executes
 ```
