@@ -2,12 +2,12 @@
 
 This is a toy compiler written in C for course CSF363 at **BITS Pilani**
 
-**Known Issues**: Crashes with GCC 5.3 (ships with Ubuntu 5.3)
+**Known Issues**: Crashes with GCC 5.3 (ships with Ubuntu 16.04)
 
 Tested with GCC 4.9 and below. It works perfectly for them!
 Follows the language given in *grammar.txt* and *LanguageSpecifications.pdf*.
 
-## Running Istructions
+## Running Instructions
 
 ```bash
 $ make #compile the compiler
