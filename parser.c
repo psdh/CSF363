@@ -27,7 +27,7 @@ int* getFirsts(char * input){
     ssize_t read;
 
 
-    int firsts[25];
+    int *firsts = malloc(25*sizeof(int*));
 
     FILE *fp = fopen("firsts.txt", "r");
     if (fp == NULL){
@@ -64,7 +64,7 @@ int* getFirsts(char * input){
 
 // returns firsts set of given set of tokens
 int* first(char * input){
-    int firsts[1000];
+    int *firsts = malloc(100 * sizeof(int*)); 
     int* current;
     int count = 0;
     char * token;
@@ -111,7 +111,7 @@ int* getFollows(char * input){
     int count = 0;
     ssize_t read;
 
-    int follows[25];
+    int * follows = malloc(sizeof(int*)*25); 
 
     FILE *fp = fopen("follows.txt", "r");
     if (fp == NULL){
