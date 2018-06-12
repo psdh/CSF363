@@ -28,6 +28,8 @@ void intializeTable(table T);
 
 int printParseTree_r(parseTree curr, FILE* f, int * size, int print);
 
+char* getCorrespondingToken(int f);
+
 int error_in_parsing;
 
 #endif
